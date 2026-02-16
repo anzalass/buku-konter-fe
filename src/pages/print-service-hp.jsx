@@ -120,7 +120,11 @@ export default function PrintServiceHP() {
 
         <div className="row">
           <span>Tanggal</span>
-          <span>{data.tanggal}</span>
+          <span>
+            {new Date(data.tanggal).toLocaleDateString("id-ID", {
+              dateStyle: "full",
+            })}
+          </span>
         </div>
 
         <div className="line" />
