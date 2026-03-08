@@ -312,7 +312,7 @@ export default function TableSectionSparepartToday({
 
             <h3 className="font-semibold text-gray-800 mb-3">Item Transaksi</h3>
 
-            <div className="overflow-hidden rounded-lg border border-gray-200">
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
               <table className="w-full ">
                 <thead className="bg-gray-50 text-gray-700">
                   <tr>

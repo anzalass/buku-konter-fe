@@ -48,15 +48,6 @@ export default function TableSectionServiceToday({ title, data, onSuccess }) {
     if (!result.isConfirmed) return;
 
     try {
-      await Swal.fire({
-        title: "Menghapus...",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-
       await api.delete(`/service-hp/${id}`, {
         headers: {
           Authorization: `Bearer ${user.token}`,

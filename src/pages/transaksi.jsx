@@ -511,7 +511,9 @@ export default function TransaksiPage() {
 
     const cleanedInput = memberSearch.trim();
 
-    const matchedMember = membersList.find((m) => m.noTelp === cleanedInput);
+    const matchedMember = membersList.find(
+      (m) => m.noTelp === cleanedInput || m.kodeMember === cleanedInput
+    );
 
     if (matchedMember) {
       submitTransaksi(matchedMember.id);

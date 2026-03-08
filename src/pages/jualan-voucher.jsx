@@ -1,5 +1,5 @@
 // src/pages/JualanVoucher.jsx
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Wallet,
   TrendingUp,
@@ -20,6 +20,61 @@ export default function JualanVoucher() {
   const queryClient = useQueryClient();
 
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [memberSearch, setMemberSearch] = useState("");
+  const [membersList, setMembersList] = useState([]);
+  const memberInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const res = await api.get("member", {
+          headers: { Authorization: `Bearer ${user?.token}` },
+        });
+        setMembersList(res.data.data || []);
+      } catch (err) {
+        console.error("Fetch members error:", err);
+      }
+    };
+
+    if (user?.token) fetchMembers();
+  }, [user]);
+
+  const tambahKeKeranjang = (voucher) => {
+    if (voucher.stok <= 0) {
+      Swal.fire("Stok Habis!", "Voucher ini stoknya habis.", "warning");
+      return;
+    }
+
+    setSelectedVoucher(voucher);
+    setTimeout(() => {
+      memberInputRef.current?.focus();
+    }, 100);
+  };
+
+  useEffect(() => {
+    if (!memberSearch || !selectedVoucher) return;
+
+    const cleaned = memberSearch.trim();
+
+    const matched = membersList.find(
+      (m) => m.noTelp === cleaned || m.kodeMember === cleaned
+    );
+    if (matched) {
+      jualVoucherMutation.mutate(
+        {
+          idVoucher: selectedVoucher.id,
+          idMember: matched.id,
+        },
+        {
+          onSuccess: () => {
+            setSelectedVoucher(null);
+            setMemberSearch("");
+          },
+        }
+      );
+    }
+  }, [memberSearch]);
 
   // === QUERY: Ambil Voucher Master ===
   const {
@@ -80,10 +135,13 @@ export default function JualanVoucher() {
 
   // === MUTATION: Jual Voucher ===
   const jualVoucherMutation = useMutation({
-    mutationFn: (idVoucher) =>
+    mutationFn: ({ idVoucher, idMember }) =>
       api.post(
-        `voucher-harian/${idVoucher}`,
-        {},
+        `voucher-harian`,
+        {
+          idVoucher: idVoucher,
+          idMember: idMember,
+        },
         {
           headers: { Authorization: `Bearer ${user?.token}` },
         }
@@ -135,13 +193,6 @@ export default function JualanVoucher() {
   });
 
   // Tambah ke keranjang (jual)
-  const tambahKeKeranjang = (voucher) => {
-    if (voucher.stok <= 0) {
-      Swal.fire("Stok Habis!", "Voucher ini stoknya habis.", "warning");
-      return;
-    }
-    jualVoucherMutation.mutate(voucher.id);
-  };
 
   // Hapus dari keranjang
   const hapusDariKeranjang = (id) => {
@@ -391,6 +442,54 @@ export default function JualanVoucher() {
           </div>
         </div>
       </div>
+
+      {selectedVoucher && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl">
+            <h2 className="text-lg font-bold mb-4">Jual Voucher</h2>
+
+            <p className="text-sm text-gray-600 mb-4">
+              {selectedVoucher.nama} - Rp{" "}
+              {selectedVoucher.hargaEceran?.toLocaleString()}
+            </p>
+
+            <input
+              ref={memberInputRef}
+              type="text"
+              value={memberSearch}
+              onChange={(e) => setMemberSearch(e.target.value)}
+              placeholder="Masukkan No Telp Member (Opsional)"
+              className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none"
+            />
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  jualVoucherMutation.mutate({
+                    idVoucher: selectedVoucher.id,
+                    idMember: "",
+                  });
+                  setSelectedVoucher(null);
+                  setMemberSearch("");
+                }}
+                className="flex-1 py-3 bg-blue-600 text-white rounded-lg"
+              >
+                Simpan Tanpa Member
+              </button>
+
+              <button
+                onClick={() => {
+                  setSelectedVoucher(null);
+                  setMemberSearch("");
+                }}
+                className="flex-1 py-3 bg-gray-500 text-white rounded-lg"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

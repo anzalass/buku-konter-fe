@@ -29,6 +29,8 @@ export default function TableSectionSparepart({
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("active");
+
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -67,12 +69,14 @@ export default function TableSectionSparepart({
       filterType,
       dateFrom,
       dateTo,
+      statusFilter,
     ],
     queryFn: async () => {
       const params = new URLSearchParams();
 
       params.append("page", page);
       params.append("pageSize", itemPerPage);
+      params.append("deletedFilter", statusFilter);
 
       if (searchQuery) {
         params.append("search", searchQuery);
@@ -342,6 +346,46 @@ export default function TableSectionSparepart({
 
               {/* Body */}
               <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Status Transaksi
+                  </label>
+
+                  <div className="flex bg-gray-100 p-1 my-3 rounded-xl">
+                    <button
+                      onClick={() => setStatusFilter("active")}
+                      className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+                        statusFilter === "active"
+                          ? "bg-white shadow text-blue-600"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      Active
+                    </button>
+
+                    <button
+                      onClick={() => setStatusFilter("deleted")}
+                      className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+                        statusFilter === "deleted"
+                          ? "bg-white shadow text-red-600"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      Void
+                    </button>
+
+                    {/* <button
+                  onClick={() => setStatusFilter("all")}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+                    statusFilter === "all"
+                      ? "bg-white shadow text-gray-800"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Semua
+                </button> */}
+                  </div>
+                </div>
                 {/* Search */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -530,9 +574,11 @@ export default function TableSectionSparepart({
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                           <Calendar className="w-3.5 h-3.5" />
                           {new Date(item.tanggal).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "short",
                             year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "numeric",
                           })}
                         </span>
                       </td>
@@ -551,13 +597,15 @@ export default function TableSectionSparepart({
                           >
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button
-                            title="Hapus"
-                            className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 hover:scale-110 active:scale-95 shadow-sm"
-                            onClick={() => handleDelete(item.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {statusFilter !== "deleted" && (
+                            <button
+                              title="Hapus"
+                              className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 hover:scale-110 active:scale-95 shadow-sm"
+                              onClick={() => handleDelete(item.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -651,7 +699,15 @@ export default function TableSectionSparepart({
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Tanggal:</span>
-                <span className="font-medium">{openDetail.tanggal}</span>
+                <span className="font-medium">
+                  {new Date(openDetail.tanggal).toLocaleDateString("id-ID", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                  })}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Total:</span>

@@ -54,7 +54,7 @@ export const navItems = [
         shortcut: ["n", "n"],
       },
       {
-        title: "Uang Keluar",
+        title: "Uang Keluar / Hutang",
         url: "/dashboard/master-data/uang-keluar",
         icon: "userPen",
         shortcut: ["n", "n"],
@@ -144,15 +144,15 @@ export const navItems = [
   },
   {
     title: "Logs",
-    url: "/dashboard/logs",
+    url: "/dashboard/log",
     icon: "dashboard",
     isActive: false,
     shortcut: ["d", "d"],
     items: [],
   },
   {
-    title: "User",
-    url: "/dashboard/user",
+    title: "Setting & User",
+    url: "/dashboard/setting-toko-user",
     icon: "dashboard",
     isActive: false,
     shortcut: ["d", "d"],

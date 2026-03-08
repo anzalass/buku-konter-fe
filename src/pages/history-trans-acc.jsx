@@ -26,10 +26,12 @@ export default function TableSectionAccecoris({
 
   const [page, setPage] = useState(1);
   const [itemPerPage, setItemPerPage] = useState(5);
+  const [statusFilter, setStatusFilter] = useState("active");
 
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
+
+  const [searchQuery, setSearchQuery] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -66,11 +68,14 @@ export default function TableSectionAccecoris({
       filterType,
       dateFrom,
       dateTo,
+      statusFilter,
     ],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.append("page", page);
       params.append("pageSize", itemPerPage);
+      params.append("deletedFilter", statusFilter);
+
       if (searchQuery) params.append("search", searchQuery);
 
       let startDate = "";
@@ -299,7 +304,7 @@ export default function TableSectionAccecoris({
 
           {/* ================= MODAL FILTER ================= */}
           {openFilter && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 z-50 -top-10 flex items-center justify-center">
               {/* Backdrop */}
               <div
                 className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -334,6 +339,121 @@ export default function TableSectionAccecoris({
 
                 {/* Body */}
                 <div className="space-y-5">
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Status Transaksi
+                      </label>
+
+                      <div className="flex bg-gray-100 p-1 my-3 rounded-xl">
+                        <button
+                          onClick={() => setStatusFilter("active")}
+                          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+                            statusFilter === "active"
+                              ? "bg-white shadow text-blue-600"
+                              : "text-gray-500 hover:text-gray-700"
+                          }`}
+                        >
+                          Active
+                        </button>
+
+                        <button
+                          onClick={() => setStatusFilter("deleted")}
+                          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+                            statusFilter === "deleted"
+                              ? "bg-white shadow text-red-600"
+                              : "text-gray-500 hover:text-gray-700"
+                          }`}
+                        >
+                          Void
+                        </button>
+
+                        {/* <button
+                  onClick={() => setStatusFilter("all")}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+                    statusFilter === "all"
+                      ? "bg-white shadow text-gray-800"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Semua
+                </button> */}
+                      </div>
+                    </div>
+                    {/* Search */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Cari Nama Pembeli
+                      </label>
+                      <div className="relative">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="text"
+                          value={searchInput}
+                          onChange={(e) => setSearchInput(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                          className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+                          placeholder="Ahmad, DL-001, dll..."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Periode */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Periode Waktu
+                      </label>
+                      <div className="relative">
+                        <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <select
+                          value={filterType}
+                          onChange={(e) => {
+                            setFilterType(e.target.value);
+                            if (e.target.value !== "custom") {
+                              setDateFrom("");
+                              setDateTo("");
+                            }
+                          }}
+                          className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition font-medium"
+                        >
+                          <option value="all">Semua Waktu</option>
+                          <option value="today">Hari Ini</option>
+                          <option value="week">Minggu Ini</option>
+                          <option value="month">Bulan Ini</option>
+                          <option value="custom">Custom Range</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Custom Range */}
+                    {filterType === "custom" && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <div>
+                          <label className="block text-sm font-semibold mb-2">
+                            Dari Tanggal
+                          </label>
+                          <input
+                            type="date"
+                            value={dateFrom}
+                            onChange={(e) => setDateFrom(e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold mb-2">
+                            Sampai Tanggal
+                          </label>
+                          <input
+                            type="date"
+                            value={dateTo}
+                            onChange={(e) => setDateTo(e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Search */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -518,9 +638,11 @@ export default function TableSectionAccecoris({
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                         <Calendar className="w-3.5 h-3.5" />
                         {new Date(item.tanggal).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
                           year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "numeric",
                         })}
                       </span>
                     </td>
@@ -543,13 +665,15 @@ export default function TableSectionAccecoris({
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button
-                          title="Hapus"
-                          onClick={() => handleDelete(item.id)}
-                          className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 hover:scale-110 active:scale-95 shadow-sm"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {statusFilter !== "deleted" && (
+                          <button
+                            title="Hapus"
+                            onClick={() => handleDelete(item.id)}
+                            className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 hover:scale-110 active:scale-95 shadow-sm"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -643,7 +767,15 @@ export default function TableSectionAccecoris({
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Tanggal:</span>
-                <span className="font-medium">{openDetail.tanggal}</span>
+                <span className="font-medium">
+                  {new Date(openDetail?.tanggal).toLocaleDateString("id-ID", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                  })}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Total:</span>

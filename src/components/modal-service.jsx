@@ -152,7 +152,9 @@ export default function ModalServiceHP({ isOpen, onClose, onSuccess }) {
     const fetchMaster = async () => {
       try {
         setLoadingMaster(true);
-        const res = await api.get("sparepart-master");
+        const res = await api.get("sparepart-master", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
         setSparepartsMasterData(res.data || []);
       } catch (err) {
         console.error("Gagal load sparepart:", err);

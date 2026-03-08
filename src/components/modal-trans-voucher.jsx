@@ -35,8 +35,16 @@ export default function ModalGrosirVoucher({ isOpen, onClose, onSuccess }) {
       setError("");
       try {
         const [voucherRes, downlineRes] = await Promise.all([
-          api.get("/vouchers-master"), // endpoint untuk ambil voucher
-          api.get("/downline-master"), // endpoint untuk ambil downline
+          api.get("/vouchers-master", {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }), // endpoint untuk ambil voucher
+          api.get("/downline-master", {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }), // endpoint untuk ambil downline
         ]);
 
         const vouchers = voucherRes.data.data || voucherRes.data || [];
