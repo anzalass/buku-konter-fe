@@ -111,7 +111,7 @@ export default function PencarianCepat() {
   };
 
   return (
-    <div className="gap-3 relative flex sm:flex-row flex-col">
+    <div className="gap-3 relative flex flex-row ">
       <InputSearch
         placeholder="Cari Sparepart"
         active={active === "sparepart"}
@@ -166,6 +166,7 @@ export default function PencarianCepat() {
                 </div>
                 <div className="text-gray-500 flex gap-3">
                   <span>Stok: {item.stok}</span>
+                  <span>{active === "voucher" ? item.brand : ""}</span>
                   {"hargaJual" in item && (
                     <span>Rp {item.hargaJual?.toLocaleString("id-ID")}</span>
                   )}
@@ -183,13 +184,13 @@ export default function PencarianCepat() {
 ============================= */
 function InputSearch({ placeholder, value, onChange, onKeyDown, active }) {
   return (
-    <div className="relative w-full h-[50px]">
-      <Search
+    <div className="relative w-full md:h-[50px] h-[38px]">
+      {/* <Search
         size={16}
         className={`absolute left-3 top-4 ${
           active ? "text-blue-500" : "text-gray-400"
         }`}
-      />
+      /> */}
       <input
         type="text"
         placeholder={placeholder}
@@ -197,7 +198,7 @@ function InputSearch({ placeholder, value, onChange, onKeyDown, active }) {
         onChange={onChange}
         onKeyDown={onKeyDown}
         className={`
-          w-full text-sm h-full pl-9 pr-3 py-2 rounded-lg border
+          w-full text-sm h-full pl-3 pr-3 py-2 rounded-lg border
           transition
           ${active ? "border-blue-500 ring-2 ring-blue-500/20" : "border-gray-300"}
           focus:outline-none

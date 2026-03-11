@@ -12,15 +12,14 @@ import {
   X,
   Filter,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Building2,
+  Printer,
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import api from "../api/client";
 import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 export default function TableSectionVoucherGrosir({
   title = "Transaksi Voucher Grosir",
@@ -41,7 +40,7 @@ export default function TableSectionVoucherGrosir({
   const [brand, setBrand] = useState("");
 
   const [openDetail, setOpenDetail] = useState(null);
-  console.log(openDetail?.detail);
+  const navigate = useNavigate();
 
   const [openEdit, setOpenEdit] = useState(null);
   const [newStatus, setNewStatus] = useState("");
@@ -634,6 +633,16 @@ export default function TableSectionVoucherGrosir({
                             >
                               <Pencil className="w-4 h-4" />
                             </button>
+
+                            <button
+                              className="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition"
+                              title="Edit Status"
+                              onClick={() =>
+                                navigate(`/print/grosir/${item.id}`)
+                              }
+                            >
+                              <Printer className="w-4 h-4" />
+                            </button>
                             {item.status !== "Selesai" && (
                               <button
                                 className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition shadow-md hover:shadow-lg"
@@ -794,7 +803,7 @@ export default function TableSectionVoucherGrosir({
 
             <div className="mt-5 flex gap-x-3 justify-end">
               <button
-                onClick={() => setOpenDetail(null)}
+                onClick={() => navigate(`/print/grosir/${item.id}`)}
                 className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
               >
                 Print

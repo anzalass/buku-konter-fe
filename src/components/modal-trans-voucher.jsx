@@ -98,23 +98,40 @@ export default function ModalGrosirVoucher({ isOpen, onClose, onSuccess }) {
 
   const tambahKeranjang = (item, index) => {
     const qty = quantities[index] || 0;
+
     if (qty <= 0) {
       Swal.fire({
         title: "Jumlah Tidak Valid",
-        text: "Masukkan jumlah minimal 1 untuk menambahkan ke keranjang.",
+        text: "Jumlah minimal 1.",
         icon: "warning",
-        confirmButtonText: "OK",
       });
       return;
     }
 
     setPesanan((prev) => {
       const exist = prev.find((p) => p.idVoucher === item.id);
+
+      // qty yang sudah ada di keranjang
+      const currentQty = exist ? exist.quantity : 0;
+
+      // total jika ditambah
+      const newTotalQty = currentQty + qty;
+
+      if (newTotalQty > item.stok) {
+        Swal.fire({
+          title: "Stok Tidak Cukup",
+          text: `Stok tersedia hanya ${item.stok}. Saat ini di keranjang sudah ${currentQty}.`,
+          icon: "warning",
+        });
+        return prev;
+      }
+
       if (exist) {
         return prev.map((p) =>
-          p.idVoucher === item.id ? { ...p, quantity: p.quantity + qty } : p
+          p.idVoucher === item.id ? { ...p, quantity: newTotalQty } : p
         );
       }
+
       return [
         ...prev,
         {
@@ -124,13 +141,13 @@ export default function ModalGrosirVoucher({ isOpen, onClose, onSuccess }) {
           brand: item.brand,
           hargaModal: item.hargaModal || item.hargaPokok,
           hargaJual: item.hargaJual,
+          stok: item.stok,
         },
       ];
     });
 
     setQuantities((prev) => ({ ...prev, [index]: 0 }));
   };
-
   const hapusItem = (item) => {
     Swal.fire({
       title: "Hapus Item?",

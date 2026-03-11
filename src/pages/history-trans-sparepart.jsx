@@ -10,12 +10,14 @@ import {
   Filter,
   ChevronRight,
   ChevronLeft,
+  Printer,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import api from "../api/client";
 import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 export default function TableSectionSparepart({
   title = "Transaksi Sparepart",
@@ -37,8 +39,7 @@ export default function TableSectionSparepart({
   const [openDetail, setOpenDetail] = useState(null);
   const [openFilter, setOpenFilter] = useState(false);
 
-  console.log(openDetail);
-
+  const nav = useNavigate();
   // Helpers
   const today = new Date().toISOString().slice(0, 10);
   const getStartOfWeek = () => {
@@ -597,6 +598,16 @@ export default function TableSectionSparepart({
                           >
                             <Eye className="w-4 h-4" />
                           </button>
+
+                          <button
+                            title="Detail"
+                            onClick={() =>
+                              nav(`/print-transaksi-sparepart/${item.id}`)
+                            }
+                            className="p-2 rounded-lg bg-yellow-50 text-yellow-600 hover:bg-blue-100 transition"
+                          >
+                            <Printer className="w-4 h-4" />
+                          </button>
                           {statusFilter !== "deleted" && (
                             <button
                               title="Hapus"
@@ -752,7 +763,15 @@ export default function TableSectionSparepart({
               </table>
             </div>
 
-            <div className="mt-4 flex justify-end">
+            <div className="mt-4 flex justify-end gap-x-3 ">
+              <button
+                onClick={() =>
+                  nav(`/print-transaksi-sparepart/${openDetail.id}`)
+                }
+                className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
+              >
+                Print
+              </button>
               <button
                 onClick={() => setOpenDetail(null)}
                 className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800"

@@ -11,9 +11,12 @@ import {
   Package,
   BarChart3,
   PlusCircle,
+  Loader2Icon,
   DollarSign,
   Building2,
   ChevronDown,
+  ArrowRightLeft,
+  Clock,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import api from "../api/client";
@@ -84,7 +87,7 @@ export default function Overview() {
     <div className="p-2 space-y-8">
       {/* HEADER */}
       {/* STAT CARDS — DATA REAL */}
-      <div className="grid grid-cols-2 mt-4 md:grid-cols-2 lg:grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 mt-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2">
         <div className="" onClick={() => setModalKeuntungan(true)}>
           <StatCard
             label="Keuntungan Hari Ini"
@@ -109,14 +112,14 @@ export default function Overview() {
               d.trxVoucherDownlineHariIniTotal +
               d.trxHariIniTotal
             }
-            icon={Wallet}
+            icon={ArrowRightLeft}
           />
         </div>
 
         <StatCard
           label="Voucher Pending"
           value={` ${d.trxVoucherPendingHariIni} Pesanan`}
-          icon={DollarSign}
+          icon={Clock}
         />
 
         <div className="" onClick={() => setModalService(true)}>

@@ -11,12 +11,15 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  MessageCircle,
+  Printer,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import api from "../api/client";
 import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 export default function TableSectionService({
   title = "Transaksi Service Hari Ini",
@@ -39,6 +42,8 @@ export default function TableSectionService({
   const [openDetail, setOpenDetail] = useState(null);
   const [openEdit, setOpenEdit] = useState(null);
   const [newStatus, setNewStatus] = useState("");
+
+  const nav = useNavigate();
 
   // Helpers
   const today = new Date().toISOString().slice(0, 10);
@@ -233,6 +238,29 @@ export default function TableSectionService({
     setDateFrom("");
     setDateTo("");
     setPage(1);
+  };
+
+  const handleWhatsapp = (item) => {
+    const phone = item.noHP; // nomor customer
+
+    const message = `
+Halo ${item.namaPelangan}
+
+Status servis Anda: ${item.status}
+
+Merk : ${item.brandHP}
+
+Keterangan:
+${item.keterangan}
+
+Terima kasih.
+`;
+
+    const encodedMessage = encodeURIComponent(message);
+
+    const url = `https://wa.me/${phone}?text=${encodedMessage}`;
+
+    window.open(url, "_blank");
   };
 
   const [openFilter, setOpenFilter] = useState(false);
@@ -775,6 +803,22 @@ export default function TableSectionService({
                           </button>
 
                           <button
+                            title="Detail"
+                            onClick={() => handleWhatsapp(item)}
+                            className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all hover:scale-110 active:scale-95 shadow-sm"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </button>
+
+                          <button
+                            title="Detail"
+                            onClick={() => nav(`/print-service-hp/${item.id}`)}
+                            className="p-2 bg-zinc-500 text-white rounded-lg hover:bg-zinc-600 transition-all hover:scale-110 active:scale-95 shadow-sm"
+                          >
+                            <Printer className="w-4 h-4" />
+                          </button>
+
+                          <button
                             title="Edit Status"
                             onClick={() => {
                               setOpenEdit(item);
@@ -1072,6 +1116,12 @@ export default function TableSectionService({
             </div>
 
             <div className="p-5 border-t">
+              <button
+                onClick={() => nav(`/print-service-hp/${openDetail.id}`)}
+                className="w-full py-2 mb-3 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition"
+              >
+                Print
+              </button>
               <button
                 onClick={() => setOpenDetail(null)}
                 className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"

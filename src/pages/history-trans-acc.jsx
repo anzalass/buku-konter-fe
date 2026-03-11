@@ -10,12 +10,14 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  Printer,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import api from "../api/client";
 import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 export default function TableSectionAccecoris({
   title = "Transaksi Aksesoris",
@@ -23,7 +25,7 @@ export default function TableSectionAccecoris({
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [openFilter, setOpenFilter] = useState(false);
-
+  const nav = useNavigate();
   const [page, setPage] = useState(1);
   const [itemPerPage, setItemPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("active");
@@ -665,6 +667,14 @@ export default function TableSectionAccecoris({
                         >
                           <Eye className="w-4 h-4" />
                         </button>
+
+                        <button
+                          title="Detail"
+                          onClick={() => nav(`/print-transaksi-acc/${item.id}`)}
+                          className="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-all duration-200 hover:scale-110 active:scale-95 shadow-sm"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </button>
                         {statusFilter !== "deleted" && (
                           <button
                             title="Hapus"
@@ -820,7 +830,13 @@ export default function TableSectionAccecoris({
               </table>
             </div>
 
-            <div className="mt-4 flex justify-end">
+            <div className="mt-4 flex gap-3 justify-end">
+              <button
+                onClick={() => nav(`/print-transaksi-acc/${item.id}`)}
+                className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800"
+              >
+                Print
+              </button>
               <button
                 onClick={() => setOpenDetail(null)}
                 className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800"

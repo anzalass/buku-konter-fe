@@ -336,6 +336,14 @@ export default function StokBarangSparepartPage() {
   };
 
   const saveAdd = (form) => {
+    if (form.hargaJual < form.hargaModal) {
+      Swal.fire({
+        icon: "warning",
+        text: "Harga Jual Gaboleh Lebih Kecil Dari Harga Modal",
+      });
+      return;
+    }
+
     createSparepartMutation.mutate({
       ...form,
       kategori: form.kategori || "Umum",
@@ -347,6 +355,14 @@ export default function StokBarangSparepartPage() {
   };
 
   const saveEdit = (form) => {
+    if (form.hargaJual < form.hargaModal) {
+      Swal.fire({
+        icon: "warning",
+        text: "Harga Jual Gaboleh Lebih Kecil Dari Harga Modal",
+      });
+      return;
+    }
+
     updateSparepartMutation.mutate({
       id: openEdit.id,
       payload: {
@@ -907,10 +923,6 @@ function ModalForm({
   showKategori = false,
   isLoading = false, // ⬅️ baru
 }) {
-  const formatRupiah = (value) => {
-    if (!value) return "";
-    return new Intl.NumberFormat("id-ID").format(value);
-  };
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
       <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-xl relative">
