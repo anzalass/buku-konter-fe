@@ -23,80 +23,104 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export default function UserManagementPage() {
-  // State
-  const { user, isLoading, isCheckingAuth, fetchUser } = useAuthStore();
+  const { user } = useAuthStore();
+  const queryClient = useQueryClient();
 
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Filter state
+  // filter
   const [search, setSearch] = useState("");
   const [searchQ, setSearchQ] = useState("");
-  const [userData, setUserData] = useState();
-
   const [role, setRole] = useState("");
   const [penempatan, setPenempatan] = useState("");
   const [penempatanQ, setPenempatanQ] = useState("");
-  const [editingUserId, setEditingUserId] = useState(null);
 
-  // Modal state
+  // pagination
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // modal
   const [openModal, setOpenModal] = useState(false);
   const [editUser, setEditUser] = useState(null);
+  const [userData, setUserData] = useState(null);
+
+  const [editingUserId, setEditingUserId] = useState(null);
 
   const [isUpdatePasswordModalOpen, setIsUpdatePasswordModalOpen] =
     useState(false);
 
-  // Pagination
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  /* =============================
+     FETCH USERS (React Query)
+  ============================= */
 
-  // Fetch users
-  const fetchUsers = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
+  const {
+    data: users,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["users", page, pageSize, search, role, penempatan],
+    queryFn: async () => {
       const params = new URLSearchParams();
+
       params.append("page", page);
       params.append("pageSize", pageSize);
+
       if (search) params.append("search", search);
       if (role) params.append("role", role);
       if (penempatan) params.append("penempatan", penempatan);
 
-      const response = await api.get(`auth?${params.toString()}`, {
+      const { data } = await api.get(`auth?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
       });
-      setUsers(response.data);
-    } catch (err) {
-      console.error("Fetch users error:", err);
-      setError("Gagal memuat data user");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [page, pageSize, search, role, penempatan]);
+      return data;
+    },
+    keepPreviousData: true,
+  });
 
-  // Stats
+  /* =============================
+     DELETE USER
+  ============================= */
+
+  const deleteUserMutation = useMutation({
+    mutationFn: (id) => api.delete(`auth/${id}`),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+      Swal.fire({
+        icon: "success",
+        text: "User Berhasil dihapus",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+    },
+  });
+
+  /* =============================
+     STATS
+  ============================= */
+
   const stats = useMemo(() => {
-    const totalUsers = users.data?.length || 0;
+    const totalUsers = users?.data?.length || 0;
+
     const adminCount =
-      users.data?.filter((u) => u.role === "admin").length || 0;
-    const userCount = users.data?.filter((u) => u.role === "user").length || 0;
+      users?.data?.filter((u) => u.role === "admin").length || 0;
+
+    const userCount = users?.data?.filter((u) => u.role === "user").length || 0;
+
     return { totalUsers, adminCount, userCount };
   }, [users]);
 
-  // Handlers
+  /* =============================
+     HANDLERS
+  ============================= */
+
   const handleSearch = () => {
     setPage(1);
     setSearch(searchQ);
     setPenempatan(penempatanQ);
   };
+
   const handleReset = () => {
     setSearch("");
     setRole("");
@@ -106,15 +130,11 @@ export default function UserManagementPage() {
     setPage(1);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     if (!confirm("Yakin hapus user ini? Tindakan tidak bisa dibatalkan!"))
       return;
-    try {
-      await api.delete(`auth/${id}`);
-      fetchUsers();
-    } catch (err) {
-      alert("Gagal hapus user: " + (err.response?.data?.error || err.message));
-    }
+
+    deleteUserMutation.mutate(id);
   };
 
   const handleEdit = (user) => {
@@ -122,9 +142,19 @@ export default function UserManagementPage() {
     setOpenModal(true);
   };
 
-  if (loading)
+  /* =============================
+     LOADING / ERROR
+  ============================= */
+
+  if (isLoading) {
     return <div className="p-6 text-center">Memuat data user...</div>;
-  if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-500">Gagal memuat data user</div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 w-full mx-auto">
@@ -133,16 +163,18 @@ export default function UserManagementPage() {
           <User className="w-6 h-6" />
           Manajemen User
         </h1>
-        <button
-          onClick={() => {
-            setEditUser(null);
-            setOpenModal(true);
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1 whitespace-nowrap"
-        >
-          <Plus className="w-4 h-4" />
-          User
-        </button>
+        {user.role === "Owner" && (
+          <button
+            onClick={() => {
+              setEditUser(null);
+              setOpenModal(true);
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1 whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" />
+            User
+          </button>
+        )}
       </div>
 
       {/* STATS */}
@@ -203,8 +235,8 @@ export default function UserManagementPage() {
               className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             >
               <option value="">Semua Role</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
+              <option value="Owner">Owner</option>
+              <option value="Crew">Crew</option>
             </select>
           </div>
           {/* <div className="md:col-span-3">
@@ -248,7 +280,9 @@ export default function UserManagementPage() {
                 <th className="px-4 py-3 text-left">Nama</th>
                 <th className="px-4 py-3 text-left">Email</th>
                 <th className="px-4 py-3 text-left">Role</th>
-                <th className="px-4 py-3 text-left">Aksi</th>
+                {user.role === "Owner" && (
+                  <th className="px-4 py-3 text-left">Aksi</th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -262,57 +296,59 @@ export default function UserManagementPage() {
                   </td>
                 </tr>
               ) : (
-                users.data.map((user, i) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                users.data.map((userr, i) => (
+                  <tr key={userr.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
                       {(page - 1) * pageSize + i + 1}
                     </td>
                     <td className="px-4 py-3 font-medium text-gray-800">
-                      {user.nama}
+                      {userr.nama}
                     </td>
-                    <td className="px-4 py-3 text-blue-600">{user.email}</td>
+                    <td className="px-4 py-3 text-blue-600">{userr.email}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
-                          user.role === "admin"
+                          userr.role === "admin"
                             ? "bg-purple-100 text-purple-700"
                             : "bg-blue-100 text-blue-700"
                         }`}
                       >
-                        {user.role}
+                        {userr.role}
                       </span>
                     </td>
 
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(user)}
-                          className="p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                          title="Edit"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEditingUserId(user.id);
-                            setIsUpdatePasswordModalOpen(true);
-                            setUserData(user);
-                          }}
-                          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                          title="Edit"
-                        >
-                          <Lock className="w-4 h-4" />
-                        </button>
+                    {user.role === "Owner" && (
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(userr)}
+                            className="p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                            title="Edit"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingUserId(userr.id);
+                              setIsUpdatePasswordModalOpen(true);
+                              setUserData(user);
+                            }}
+                            className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            title="Edit"
+                          >
+                            <Lock className="w-4 h-4" />
+                          </button>
 
-                        <button
-                          onClick={() => handleDelete(user.id)}
-                          className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
-                          title="Hapus"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+                          <button
+                            onClick={() => handleDelete(userr.id)}
+                            className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
+                            title="Hapus"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -356,7 +392,7 @@ export default function UserManagementPage() {
         <UserModal
           isOpen={openModal}
           onClose={() => setOpenModal(false)}
-          onSubmitSuccess={fetchUsers}
+          onSubmitSuccess={() => queryClient.invalidateQueries(["users"])}
           user={editUser}
           token={user?.token}
         />
@@ -687,18 +723,36 @@ const UpdatePasswordModal = ({
 
   const updatePasswordMutation = useMutation({
     mutationFn: (passwordData) =>
-      api.put(`super-admin/users/${userId}/password`, passwordData),
-    onSuccess: () => {
-      toast.success("Password berhasil diperbarui!");
-      queryClient.invalidateQueries({ queryKey: ["tokos"] });
+      api.put(`owner/users/${userId}/password`, passwordData, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      }),
+
+    onSuccess: async () => {
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: "Password berhasil diperbarui",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       reset();
       onUpdateSuccess();
       onClose();
     },
-    onError: (error) => {
-      toast.error(
-        error.response?.data?.message || "Gagal memperbarui password"
-      );
+
+    onError: async (error) => {
+      const message =
+        error.response?.data?.message || "Gagal memperbarui password";
+
+      await Swal.fire({
+        icon: "error",
+        title: "Gagal",
+        text: message,
+      });
     },
   });
 

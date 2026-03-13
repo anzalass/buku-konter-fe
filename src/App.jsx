@@ -36,6 +36,8 @@ import StoreSettingsPage from "./pages/setting";
 import SettingUser from "./pages/setting-user";
 import PrintTransaksiAksesoris from "./pages/print-trans-acc";
 import PrintTransaksiSparepart from "./pages/print-trans-sparepart";
+import DataMemberPage from "./pages/nomor-trx-member";
+import KeuntunganPage from "./pages/keuntungan";
 
 function App() {
   const { user, isLoading, isCheckingAuth, fetchUser } = useAuthStore();
@@ -65,6 +67,7 @@ function App() {
 
       <Route path="/dashboard" element={<DashboardLayout />}>
         <Route path="jualan-voucher" element={<JualanVoucher />} />
+        <Route path="keuntungan" element={<KeuntunganPage />} />
         <Route path="setting-toko-user" element={<SettingUser />} />
         <Route path="log" element={<LogPage />} />
         <Route path="overview" element={<Overview />} />
@@ -80,6 +83,7 @@ function App() {
           path="master-data/stok-sparepart"
           element={<StokBarangSparepartPage />}
         />
+        <Route path="master-data/nomor-member" element={<DataMemberPage />} />
         <Route
           path="master-data/stok-sparepart"
           element={<StokBarangSparepartPage />}

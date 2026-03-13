@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import {
-  Search,
   Wallet,
-  ShoppingBag,
-  Receipt,
-  Wrench,
-  Layers,
   X,
   TrendingUp,
   Package,
@@ -36,6 +31,8 @@ import ModalServiceHP from "../components/modal-service";
 import ModalTransaksiAcc from "../components/modal-trans-acc";
 import { useAuthStore } from "../store/useAuthStore";
 import PencarianCepat from "../components/pencarian-cepat";
+import GrafikKeuntungan from "../components/grafik";
+import GrafikKeuntungan2 from "../components/grafik2";
 
 export default function Overview() {
   const { user } = useAuthStore();
@@ -136,6 +133,14 @@ export default function Overview() {
             value={`Rp ${(d?.keuntunganServiceHariIni + d?.keuntunganSparepartHariIni).toLocaleString("id-ID")}`}
             icon={DollarSign}
           />
+        </div>
+      </div>
+      <div className="flex flex-col lg:flex-row gap-x-3">
+        <div className="lg:w-1/2 w-full ">
+          <GrafikKeuntungan />
+        </div>
+        <div className="lg:w-1/2 w-full">
+          <GrafikKeuntungan2 />
         </div>
       </div>
       {/* ACTION BUTTONS */}

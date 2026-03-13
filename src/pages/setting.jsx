@@ -5,6 +5,8 @@ import { useAuthStore } from "../store/useAuthStore"; // Jika pakai store
 
 export default function StoreSettingsPage() {
   const { user } = useAuthStore();
+  console.log(user);
+
   const fileInputRef = useRef(null);
 
   // State form
@@ -162,6 +164,7 @@ export default function StoreSettingsPage() {
             <input
               type="file"
               ref={fileInputRef}
+              disabled={user.role === "Crew" ? true : false}
               onChange={handleImageChange}
               accept="image/*"
               className="hidden"
@@ -206,6 +209,7 @@ export default function StoreSettingsPage() {
               <input
                 type="text"
                 value={storeName}
+                disabled={user.role === "Crew" ? true : false}
                 onChange={(e) => setStoreName(e.target.value)}
                 placeholder="Contoh: Java Cell Official"
                 className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
@@ -221,6 +225,7 @@ export default function StoreSettingsPage() {
 
               <textarea
                 value={address}
+                disabled={user.role === "Crew" ? true : false}
                 onChange={(e) => setAddress(e.target.value)}
                 rows="3"
                 placeholder="Jl. Merdeka No.123, Kota..."
@@ -229,15 +234,17 @@ export default function StoreSettingsPage() {
             </div>
 
             {/* BUTTON */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full md:w-auto px-6 py-3 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 transition disabled:bg-gray-400"
-              >
-                {loading ? "Menyimpan..." : "Simpan Perubahan"}
-              </button>
-            </div>
+            {user.role === "Owner" && (
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full md:w-auto px-6 py-3 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 transition disabled:bg-gray-400"
+                >
+                  {loading ? "Menyimpan..." : "Simpan Perubahan"}
+                </button>
+              </div>
+            )}
           </div>
         </form>
       </div>

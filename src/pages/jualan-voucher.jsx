@@ -315,7 +315,7 @@ export default function JualanVoucher() {
 
   return (
     <div className="w-full mx-auto">
-      <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+      {/* <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
         <div className="flex items-center gap-4">
           <div className="bg-gradient-to-r from-cyan-600 to-blue-600 p-4 rounded-xl">
             <Wallet className="w-8 h-8 text-white" />
@@ -325,11 +325,11 @@ export default function JualanVoucher() {
               Penjualan Voucher
             </h1>
             <p className="text-gray-600 text-sm mt-1">
-              Kelola transaksi penjualan voucher pulsa & data
+              transaksi penjualan voucher
             </p>
           </div>
         </div>
-      </div>
+      </div> */}
       <div className="grid grid-cols-1  gap-6">
         {/* === KIRI: BRAND & VOUCHER === */}
         <div className="lg:col-span-2 space-y-6">
@@ -378,7 +378,7 @@ export default function JualanVoucher() {
                 Tidak ada voucher tersedia
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5  gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5  gap-4">
                 {filteredVouchers.map((v) => (
                   <div
                     key={v.id}

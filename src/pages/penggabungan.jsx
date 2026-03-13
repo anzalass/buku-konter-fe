@@ -40,7 +40,7 @@ export default function Penggabungan() {
 
   return (
     <div className="mt-6">
-      <div className="grid mb-4 grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid mt-8 mb-4 grid-cols-4  gap-2">
         <ActionButton onClick={() => setOpenModalVD(true)} label="Grosir VD" />
         <ActionButton label="Aksesoris" onClick={() => setOpenModalAcc(true)} />
         <ActionButton
@@ -131,13 +131,10 @@ export default function Penggabungan() {
 
 function ActionButton({ label, onClick }) {
   return (
-    <button
-      onClick={onClick}
-      className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium shadow-sm transition w-full"
-    >
-      <PlusCircle className="w-5 h-5 hidden md:block" />
-      <span className="whitespace-nowrap text-sm md:text-base">{label}</span>
-    </button>
+    <div className="flex flex-col items-center rounded-xl gap-2 bg-blue-600 p-2">
+      <PlusCircle onClick={onClick} className="w-6 h-6" color="white" />
+      <span className="text-xs md:text-sm text-white text-center">{label}</span>
+    </div>
   );
 }
 
@@ -152,7 +149,7 @@ function ToggleViewButton({ active, onClick, icon, label }) {
       }`}
     >
       {icon}
-      <span className="">{label}</span>
+      <span className="text-sm">{label}</span>
     </button>
   );
 }

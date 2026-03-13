@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import api from "../api/client";
 import { useAuthStore } from "../store/useAuthStore";
+import Swal from "sweetalert2";
 
 function useDebounce(value, delay = 400) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -46,8 +47,9 @@ export default function PencarianCepat() {
             ? "/cari-sparepart"
             : active === "voucher"
               ? "/cari-voucher"
-              : "/cari-acc";
-
+              : active === "acc"
+                ? "/cari-acc"
+                : "/cari-no-pelanggan";
         const res = await api.get(endpoint, {
           params: { q: debouncedKeyword },
           headers: {
@@ -68,6 +70,20 @@ export default function PencarianCepat() {
 
     fetchSearch();
   }, [debouncedKeyword, active, user.token]);
+
+  const copyNomor = async (nomor) => {
+    try {
+      await navigator.clipboard.writeText(nomor);
+      Swal.fire({
+        text: "Berhasil mengcopy",
+        icon: "success",
+        timer: 500, // 1.5 detik
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error("Gagal copy", err);
+    }
+  };
 
   /* =============================
      ⌨️ KEYBOARD HANDLER
@@ -136,6 +152,14 @@ export default function PencarianCepat() {
         onKeyDown={handleKeyDown}
       />
 
+      <InputSearch
+        placeholder="Cari No Pelanggan"
+        active={active === "pelanggan"}
+        value={active === "pelanggan" ? keyword : ""}
+        onChange={(e) => handleChange("pelanggan", e.target.value)}
+        onKeyDown={handleKeyDown}
+      />
+
       {/* RESULT */}
       {active && keyword && (
         <div className="absolute z-30 top-10 w-full bg-white border rounded-xl shadow-lg max-h-64 overflow-y-auto">
@@ -164,11 +188,35 @@ export default function PencarianCepat() {
                 <div className="font-medium">
                   {highlightText(item.nama, keyword)}
                 </div>
-                <div className="text-gray-500 flex gap-3">
-                  <span>Stok: {item.stok}</span>
-                  <span>{active === "voucher" ? item.brand : ""}</span>
-                  {"hargaJual" in item && (
-                    <span>Rp {item.hargaJual?.toLocaleString("id-ID")}</span>
+                <div className="text-gray-500 flex items-center justify-between">
+                  {active === "pelanggan" && (
+                    <>
+                      <span className="font-medium text-gray-700">
+                        {item.nomor}
+                      </span>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyNomor(item.nomor);
+                        }}
+                        className="text-blue-600 font-semibold text-sm px-2 py-1 rounded hover:bg-blue-50"
+                      >
+                        Copy
+                      </button>
+                    </>
+                  )}
+
+                  {active !== "pelanggan" && (
+                    <div className="flex gap-3">
+                      <span>Stok: {item.stok}</span>
+                      <span>{active === "voucher" ? item.brand : ""}</span>
+                      {"hargaJual" in item && (
+                        <span>
+                          Rp {item.hargaJual?.toLocaleString("id-ID")}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

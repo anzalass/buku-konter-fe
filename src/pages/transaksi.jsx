@@ -353,7 +353,12 @@ export default function TransaksiPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transaksi-hari-ini"] });
-      Swal.fire("Berhasil!", "Transaksi berhasil disimpan.", "success");
+      Swal.fire({
+        text: "Transaksi Berhasil Disimpan",
+        icon: "success",
+        timer: 500, // 1.5 detik
+        showConfirmButton: false,
+      });
     },
     onError: (err) => {
       Swal.fire(
@@ -693,7 +698,7 @@ export default function TransaksiPage() {
     <div className="min-h-screen   ">
       <div className="w-full mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+        {/* <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
           <div className="flex items-center gap-4">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-xl">
               <TrendingUp className="w-8 h-8 text-white" />
@@ -707,7 +712,7 @@ export default function TransaksiPage() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Quick Input Section */}
         <div className="bg-white rounded-2xl p-6 mb-6">

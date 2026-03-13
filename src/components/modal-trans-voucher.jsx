@@ -226,6 +226,7 @@ export default function ModalGrosirVoucher({ isOpen, onClose, onSuccess }) {
       });
 
       onClose();
+      setPesanan([]);
       onSuccess();
     } catch (err) {
       Swal.close();
@@ -297,40 +298,29 @@ export default function ModalGrosirVoucher({ isOpen, onClose, onSuccess }) {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Provider
-                    </label>
-                    <select
-                      value={filter}
-                      onChange={(e) => setFilter(e.target.value)}
-                      className="w-full border-2 border-gray-200 rounded-lg p-2.5 focus:border-blue-500 focus:outline-none transition"
-                    >
-                      {[...new Set(grosirMaster.map((item) => item.brand))].map(
-                        (brand, i) => (
-                          <option key={i} value={brand}>
-                            {brand}
-                          </option>
-                        )
-                      )}
-                    </select>
-                  </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Provider
+                  </label>
 
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Cari Voucher
-                    </label>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Cari voucher..."
-                        value={nameVoucher}
-                        onChange={(e) => setNameVoucher(e.target.value)}
-                        className="w-full border-2 border-gray-200 rounded-lg p-2.5 pl-10 focus:border-blue-500 focus:outline-none transition"
-                      />
-                    </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[...new Set(grosirMaster.map((item) => item.brand))].map(
+                      (brand, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setFilter(brand)}
+                          className={`px-3 py-1.5 rounded-lg text-sm border transition
+          ${
+            filter === brand
+              ? "bg-blue-600 text-white border-blue-600"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+          }
+        `}
+                        >
+                          {brand}
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
