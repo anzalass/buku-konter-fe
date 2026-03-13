@@ -1,4 +1,4 @@
-import { BarChart3, Package, TrendingUp } from "lucide-react";
+import { BarChart3, Package, TrendingUp, X } from "lucide-react";
 
 export function DetailOmsetModal({
   isOpen,

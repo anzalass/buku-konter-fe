@@ -1,3 +1,5 @@
+import { BarChart3, Package, TrendingUp, X } from "lucide-react";
+
 export function DetailServiceModal2({
   isOpen,
   onClose,

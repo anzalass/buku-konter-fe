@@ -1,4 +1,4 @@
-import { BarChart3, Package, TrendingUp, Wallet } from "lucide-react";
+import { BarChart3, Package, TrendingUp, Wallet, X } from "lucide-react";
 
 export function DetailKeuntunganModal({
   isOpen,
