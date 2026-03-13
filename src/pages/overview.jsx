@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Wallet,
   X,
@@ -62,6 +62,26 @@ export default function Overview() {
   const [searchSparepartStok, setSearchSparepartStok] = useState("");
   const [searchVdStok, setSearchVdStok] = useState("");
 
+  const openKeuntungan = useCallback(() => {
+    setModalKeuntungan(true);
+  }, []);
+
+  const openOmset = useCallback(() => {
+    setModalOmset(true);
+  }, []);
+
+  const openTrx = useCallback(() => {
+    setModalTrx(true);
+  }, []);
+
+  const openService = useCallback(() => {
+    setModalService(true);
+  }, []);
+
+  const openService2 = useCallback(() => {
+    setModalService2(true);
+  }, []);
+
   // === REACT QUERY DASHBOARD ===
   const {
     data: dashboardData,
@@ -117,7 +137,7 @@ export default function Overview() {
             ).toLocaleString("id-ID")}`}
             icon={DollarSign}
             color="emerald"
-            onClick={() => setModalKeuntungan(true)}
+            onClick={openKeuntungan}
           />
 
           {/* Omset Hari Ini - BLUE */}
@@ -130,7 +150,7 @@ export default function Overview() {
             ).toLocaleString("id-ID")}`}
             icon={Wallet}
             color="blue"
-            onClick={() => setModalOmset(true)}
+            onClick={openOmset}
           />
 
           {/* Transaksi Hari Ini - INDIGO */}
@@ -144,7 +164,7 @@ export default function Overview() {
             }
             icon={ArrowRightLeft}
             color="indigo"
-            onClick={() => setModalTrx(true)}
+            onClick={openTrx}
           />
 
           {/* Voucher Pending - AMBER */}
@@ -163,7 +183,7 @@ export default function Overview() {
             ).toLocaleString("id-ID")}`}
             icon={TrendingUp}
             color="violet"
-            onClick={() => setModalService(true)}
+            onClick={openService}
           />
 
           {/* Keuntungan Sparepart + Service - ROSE */}
@@ -175,7 +195,7 @@ export default function Overview() {
             ).toLocaleString("id-ID")}`}
             icon={Wrench}
             color="rose"
-            onClick={() => setModalService2(true)}
+            onClick={openService2}
           />
         </div>
       )}
