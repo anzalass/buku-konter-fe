@@ -412,7 +412,7 @@ function StatCard({ label, value, icon: Icon, color = "emerald", onClick }) {
             {label}
           </p>
           <p
-            className={`text-lg sm:text-xl font-bold mt-1 ${config.text} truncate`}
+            className={`text-base sm:text-xl font-bold mt-1 ${config.text} truncate`}
           >
             {value}
           </p>
