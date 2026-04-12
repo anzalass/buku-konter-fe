@@ -1,24 +1,45 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import JualanVoucher from "./jualan-voucher";
 import TransaksiPage from "./transaksi";
-import ModalTransaksiAcc from "../components/modal-trans-acc";
-import ModalTransaksiSparepart from "../components/modal-trans-sparepart";
-import ModalGrosirVoucher from "../components/modal-trans-voucher";
-import ModalServiceHP from "../components/modal-service";
+
 import PencarianCepat from "../components/pencarian-cepat";
-import { PlusCircle, Receipt, Ticket, LayoutGrid } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import {
+  PlusCircle,
+  Receipt,
+  Ticket,
+  LayoutGrid,
+  X,
+  Smartphone,
+  Wallet,
+  ArrowRight,
+  CreditCard,
+  ShoppingCart,
+} from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../store/useAuthStore";
 import api from "../api/client";
+import { useNavigate } from "react-router-dom";
+import HistoryTransaksiHome from "../components/history-home";
+import Swal from "sweetalert2";
+import { Controller, useForm } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
 
 export default function Penggabungan() {
-  const { user } = useAuthStore();
+  const openPPOB = () => {
+    window.location.href = "intent://#Intent;package=com.shopee.mitra.id;end";
 
-  const [openModalAcc, setOpenModalAcc] = useState(false);
-  const [openModalVD, setOpenModalVD] = useState(false);
-  const [openModalSparepart, setOpenModalSparepart] = useState(false);
-  const [openModalService, setOpenModalService] = useState(false);
-  const [viewMode, setViewMode] = useState("all"); // 'all', 'transaksi', 'voucher'
+    setTimeout(() => {
+      window.open(
+        "https://play.google.com/store/apps/details?id=com.shopee.mitra.id",
+        "_blank"
+      );
+    }, 1500);
+  };
+  const { user } = useAuthStore();
+  const nav = useNavigate();
+  const queryClient = useQueryClient();
+
+  const [uangKeluarForm, setOpenModalUangKeluarForm] = useState(false);
 
   const {
     data: dashboardData,
@@ -38,32 +59,51 @@ export default function Penggabungan() {
     keepPreviousData: true,
   });
 
+  const createMutation = useMutation({
+    mutationFn: (formData) =>
+      api.post("uang-modal", formData, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["uang-modal"] });
+      Swal.fire("Berhasil!", "Data uang keluar ditambahkan", "success");
+      setOpenModalUangKeluarForm(false);
+    },
+  });
+
   return (
-    <div className="mt-6">
-      <div className="grid mt-8 mb-4 grid-cols-4  gap-2">
-        <ActionButton onClick={() => setOpenModalVD(true)} label="Grosir VD" />
-        <ActionButton label="Aksesoris" onClick={() => setOpenModalAcc(true)} />
-        <ActionButton
-          onClick={() => setOpenModalService(true)}
-          label="Service HP"
-        />
-        <ActionButton
-          onClick={() => setOpenModalSparepart(true)}
-          label="Sparepart"
-        />
+    <div className="max-w-7xl mx-auto">
+      <div className="fixed bottom-16 left-0 right-0 z-50 px-3">
+        <div className="grid grid-cols-5  max-w-md mx-auto">
+          <ActionButton
+            onClick={() => nav("/dashboard/new-transaksi")}
+            label="Penjualan"
+          />{" "}
+          <ActionButton
+            onClick={() => nav("/dashboard/new-transaksi2")}
+            label="Transaksi"
+          />{" "}
+          <ActionButton onClick={openPPOB} label="PPOB" />
+          <ActionButton
+            onClick={() => nav("/dashboard/form-service")}
+            label="Service HP"
+          />
+          <ActionButton
+            onClick={() => setOpenModalUangKeluarForm(true)}
+            label="Uang Keluar"
+          />
+        </div>
       </div>
 
-      <div className="">
+      {/* <div className="my-2">
         <PencarianCepat />
-      </div>
-
-      {/* === TOGGLE BUTTONS === */}
-      <div className="flex flex-wrap gap-2 mt-4 justify-center sm:justify-start">
+      </div> */}
+      {/* <div className="flex  gap-2  justify-center sm:justify-start">
         <ToggleViewButton
           active={viewMode === "transaksi"}
           onClick={() => setViewMode("transaksi")}
           icon={<Receipt className="w-4 h-4" />}
-          label="Transaksii"
+          label="Transaksi"
         />
         <ToggleViewButton
           active={viewMode === "voucher"}
@@ -77,11 +117,15 @@ export default function Penggabungan() {
           icon={<LayoutGrid className="w-4 h-4" />}
           label="Semua"
         />
-      </div>
-
+        <ToggleViewButton
+          active={viewMode === "all"}
+          onClick={() => setViewMode("all")}
+          icon={<LayoutGrid className="w-4 h-4" />}
+          label="Laporan"
+        />
+      </div> */}
       {/* === KONTEN DENGAN LAYOUT DINAMIS === */}
-      <div className="w-full mt-4">
-        {/* Mode ALL: 2 column */}
+      {/* <div className="w-full mt-4">
         {viewMode === "all" ? (
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="sm:w-1/2 w-full">
@@ -92,67 +136,279 @@ export default function Penggabungan() {
             </div>
           </div>
         ) : viewMode === "voucher" ? (
-          // Mode VOUCHER: full width
           <div className="w-full">
             <JualanVoucher />
           </div>
         ) : (
-          // Mode TRANSAKSI: full width
           <div className="w-full">
             <TransaksiPage />
           </div>
         )}
-      </div>
+      </div> */}
+
+      <HistoryTransaksiHome />
 
       {/* MODALS */}
-      <ModalTransaksiAcc
-        isOpen={openModalAcc}
-        onClose={() => setOpenModalAcc(false)}
-        onSuccess={refetch}
-      />
-      <ModalTransaksiSparepart
-        isOpen={openModalSparepart}
-        onClose={() => setOpenModalSparepart(false)}
-        onSuccess={refetch}
-      />
-      <ModalGrosirVoucher
-        isOpen={openModalVD}
-        onClose={() => setOpenModalVD(false)}
-        onSuccess={refetch}
-      />
-      <ModalServiceHP
-        isOpen={openModalService}
-        onClose={() => setOpenModalService(false)}
-        onSuccess={refetch}
+
+      <ModalFormUangKeluar
+        open={uangKeluarForm}
+        onClose={() => {
+          setOpenModalUangKeluarForm(false);
+        }}
+        initial={null}
+        onSubmit={(data) => {
+          createMutation.mutate(data);
+        }}
       />
     </div>
   );
 }
+
+const ACTION_ICONS = {
+  Penjualan: <ShoppingCart className="w-5 h-5 text-indigo-400" />,
+  Transaksi: <LayoutGrid className="w-5 h-5 text-blue-400" />,
+  PPOB: <CreditCard className="w-5 h-5 text-purple-400" />,
+  "Service HP": <Smartphone className="w-5 h-5 text-emerald-400" />,
+  "Uang Keluar": <Wallet className="w-5 h-5 text-amber-400" />,
+};
 
 function ActionButton({ label, onClick }) {
   return (
-    <div
+    <button
       onClick={onClick}
-      className="flex flex-col items-center rounded-xl gap-2 bg-blue-600 p-2"
+      className="flex flex-col items-center justify-center gap-1.5 p-3 bg-[#1e2130] hover:bg-[#25283a] active:scale-95 transition-all"
     >
-      <PlusCircle className="w-6 h-6" color="white" />
-      <span className="text-xs md:text-sm text-white text-center">{label}</span>
-    </div>
+      {ACTION_ICONS[label] || <LayoutGrid className="w-5 h-5 text-gray-400" />}
+
+      <span className="text-[9px] text-gray-400 text-center leading-tight">
+        {label}
+      </span>
+    </button>
   );
 }
-
 function ToggleViewButton({ active, onClick, icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+      className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-sm font-medium transition-all duration-200 border
+      ${
         active
-          ? "bg-indigo-600 text-white shadow-md"
-          : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-      }`}
+          ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
+          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+      }
+      active:scale-95`}
     >
-      {icon}
-      <span className="text-sm">{label}</span>
+      {/* Icon */}
+
+      {/* Label */}
+      <span className="truncate ">{label}</span>
     </button>
+  );
+}
+
+function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    clearErrors,
+    setValue,
+    watch,
+  } = useForm({
+    defaultValues: {
+      keterangan: initial?.keterangan || "",
+      jumlah: initial?.jumlah || "",
+      tanggal: initial?.tanggal
+        ? new Date(initial.tanggal).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+    },
+  });
+
+  const today = () => new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    if (open) {
+      setValue(
+        "tanggal",
+        initial?.tanggal
+          ? new Date(initial.tanggal).toISOString().split("T")[0]
+          : today()
+      );
+    }
+  }, [open, initial, setValue]);
+
+  const inp = {
+    background: "#111118",
+    color: "#ECEAE3",
+    borderColor: "#2A2A38",
+  };
+
+  if (!open) return null;
+
+  const validateForm = (data) => {
+    const newErrors = {};
+
+    if (!data.keterangan.trim()) {
+      newErrors.keterangan = "Keterangan wajib diisi";
+    }
+
+    const jumlahNum = Number(data.jumlah);
+    if (!data.jumlah || isNaN(jumlahNum) || jumlahNum < 1) {
+      newErrors.jumlah = "Jumlah minimal Rp 1";
+    }
+
+    return newErrors;
+  };
+
+  const handleFormSubmit = (data) => {
+    // Clear error sebelumnya
+    clearErrors();
+
+    // Validasi manual
+    const validationErrors = validateForm(data);
+    if (Object.keys(validationErrors).length > 0) {
+      Object.entries(validationErrors).forEach(([field, message]) => {
+        setError(field, { type: "manual", message });
+      });
+      return;
+    }
+
+    // Kirim ke parent
+    onSubmit({
+      ...data,
+      jumlah: Number(data.jumlah),
+    });
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,.75)" }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="w-full max-w-sm rounded-2xl p-5"
+        style={{ background: "#181820", border: "1px solid #2A2A38" }}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <p
+              className="text-[11px] uppercase tracking-widest mb-0.5"
+              style={{ color: "#5A5868" }}
+            >
+              {initial ? "edit" : "tambah"}
+            </p>
+            <p className="text-sm font-semibold" style={{ color: "#ECEAE3" }}>
+              Uang Keluar
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
+            style={{ background: "#252530" }}
+          >
+            <X size={12} color="#6A6878" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          {/* Keterangan */}
+          <div className="mb-3">
+            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+              Keterangan <span style={{ color: "#D07070" }}>*</span>
+            </p>
+            <input
+              {...register("keterangan")}
+              placeholder="Contoh: Beli perlengkapan toko..."
+              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
+              style={{
+                ...inp,
+                borderColor: errors.keterangan ? "#D07070" : "#2A2A38",
+              }}
+              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
+              onBlur={(e) =>
+                (e.target.style.borderColor = errors.keterangan
+                  ? "#D07070"
+                  : "#2A2A38")
+              }
+            />
+            {errors.keterangan && (
+              <p className="text-[10px] mt-1" style={{ color: "#D07070" }}>
+                {errors.keterangan.message}
+              </p>
+            )}
+          </div>
+
+          {/* Jumlah */}
+          <Controller
+            name="jumlah"
+            control={control}
+            render={({ field }) => (
+              <NumericFormat
+                value={field.value}
+                onValueChange={(values) => {
+                  field.onChange(values.floatValue || 0);
+                }}
+                thousandSeparator="."
+                decimalSeparator=","
+                allowNegative={false}
+                prefix="Rp "
+                placeholder="Rp 0"
+                className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
+                style={{
+                  ...inp,
+                  borderColor: errors.jumlah ? "#D07070" : "#2A2A38",
+                }}
+                onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
+                onBlur={(e) =>
+                  (e.target.style.borderColor = errors.jumlah
+                    ? "#D07070"
+                    : "#2A2A38")
+                }
+              />
+            )}
+          />
+
+          {/* Tanggal */}
+          <div className="mb-5">
+            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+              Tanggal
+            </p>
+            <input
+              {...register("tanggal")}
+              type="date"
+              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
+              style={inp}
+              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
+              onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium"
+              style={{
+                background: "#1A1A28",
+                color: "#6A6878",
+                border: "1px solid #2A2A38",
+              }}
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white transition-opacity"
+              style={{ background: "#4f46e5" }}
+            >
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

@@ -4,41 +4,35 @@ import "./index.css"; // <-- import Tailwind global CSS di sini
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import DashboardLayout from "./components/dashboard-layout";
-import Overview from "./pages/overview";
 import TransaksiPage from "./pages/transaksi";
-import StokVoucherPage from "./pages/stok-voucher";
-import StokBarangAksesorisPage from "./pages/stok-acc";
-import StokBarangSparepartPage from "./pages/stok-sparepart";
-import ListDownlinePage from "./pages/list-downline";
-import TableSectionVoucherGrosir from "./pages/history-trans-voucher";
-import LaporanKeuanganPage from "./pages/history-trans";
-import TableSectionAccecoris from "./pages/history-trans-acc";
-import TableSectionSparepart from "./pages/history-trans-sparepart";
-import TableSectionService from "./pages/history-trans-service";
-import LaporanBarangKeluarAccPage from "./pages/item-trans-acc";
-import LaporanBarangKeluarSparepartPage from "./pages/item-trans-sparepart";
-import LaporanBarangKeluarVoucherPage from "./pages/item-trans-voucher";
-import UangModalPage from "./pages/uang-keluar";
+
 import LoginPage from "./pages/login";
-import UserManagementPage from "./pages/user";
-import ListMemberPage from "./pages/list-member";
-import Home from "./pages/home";
-import JualanVoucher from "./pages/jualan-voucher";
-import TransaksiVoucherHarianPage from "./pages/voucher-harian-page";
-import VoucherTerlarisPage from "./pages/item-voucher-harian";
-import Penggabungan from "./pages/penggabungan";
-import PrintVoucherGrosir from "./pages/print-voucher";
-import PrintServiceHP from "./pages/print-service-hp";
+
 import SuperAdminDashboard from "./pages/super-admin";
-import MemberTransactionHistory from "./pages/member-trx";
 import LogPage from "./pages/log";
-import StoreSettingsPage from "./pages/setting";
-import SettingUser from "./pages/setting-user";
 import PrintTransaksiAksesoris from "./pages/print-trans-acc";
-import PrintTransaksiSparepart from "./pages/print-trans-sparepart";
-import DataMemberPage from "./pages/nomor-trx-member";
 import KeuntunganPage from "./pages/keuntungan";
-import DashboardKeuangan from "./pages/detail-overview";
+import TransaksiPageNew from "./pages/transaksi-new";
+import Penggabungan from "./pages/penggabungan";
+import Product from "./pages/data-product";
+import MasterData from "./pages/master-data";
+import HistoryTransaksi from "./pages/history";
+import HistoryBarangKeluar from "./pages/barang-keluar";
+import ServiceHPPage from "./pages/form-service-hp";
+import Transaksi2 from "./pages/transaksi2";
+import HistoryTransaksiService from "./pages/history-service";
+import HistoryTransaksiHarian from "./pages/history-transaksi";
+import HistoryTransaksiVoucher from "./pages/history-voucher-harian";
+import DetailPenjualanVoucherHarian from "./pages/detail-penjualan-voucher-harian";
+import DetailTransaksi from "./pages/detail-transaksi";
+import DetailJualanHarian from "./pages/detail-jualan-harian";
+import DetailService from "./pages/detail-service";
+import DetailUangKeluar from "./pages/detail-uang-keluar";
+import HistoryLogs from "./pages/log";
+import SettingUser from "./pages/setting-user";
+import MemberTransactionHistory from "./pages/member-trx";
+import DashboardKeuntungan from "./pages/overview";
+import LaporanUser from "./pages/user-record";
 
 function App() {
   const { user, isLoading, isCheckingAuth, fetchUser } = useAuthStore();
@@ -50,84 +44,52 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
       <Route path="/login" element={<LoginPage />} />
 
       <Route path="/super-admin" element={<SuperAdminDashboard />} />
-      <Route path="print/grosir/:id" element={<PrintVoucherGrosir />} />
-      <Route path="print-service-hp/:id" element={<PrintServiceHP />} />
+
       <Route
         path="print-transaksi-acc/:id"
         element={<PrintTransaksiAksesoris />}
       />
 
-      <Route
-        path="print-transaksi-sparepart/:id"
-        element={<PrintTransaksiSparepart />}
-      />
-
       <Route path="/dashboard" element={<DashboardLayout />}>
-        <Route path="jualan-voucher" element={<JualanVoucher />} />
-        <Route path="keuntungan" element={<KeuntunganPage />} />
-        <Route path="setting-toko-user" element={<SettingUser />} />
-        <Route path="log" element={<LogPage />} />
-        <Route path="overview" element={<Overview />} />
-        <Route path="detail-overview" element={<DashboardKeuangan />} />
+        <Route path="new-transaksi" element={<TransaksiPageNew />} />
+        <Route path="new-transaksi2" element={<Transaksi2 />} />
+        <Route path="form-service" element={<ServiceHPPage />} />
         <Route path="penggabungan" element={<Penggabungan />} />
-        <Route path="user" element={<UserManagementPage />} />
+        <Route path="master-data" element={<MasterData />} />
+        <Route path="history" element={<HistoryTransaksi />} />
+        <Route path="logs" element={<HistoryLogs />} />
+        <Route path="overview" element={<DashboardKeuntungan />} />
+        <Route
+          path="history/service"
+          element={<HistoryTransaksiService />}
+        />{" "}
+        <Route path="history/trx" element={<HistoryTransaksiHarian />} />
+        <Route
+          path="history/voucher-harian"
+          element={<HistoryTransaksiVoucher />}
+        />
+        <Route
+          path="detail/voucher-harian/:id"
+          element={<DetailPenjualanVoucherHarian />}
+        />
+        <Route path="detail/transaksi/:id" element={<DetailTransaksi />} />
+        <Route
+          path="detail/jualan-harian/:id"
+          element={<DetailJualanHarian />}
+        />
+        <Route path="member/trx/:id" element={<MemberTransactionHistory />} />
+        <Route path="detail/service-hp/:id" element={<DetailService />} />
+        <Route path="detail/uang-keluar/:id" element={<DetailUangKeluar />} />
+        <Route path="barang-keluar" element={<HistoryBarangKeluar />} />
+        <Route path="product" element={<Product />} />
+        <Route path="keuntungan" element={<KeuntunganPage />} />
+        <Route path="log" element={<LogPage />} />
+        <Route path="user" element={<SettingUser />} />
+        <Route path="user/:id" element={<LaporanUser />} />
         <Route path="transaksi" element={<TransaksiPage />} />
-        <Route path="master-data/stok-voucher" element={<StokVoucherPage />} />
-        <Route
-          path="master-data/stok-aksesoris"
-          element={<StokBarangAksesorisPage />}
-        />
-        <Route
-          path="master-data/stok-sparepart"
-          element={<StokBarangSparepartPage />}
-        />
-        <Route path="master-data/nomor-member" element={<DataMemberPage />} />
-        <Route
-          path="master-data/stok-sparepart"
-          element={<StokBarangSparepartPage />}
-        />{" "}
-        <Route
-          path="master-data/trx/:memberId"
-          element={<MemberTransactionHistory />}
-        />
-        <Route
-          path="master-data/list-downline"
-          element={<ListDownlinePage />}
-        />
-        <Route path="master-data/uang-keluar" element={<UangModalPage />} />
-        <Route path="master-data/list-member" element={<ListMemberPage />} />
-        <Route path="transaksi/aksesoris" element={<TableSectionAccecoris />} />
-        <Route path="transaksi/sparepart" element={<TableSectionSparepart />} />
-        <Route path="transaksi/service" element={<TableSectionService />} />
-        <Route
-          path="transaksi/voucher-harian"
-          element={<TransaksiVoucherHarianPage />}
-        />
-        <Route
-          path="transaksi/voucher"
-          element={<TableSectionVoucherGrosir />}
-        />{" "}
-        <Route
-          path="transaksi/item-voucher"
-          element={<LaporanBarangKeluarVoucherPage />}
-        />
-        <Route
-          path="transaksi/item-voucher-harian"
-          element={<VoucherTerlarisPage />}
-        />
-        <Route
-          path="transaksi/item-sparepart"
-          element={<LaporanBarangKeluarSparepartPage />}
-        />
-        <Route
-          path="transaksi/item-acc"
-          element={<LaporanBarangKeluarAccPage />}
-        />{" "}
-        <Route path="transaksi/jualan" element={<LaporanKeuanganPage />} />
       </Route>
     </Routes>
   );

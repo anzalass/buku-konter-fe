@@ -21,9 +21,11 @@ import { useAuthStore } from "../store/useAuthStore";
 import Swal from "sweetalert2";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export default function UserManagementPage() {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   // filter
@@ -162,237 +164,162 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 w-full mx-auto">
-      <div className="flex flex-row sm:items-center justify-between gap-4 mb-6">
-        <h1 className="text-base md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <User className="w-6 h-6" />
+    <div className="w-full mx-auto p-3 text-white">
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-sm font-semibold flex items-center gap-2">
+          <User size={16} className="text-blue-400" />
           Manajemen User
         </h1>
+
         {user.role === "Owner" && (
           <button
             onClick={() => {
               setEditUser(null);
               setOpenModal(true);
             }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1 whitespace-nowrap"
+            className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] rounded-lg bg-blue-600 hover:bg-blue-700"
           >
-            <Plus className="w-4 h-4" />
+            <Plus size={12} />
             User
           </button>
         )}
       </div>
-
-      {/* STATS */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatCard
-          title="Total User"
-          value={stats.totalUsers}
-          icon={<User className="w-5 h-5" />}
-          color="text-blue-600"
+      {/* FILTER */}
+      <div className="bg-[#181820] border border-[#232330] rounded-xl p-3 mb-3 space-y-2">
+        <input
+          value={searchQ}
+          onChange={(e) => setSearchQ(e.target.value)}
+          placeholder="Cari nama / email..."
+          className="w-full px-3 py-2 text-xs rounded-lg bg-[#111118] border border-[#2A2A38]"
         />
-        <StatCard
-          title="Admin"
-          value={stats.adminCount}
-          icon={<Key className="w-5 h-5" />}
-          color="text-green-600"
-        />
-        <StatCard
-          title="User Biasa"
-          value={stats.userCount}
-          icon={<User className="w-5 h-5" />}
-          color="text-purple-600"
-        />
-      </div> */}
 
-      {/* FILTER SECTION */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-          {/* SEARCH */}
-          <div className="md:col-span-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Cari Nama / Email
-            </label>
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          className="w-full px-3 py-2 text-xs rounded-lg bg-[#111118] border border-[#2A2A38]"
+        >
+          <option value="">Semua Role</option>
+          <option value="Owner">Owner</option>
+          <option value="Crew">Crew</option>
+        </select>
 
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-
-              <input
-                type="text"
-                value={searchQ}
-                onChange={(e) => setSearchQ(e.target.value)}
-                placeholder="John, john@email.com..."
-                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              />
-            </div>
-          </div>
-          {/* ROLE */}
-          <div className="md:col-span-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Role
-            </label>
-
-            <select
-              value={role}
-              onChange={(e) => {
-                setRole(e.target.value);
-                setPage(1);
-              }}
-              className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            >
-              <option value="">Semua Role</option>
-              <option value="Owner">Owner</option>
-              <option value="Crew">Crew</option>
-            </select>
-          </div>
-          {/* <div className="md:col-span-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Penempatan
-            </label>
-
-            <input
-              type="text"
-              value={penempatanQ}
-              onChange={(e) => setPenempatanQ(e.target.value)}
-              placeholder="Jakarta, Bandung..."
-              className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            />
-          </div> */}
-          {/* ACTION BUTTON */}
-          <div className="md:col-span-2 flex gap-2">
-            <button
-              onClick={handleSearch}
-              className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
-            >
-              Cari
-            </button>
-
-            <button
-              onClick={handleReset}
-              className="flex-1 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition"
-            >
-              Reset
-            </button>
-          </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleSearch}
+            className="flex-1 py-2 text-xs rounded-lg bg-blue-600"
+          >
+            Cari
+          </button>
+          <button
+            onClick={handleReset}
+            className="flex-1 py-2 text-xs rounded-lg bg-[#252530]"
+          >
+            Reset
+          </button>
         </div>
       </div>
-      {/* TABLE */}
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left">No</th>
-                <th className="px-4 py-3 text-left">Nama</th>
-                <th className="px-4 py-3 text-left">Email</th>
-                <th className="px-4 py-3 text-left">Role</th>
+      {/* LIST CARD */}
+      {users.data?.length === 0 ? (
+        <p className="text-xs text-center text-gray-500 mt-6">
+          Tidak ada data user
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {users.data.map((u) => (
+            <div
+              key={u.id}
+              className="bg-[#181820] border border-[#232330] rounded-xl p-3 hover:border-[#2f3245] transition"
+            >
+              {/* HEADER */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs font-semibold text-gray-200">
+                    {u.nama}
+                  </p>
+                  <p className="text-[10px] text-blue-400">{u.email}</p>
+                </div>
+
+                {/* ROLE BADGE */}
+                <span
+                  className={`px-2 py-0.5 text-[10px] rounded ${
+                    u.role === "Owner"
+                      ? "bg-purple-900 text-purple-300"
+                      : "bg-blue-900 text-blue-300"
+                  }`}
+                >
+                  {u.role}
+                </span>
+              </div>
+
+              {/* ACTION */}
+              <div className="flex gap-2 mt-3">
+                {/* DETAIL */}
+                <button
+                  onClick={() => navigate(`/dashboard/user/${u.id}`)}
+                  className="flex-1 py-1.5 text-[10px] rounded bg-[#252530] text-gray-300"
+                >
+                  Detail
+                </button>
+
+                {/* EDIT */}
                 {user.role === "Owner" && (
-                  <th className="px-4 py-3 text-left">Aksi</th>
+                  <>
+                    <button
+                      onClick={() => handleEdit(u)}
+                      className="p-2 rounded bg-yellow-600"
+                    >
+                      <Edit3 size={12} />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setEditingUserId(u.id);
+                        setIsUpdatePasswordModalOpen(true);
+                        setUserData(user);
+                      }}
+                      className="p-2 rounded bg-blue-600"
+                    >
+                      <Lock size={12} />
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(u.id)}
+                      className="p-2 rounded bg-red-600"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </>
                 )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {users.data?.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="6"
-                    className="px-4 py-6 text-center text-gray-500"
-                  >
-                    Tidak ada data user
-                  </td>
-                </tr>
-              ) : (
-                users.data.map((userr, i) => (
-                  <tr key={userr.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      {(page - 1) * pageSize + i + 1}
-                    </td>
-                    <td className="px-4 py-3 font-medium text-gray-800">
-                      {userr.nama}
-                    </td>
-                    <td className="px-4 py-3 text-blue-600">{userr.email}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          userr.role === "admin"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        {userr.role}
-                      </span>
-                    </td>
-
-                    {user.role === "Owner" && (
-                      <td className="px-4 py-3">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEdit(userr)}
-                            className="p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                            title="Edit"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setEditingUserId(userr.id);
-                              setIsUpdatePasswordModalOpen(true);
-                              setUserData(user);
-                            }}
-                            className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            title="Edit"
-                          >
-                            <Lock className="w-4 h-4" />
-                          </button>
-
-                          <button
-                            onClick={() => handleDelete(userr.id)}
-                            className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
-                            title="Hapus"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    )}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* PAGINATION */}
-        {users.meta && users.meta.totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-t bg-gray-50">
-            <span className="text-sm text-gray-600">
-              Menampilkan {(page - 1) * pageSize + 1} -{" "}
-              {Math.min(page * pageSize, users.meta.total)} dari{" "}
-              {users.meta.total} user
-            </span>
-            <div className="flex items-center gap-2 mt-2 sm:mt-0">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page <= 1}
-                className="px-3 py-1.5 border rounded text-sm disabled:opacity-40"
-              >
-                Sebelumnya
-              </button>
-              <span className="text-sm">
-                Halaman {page} dari {users.meta.totalPages}
-              </span>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page >= users.meta.totalPages}
-                className="px-3 py-1.5 border rounded text-sm disabled:opacity-40"
-              >
-                Berikutnya
-              </button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
+      {/* PAGINATION */}
+      {users.meta && users.meta.totalPages > 1 && (
+        <div className="flex justify-between items-center mt-4 text-[10px]">
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage(page - 1)}
+            className="px-2 py-1 rounded bg-[#252530] disabled:opacity-40"
+          >
+            Prev
+          </button>
 
-      {/* MODAL */}
+          <span className="text-gray-400">
+            {page} / {users.meta.totalPages}
+          </span>
+
+          <button
+            disabled={page >= users.meta.totalPages}
+            onClick={() => setPage(page + 1)}
+            className="px-2 py-1 rounded bg-[#252530] disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      )}
       {openModal && (
         <UserModal
           isOpen={openModal}
@@ -401,8 +328,7 @@ export default function UserManagementPage() {
           user={editUser}
           token={user?.token}
         />
-      )}
-
+      )}{" "}
       <UpdatePasswordModal
         isOpen={isUpdatePasswordModalOpen}
         onClose={() => {
@@ -418,23 +344,6 @@ export default function UserManagementPage() {
 }
 
 // Stat Card Component
-function StatCard({ title, value, icon, color }) {
-  return (
-    <div className="bg-white p-4 rounded-lg shadow-sm border">
-      <div className="flex items-center gap-3">
-        <div
-          className={`p-2 ${color.replace("text", "bg").replace("600", "100")} rounded-lg`}
-        >
-          {icon}
-        </div>
-        <div>
-          <p className="text-xs text-gray-500">{title}</p>
-          <p className={`text-lg font-bold ${color}`}>{value}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Modal Form Component
 function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
@@ -547,51 +456,46 @@ function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl w-full max-w-md p-6 relative">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+      <div className="bg-[#13151f] border border-[#1e2130] rounded-2xl w-full max-w-md p-5 relative shadow-xl">
+        {/* CLOSE */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
-          aria-label="Close"
+          className="absolute top-3 right-3 text-gray-400 hover:text-red-400 transition"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
-          {user ? "Edit User" : "Tambah User Baru"}
+        {/* HEADER */}
+        <h2 className="text-base font-semibold text-white mb-4">
+          {user ? "Edit User" : "Tambah User"}
         </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Nama */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          {/* NAMA */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nama Lengkap *
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
-              </div>
+            <label className="text-[11px] text-gray-400">Nama Lengkap</label>
+            <div className="relative mt-1">
+              <User className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
               <input
                 type="text"
                 {...register("nama", { required: "Nama wajib diisi" })}
-                className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-[#0f111a] border border-[#23263a] text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 placeholder="John Doe"
               />
             </div>
             {errors.nama && (
-              <p className="text-red-500 text-sm mt-1">{errors.nama.message}</p>
+              <p className="text-[10px] text-red-400 mt-1">
+                {errors.nama.message}
+              </p>
             )}
           </div>
 
-          {/* Email */}
+          {/* EMAIL */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email *
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
-              </div>
+            <label className="text-[11px] text-gray-400">Email</label>
+            <div className="relative mt-1">
+              <Mail className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
               <input
                 type="email"
                 {...register("email", {
@@ -601,101 +505,75 @@ function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
                     message: "Format email tidak valid",
                   },
                 })}
-                className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="john@example.com"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-[#0f111a] border border-[#23263a] text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                placeholder="john@email.com"
               />
             </div>
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="text-[10px] text-red-400 mt-1">
                 {errors.email.message}
               </p>
             )}
           </div>
 
-          {/* Password (hanya untuk create atau reset) */}
+          {/* PASSWORD */}
           {!user && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Kata Sandi *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Key className="h-5 w-5 text-gray-400" />
-                </div>
+              <label className="text-[11px] text-gray-400">Password</label>
+              <div className="relative mt-1">
+                <Key className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
                 <input
                   type="password"
                   {...register("password", {
-                    required: "Kata sandi wajib diisi",
-                    minLength: { value: 6, message: "Minimal 6 karakter" },
+                    required: "Password wajib",
+                    minLength: { value: 6, message: "Min 6 karakter" },
                   })}
-                  className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="••••••••"
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-[#0f111a] border border-[#23263a] text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                  placeholder="••••••"
                 />
               </div>
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-[10px] text-red-400 mt-1">
                   {errors.password.message}
                 </p>
               )}
             </div>
           )}
 
-          {/* Role */}
+          {/* ROLE */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Role *
-            </label>
+            <label className="text-[11px] text-gray-400">Role</label>
             <select
               {...register("role", { required: "Role wajib dipilih" })}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full mt-1 px-3 py-2 text-xs rounded-lg bg-[#0f111a] border border-[#23263a] text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
             >
-              <option selected value="">
-                Pilih Role
-              </option>
+              <option value="">Pilih Role</option>
               <option value="Crew">Crew</option>
               <option value="Owner">Owner</option>
             </select>
             {errors.role && (
-              <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
+              <p className="text-[10px] text-red-400 mt-1">
+                {errors.role.message}
+              </p>
             )}
           </div>
 
-          {/* Penempatan */}
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Penempatan
-            </label>
-            <select
-              {...register("penempatan", {
-                required: "Penempatan wajib dipilih",
-              })}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="Java 1">Java 1</option>
-              <option value="Java 2">Java 2</option>
-            </select>
-            {errors.role && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.penempatan.message}
-              </p>
-            )}
-          </div> */}
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-2">
+          {/* ACTION */}
+          <div className="flex gap-2 pt-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              className="flex-1 py-2 rounded-lg text-xs bg-[#1e2130] text-gray-400 hover:bg-[#2a2d42]"
             >
               Batal
             </button>
+
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300"
+              className="flex-1 py-2 rounded-lg text-xs bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-500"
             >
-              {isSubmitting ? "Menyimpan..." : user ? "Perbarui" : "Simpan"}
+              {isSubmitting ? "Loading..." : user ? "Update" : "Simpan"}
             </button>
           </div>
         </form>
@@ -773,106 +651,119 @@ const UpdatePasswordModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-          <h3 className="text-lg font-bold text-gray-900">
-            Update Password - {user.nama}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md rounded-2xl bg-[#13151f] border border-[#1e2130] shadow-xl">
+        {/* HEADER */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e2130]">
+          <h3 className="text-sm font-semibold text-white">
+            Update Password
+            <span className="block text-[11px] text-gray-400 font-normal">
+              {user.nama}
+            </span>
           </h3>
+
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="text-gray-400 hover:text-red-400 transition"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Password Baru
-            </label>
 
-            <div className="relative">
+        {/* FORM */}
+        <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
+          {/* PASSWORD */}
+          <div>
+            <label className="text-[11px] text-gray-400">Password Baru</label>
+
+            <div className="relative mt-1">
               <input
                 {...register("password", {
                   required: "Password wajib diisi",
                   minLength: {
                     value: 8,
-                    message: "Password minimal 8 karakter",
+                    message: "Minimal 8 karakter",
                   },
                 })}
                 type={showPassword ? "text" : "password"}
-                className={`w-full rounded-lg border px-4 py-2.5 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-      ${errors.password ? "border-red-500" : "border-gray-300"}`}
+                className={`w-full pl-3 pr-9 py-2 text-xs rounded-lg bg-[#0f111a] border text-white outline-none
+              ${errors.password ? "border-red-500" : "border-[#23263a]"}
+              focus:border-blue-500 focus:ring-1 focus:ring-blue-500`}
                 placeholder="Minimal 8 karakter"
               />
 
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
             {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
+              <p className="text-[10px] text-red-400 mt-1">
+                {errors.password.message}
+              </p>
             )}
           </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Konfirmasi Password Baru
+
+          {/* CONFIRM PASSWORD */}
+          <div>
+            <label className="text-[11px] text-gray-400">
+              Konfirmasi Password
             </label>
 
-            <div className="relative">
+            <div className="relative mt-1">
               <input
                 {...register("confirmPassword", {
-                  required: "Konfirmasi password wajib diisi",
-                  minLength: {
-                    value: 8,
-                    message: "Password minimal 8 karakter",
-                  },
+                  required: "Konfirmasi wajib",
+                  validate: (value) =>
+                    value === watch("password") || "Password tidak sama",
                 })}
                 type={showConfirmPassword ? "text" : "password"}
-                className={`w-full rounded-lg border px-4 py-2.5 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-      ${errors.confirmPassword ? "border-red-500" : "border-gray-300"}`}
-                placeholder="Ulangi password baru"
+                className={`w-full pl-3 pr-9 py-2 text-xs rounded-lg bg-[#0f111a] border text-white outline-none
+              ${errors.confirmPassword ? "border-red-500" : "border-[#23263a]"}
+              focus:border-blue-500 focus:ring-1 focus:ring-blue-500`}
+                placeholder="Ulangi password"
               />
 
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
               >
-                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
             {errors.confirmPassword && (
-              <p className="text-sm text-red-500">
+              <p className="text-[10px] text-red-400 mt-1">
                 {errors.confirmPassword.message}
               </p>
             )}
           </div>
-          <div className="flex justify-end gap-3 pt-4">
+
+          {/* ACTION */}
+          <div className="flex gap-2 pt-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg "
+              className="flex-1 py-2 rounded-lg text-xs bg-[#1e2130] text-gray-400 hover:bg-[#2a2d42]"
             >
               Batal
             </button>
+
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors disabled:opacity-70"
+              className="flex-1 py-2 rounded-lg text-xs bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-500 flex items-center justify-center"
             >
               {isSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Update Password"
+                "Update"
               )}
             </button>
           </div>

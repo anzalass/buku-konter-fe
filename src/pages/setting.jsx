@@ -1,66 +1,116 @@
-// src/pages/StoreSettingsPage.jsx
 import { useState, useRef, useEffect } from "react";
-import api from "../api/client"; // Sesuaikan path API client-mu
-import { useAuthStore } from "../store/useAuthStore"; // Jika pakai store
+import { useQuery, useMutation } from "@tanstack/react-query";
+import api from "../api/client";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function StoreSettingsPage() {
   const { user } = useAuthStore();
-  console.log(user);
-
   const fileInputRef = useRef(null);
 
-  // State form
   const [storeName, setStoreName] = useState("");
   const [isActive, setIsActive] = useState();
   const [subscribeTime, setSubscribeTime] = useState("");
-
   const [address, setAddress] = useState("");
   const [logoPreview, setLogoPreview] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
-  // Fetch data toko saat pertama kali
+  // =========================
+  // 🔥 GET TOKO
+  // =========================
+  const { data: toko, isLoading } = useQuery({
+    queryKey: ["toko-user"],
+    queryFn: async () => {
+      const res = await api.get("/toko-user", {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      return res.data.data;
+    },
+    enabled: !!user?.token,
+  });
+
+  // =========================
+  // SET STATE AWAL
+  // =========================
   useEffect(() => {
-    const fetchStore = async () => {
-      try {
-        const res = await api.get("/toko-user", {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        const toko = res.data.data;
-        console.log(toko);
-
-        setStoreName(toko.namaToko || "");
-        setIsActive(toko.isActive);
-        setSubscribeTime(toko.SubscribeTime);
-        setAddress(toko.alamat || "");
-        if (toko.logoToko) {
-          setLogoPreview(toko.logoToko);
-        }
-        setInitialDataLoaded(true);
-      } catch (err) {
-        console.error("Gagal memuat data toko:", err);
-        alert("Gagal memuat data toko");
+    if (toko) {
+      setStoreName(toko.namaToko || "");
+      setIsActive(toko.isActive);
+      setSubscribeTime(toko.SubscribeTime);
+      setAddress(toko.alamat || "");
+      if (toko.logoToko) {
+        setLogoPreview(toko.logoToko);
       }
-    };
-
-    if (user?.token) {
-      fetchStore();
     }
-  }, [user?.token]);
+  }, [toko]);
 
-  // Handle pilih gambar
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      let logoUrl = null;
+
+      // upload logo
+      if (logoFile) {
+        const formData = new FormData();
+        formData.append("logoToko", logoFile);
+
+        const uploadRes = await api.put("/update-foto-toko", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
+
+        logoUrl = uploadRes.data.url;
+      }
+
+      // update toko
+      return await api.put(
+        "/update-toko",
+        {
+          namaToko: storeName,
+          alamat: address,
+          ...(logoUrl && { logoToko: logoUrl }),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
+    },
+
+    onSuccess: () => {
+      alert("Berhasil disimpan 🔥");
+    },
+
+    onError: (err) => {
+      alert(err?.response?.data?.message || "Gagal update");
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!storeName.trim()) {
+      alert("Nama toko wajib diisi");
+      return;
+    }
+
+    updateMutation.mutate();
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        alert("Hanya file gambar yang diizinkan!");
-        return;
-      }
-      setLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file));
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Harus gambar!");
+      return;
     }
+
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
   };
+  // Handle pilih gambar
 
   // Trigger input file
   const triggerFileInput = () => {
@@ -68,94 +118,40 @@ export default function StoreSettingsPage() {
   };
 
   // Simpan perubahan
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!storeName.trim()) {
-      alert("Nama toko wajib diisi");
-      return;
-    }
 
-    setLoading(true);
-    try {
-      let logoUrl = null;
-
-      // Upload gambar jika ada
-      if (logoFile) {
-        const formData = new FormData();
-        formData.append("logoToko", logoFile);
-        const uploadRes = await api.put("/update-foto-toko", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${user.token}`,
-          },
-        });
-        logoUrl = uploadRes.data.url;
-      }
-
-      // Update toko
-      await api.put(
-        "/update-toko",
-        {
-          namaToko: storeName,
-          alamat: address,
-        },
-        {
-          headers: { Authorization: `Bearer ${user.token}` },
-        }
-      );
-
-      alert("Pengaturan toko berhasil disimpan!");
-    } catch (err) {
-      console.error("Error simpan toko:", err);
-      alert(
-        "Gagal menyimpan pengaturan: " +
-          (err.response?.data?.message || err.message)
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!initialDataLoaded) {
+  if (isLoading) {
     return (
-      <div className="p-6 text-center">
-        <div className="animate-pulse h-8 w-48 bg-gray-200 rounded mx-auto"></div>
+      <div className="p-6 text-center text-gray-400 text-sm">
+        Loading toko...
       </div>
     );
   }
 
   return (
-    <div className="w-full mx-auto p-4">
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
-        >
-          {/* LEFT - LOGO */}
+    <div className="w-full mx-auto p-2 text-white">
+      <div className="bg-[#181820] border border-[#232330] p-6">
+        <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-6">
+          {/* LOGO */}
           <div className="flex flex-col items-center">
-            <label className="text-sm font-medium text-gray-700 mb-4">
-              Logo Toko
-            </label>
+            <p className="text-xs text-gray-400 mb-3">Logo Toko</p>
 
             <div
-              onClick={triggerFileInput}
+              onClick={() => fileInputRef.current?.click()}
               className="relative cursor-pointer group"
             >
-              <div className="w-36 h-36 rounded-full border border-gray-300 bg-gray-100 flex items-center justify-center overflow-hidden shadow-sm">
+              <div className="w-32 h-32 rounded-full bg-[#111118] border border-[#2A2A38] overflow-hidden flex items-center justify-center">
                 {logoPreview ? (
                   <img
                     src={logoPreview}
-                    alt="Logo Toko"
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-gray-400 text-4xl">+</span>
+                  <span className="text-gray-500 text-3xl">+</span>
                 )}
               </div>
 
-              {/* overlay */}
-              <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center">
-                <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition">
+              <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/40 flex items-center justify-center transition">
+                <span className="text-xs opacity-0 group-hover:opacity-100">
                   Ganti
                 </span>
               </div>
@@ -164,86 +160,68 @@ export default function StoreSettingsPage() {
             <input
               type="file"
               ref={fileInputRef}
-              disabled={user.role === "Crew" ? true : false}
               onChange={handleImageChange}
-              accept="image/*"
+              disabled={user.role === "Crew"}
               className="hidden"
             />
-
-            <p className="text-xs text-gray-500 mt-3 text-center">
-              Klik foto untuk mengganti logo toko
-            </p>
           </div>
 
-          {/* RIGHT CONTENT */}
-          <div className="md:col-span-2 space-y-5">
+          {/* FORM */}
+          <div className="md:col-span-2 space-y-4">
             {/* STATUS */}
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex justify-between items-center bg-[#111118] border border-[#2A2A38] rounded-xl p-3">
               <div>
-                <p className="text-sm text-gray-500">Status Langganan</p>
-                <p className="text-sm mt-1 font-medium text-gray-800">
-                  Berlaku hingga{" "}
-                  {new Date(subscribeTime).toLocaleDateString("id-ID", {
-                    dateStyle: "full",
-                  })}
+                <p className="text-[10px] text-gray-400">Langganan</p>
+                <p className="text-xs">
+                  {new Date(subscribeTime).toLocaleString("id-ID", {
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}{" "}
                 </p>
               </div>
 
               <span
-                className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                className={`px-2 py-1 text-[10px] rounded ${
                   isActive
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-600"
+                    ? "bg-green-900 text-green-400"
+                    : "bg-red-900 text-red-400"
                 }`}
               >
                 {isActive ? "Aktif" : "Non Aktif"}
               </span>
             </div>
 
-            {/* NAMA TOKO */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nama Toko
-              </label>
-
-              <input
-                type="text"
-                value={storeName}
-                disabled={user.role === "Crew" ? true : false}
-                onChange={(e) => setStoreName(e.target.value)}
-                placeholder="Contoh: Java Cell Official"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                required
-              />
-            </div>
+            {/* NAMA */}
+            <input
+              value={storeName}
+              onChange={(e) => setStoreName(e.target.value)}
+              disabled={user.role === "Crew"}
+              className="w-full px-3 py-2 text-xs rounded bg-[#111118] border border-[#2A2A38]"
+              placeholder="Nama toko"
+            />
 
             {/* ALAMAT */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Alamat Toko
-              </label>
-
-              <textarea
-                value={address}
-                disabled={user.role === "Crew" ? true : false}
-                onChange={(e) => setAddress(e.target.value)}
-                rows="3"
-                placeholder="Jl. Merdeka No.123, Kota..."
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              />
-            </div>
+            <textarea
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              disabled={user.role === "Crew"}
+              className="w-full px-3 py-2 text-xs rounded bg-[#111118] border border-[#2A2A38]"
+              placeholder="Alamat toko"
+            />
 
             {/* BUTTON */}
             {user.role === "Owner" && (
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full md:w-auto px-6 py-3 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 transition disabled:bg-gray-400"
-                >
-                  {loading ? "Menyimpan..." : "Simpan Perubahan"}
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={updateMutation.isPending}
+                className="w-full py-2 rounded bg-blue-600 text-xs font-semibold hover:bg-blue-700 disabled:bg-gray-500"
+              >
+                {updateMutation.isPending ? "Menyimpan..." : "Simpan Perubahan"}
+              </button>
             )}
           </div>
         </form>

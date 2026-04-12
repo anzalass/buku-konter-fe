@@ -48,7 +48,7 @@ export default function LoginPage() {
       });
 
       fetchUser(); // Perbarui state auth
-      navigate("/dashboard/overview");
+      navigate("/dashboard/penggabungan");
     } catch (error) {
       console.log(error);
 

@@ -1,275 +1,229 @@
-import { Search } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import api from "../api/client";
-import { useAuthStore } from "../store/useAuthStore";
-import Swal from "sweetalert2";
+import { useState, useRef } from "react";
+import { Search, X } from "lucide-react";
 
-function useDebounce(value, delay = 400) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+const BADGE_STYLES = {
+  Voucher: { bg: "#1a1f35", text: "#818cf8" },
+  Produk: { bg: "#0f2318", text: "#34d399" },
+  Member: { bg: "#1f1206", text: "#fb923c" },
+  Promo: { bg: "#1f0a14", text: "#f472b6" },
+};
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-
-  return debouncedValue;
-}
+const SAMPLE_DATA = [
+  {
+    label: "Voucher Diskon 50%",
+    sub: "Berlaku s.d. 30 Apr",
+    kategori: "Voucher",
+    onClick: () => {},
+  },
+  {
+    label: "Produk A – Paket Hemat",
+    sub: "Stok: 120",
+    kategori: "Produk",
+    onClick: () => {},
+  },
+  {
+    label: "Member Gold",
+    sub: "Aktif sejak Jan 2024",
+    kategori: "Member",
+    onClick: () => {},
+  },
+  {
+    label: "Promo Akhir Bulan",
+    sub: "Min. pembelian 100rb",
+    kategori: "Promo",
+    onClick: () => {},
+  },
+  {
+    label: "Voucher Cashback 10%",
+    sub: "Berlaku s.d. 15 Mei",
+    kategori: "Voucher",
+    onClick: () => {},
+  },
+];
 
 export default function PencarianCepat() {
-  const { user } = useAuthStore();
+  const [query, setQuery] = useState("");
+  const [focused, setFocused] = useState(false);
+  const inputRef = useRef(null);
 
-  const [active, setActive] = useState(null);
-  const [keyword, setKeyword] = useState("");
-  const debouncedKeyword = useDebounce(keyword, 1000);
+  const filtered = query.trim()
+    ? SAMPLE_DATA.filter(
+        (d) =>
+          d.label.toLowerCase().includes(query.toLowerCase()) ||
+          d.kategori.toLowerCase().includes(query.toLowerCase())
+      )
+    : [];
 
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [highlightIndex, setHighlightIndex] = useState(-1);
-
-  /* =============================
-     🔍 FETCH SEARCH
-  ============================= */
-  useEffect(() => {
-    if (!debouncedKeyword || !active) {
-      setResults([]);
-      setHighlightIndex(-1);
-      return;
-    }
-
-    const fetchSearch = async () => {
-      setLoading(true);
-      try {
-        const endpoint =
-          active === "sparepart"
-            ? "/cari-sparepart"
-            : active === "voucher"
-              ? "/cari-voucher"
-              : active === "acc"
-                ? "/cari-acc"
-                : "/cari-no-pelanggan";
-        const res = await api.get(endpoint, {
-          params: { q: debouncedKeyword },
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        });
-
-        setResults(res.data.data || []);
-        setHighlightIndex(0);
-      } catch (err) {
-        console.error(err);
-        setResults([]);
-        setHighlightIndex(-1);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSearch();
-  }, [debouncedKeyword, active, user.token]);
-
-  const copyNomor = async (nomor) => {
-    try {
-      await navigator.clipboard.writeText(nomor);
-      Swal.fire({
-        text: "Berhasil mengcopy",
-        icon: "success",
-        timer: 500, // 1.5 detik
-        showConfirmButton: false,
-      });
-    } catch (err) {
-      console.error("Gagal copy", err);
-    }
-  };
-
-  /* =============================
-     ⌨️ KEYBOARD HANDLER
-  ============================= */
-  const handleKeyDown = (e) => {
-    if (!results.length) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightIndex((prev) => (prev < results.length - 1 ? prev + 1 : 0));
-    }
-
-    if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightIndex((prev) => (prev > 0 ? prev - 1 : results.length - 1));
-    }
-
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (highlightIndex >= 0) {
-        pickItem(results[highlightIndex]);
-      }
-    }
-  };
-
-  /* =============================
-     🖱️ PICK ITEM
-  ============================= */
-  const pickItem = (item) => {
-    console.log("Dipilih:", active, item);
-
-    setKeyword("");
-    setResults([]);
-    setHighlightIndex(-1);
-    setActive(null);
-  };
-
-  const handleChange = (type, value) => {
-    setActive(type);
-    setKeyword(value);
-  };
+  const showResults = query.trim().length > 0;
 
   return (
-    <div className="gap-3 relative flex flex-row ">
-      <InputSearch
-        placeholder="Cari Sparepart"
-        active={active === "sparepart"}
-        value={active === "sparepart" ? keyword : ""}
-        onChange={(e) => handleChange("sparepart", e.target.value)}
-        onKeyDown={handleKeyDown}
+    <div
+      style={{
+        background: "#0c0e17",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
+      <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap"
+        rel="stylesheet"
       />
 
-      <InputSearch
-        placeholder="Cari Voucher"
-        active={active === "voucher"}
-        value={active === "voucher" ? keyword : ""}
-        onChange={(e) => handleChange("voucher", e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-
-      <InputSearch
-        placeholder="Cari Acc"
-        active={active === "acc"}
-        value={active === "acc" ? keyword : ""}
-        onChange={(e) => handleChange("acc", e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-
-      <InputSearch
-        placeholder="Cari No Pelanggan"
-        active={active === "pelanggan"}
-        value={active === "pelanggan" ? keyword : ""}
-        onChange={(e) => handleChange("pelanggan", e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-
-      {/* RESULT */}
-      {active && keyword && (
-        <div className="absolute z-30 top-10 w-full bg-white border rounded-xl shadow-lg max-h-64 overflow-y-auto">
-          {loading && (
-            <div className="p-3 text-xs text-gray-500">Mencari...</div>
+      <div style={{ width: "100%", maxWidth: 390 }}>
+        {/* Search bar */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: "#13151f",
+            border: `1px solid ${focused ? "#4f46e5" : "#1e2130"}`,
+            borderRadius: 10,
+            padding: "9px 12px",
+            transition: "border-color 0.15s",
+          }}
+        >
+          <Search
+            size={14}
+            color={focused ? "#6366f1" : "#3a3d52"}
+            style={{ flexShrink: 0, transition: "color 0.15s" }}
+          />
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder="Cari produk, voucher..."
+            style={{
+              flex: 1,
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              fontSize: 13,
+              color: "#c8cce0",
+              minWidth: 0,
+            }}
+          />
+          {query && (
+            <button
+              onClick={() => {
+                setQuery("");
+                inputRef.current?.focus();
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <X size={13} color="#3a3d52" />
+            </button>
           )}
-
-          {!loading && results.length === 0 && (
-            <div className="p-3 text-xs text-gray-500">
-              Data tidak ditemukan
-            </div>
-          )}
-
-          {!loading &&
-            results.map((item, index) => (
-              <div
-                key={item.id}
-                onClick={() => pickItem(item)}
-                className={`
-                  px-3 py-2 text-xs cursor-pointer border-b last:border-b-0
-                  ${
-                    index === highlightIndex ? "bg-blue-50" : "hover:bg-blue-50"
-                  }
-                `}
-              >
-                <div className="font-medium">
-                  {highlightText(item.nama, keyword)}
-                </div>
-                <div className="text-gray-500 flex items-center justify-between">
-                  {active === "pelanggan" && (
-                    <>
-                      <span className="font-medium text-gray-700">
-                        {item.nomor}
-                      </span>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          copyNomor(item.nomor);
-                        }}
-                        className="text-blue-600 font-semibold text-sm px-2 py-1 rounded hover:bg-blue-50"
-                      >
-                        Copy
-                      </button>
-                    </>
-                  )}
-
-                  {active !== "pelanggan" && (
-                    <div className="flex gap-3">
-                      <span>Stok: {item.stok}</span>
-                      <span>{active === "voucher" ? item.brand : ""}</span>
-                      {"hargaJual" in item && (
-                        <span>
-                          Rp {item.hargaJual?.toLocaleString("id-ID")}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
         </div>
-      )}
+
+        {/* Results */}
+        {showResults && (
+          <div style={{ marginTop: 6 }}>
+            {filtered.length === 0 ? (
+              <p
+                style={{
+                  textAlign: "center",
+                  fontSize: 12,
+                  color: "#3a3d52",
+                  padding: "20px 0",
+                }}
+              >
+                Tidak ada hasil
+              </p>
+            ) : (
+              filtered.map((item, i) => {
+                const s = BADGE_STYLES[item.kategori] ?? BADGE_STYLES.Voucher;
+                return (
+                  <div
+                    key={i}
+                    onClick={() => item.onClick?.()}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "9px 10px",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      transition: "background 0.1s",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = "#13151f")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = "transparent")
+                    }
+                  >
+                    {/* Icon dot */}
+                    <div
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: s.text,
+                        flexShrink: 0,
+                      }}
+                    />
+
+                    {/* Text */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 13,
+                          fontWeight: 500,
+                          color: "#c8cce0",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {item.label}
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 11,
+                          color: "#3a3d52",
+                          marginTop: 1,
+                        }}
+                      >
+                        {item.sub}
+                      </p>
+                    </div>
+
+                    {/* Badge */}
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 500,
+                        color: s.text,
+                        background: s.bg,
+                        padding: "2px 7px",
+                        borderRadius: 5,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {item.kategori}
+                    </span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+      </div>
     </div>
-  );
-}
-
-/* =============================
-   INPUT
-============================= */
-function InputSearch({ placeholder, value, onChange, onKeyDown, active }) {
-  return (
-    <div className="relative w-full md:h-[50px] h-[38px]">
-      {/* <Search
-        size={16}
-        className={`absolute left-3 top-4 ${
-          active ? "text-blue-500" : "text-gray-400"
-        }`}
-      /> */}
-      <input
-        type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        onKeyDown={onKeyDown}
-        className={`
-          w-full text-sm h-full pl-3 pr-3 py-2 rounded-lg border
-          transition
-          ${active ? "border-blue-500 ring-2 ring-blue-500/20" : "border-gray-300"}
-          focus:outline-none
-        `}
-      />
-    </div>
-  );
-}
-
-/* =============================
-   HIGHLIGHT
-============================= */
-function highlightText(text, keyword) {
-  if (!keyword) return text;
-
-  const regex = new RegExp(`(${keyword})`, "gi");
-  return text.split(regex).map((part, i) =>
-    regex.test(part) ? (
-      <span key={i} className="bg-yellow-200 rounded px-0.5">
-        {part}
-      </span>
-    ) : (
-      part
-    )
   );
 }

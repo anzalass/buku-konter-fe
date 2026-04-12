@@ -327,23 +327,23 @@ export default function TransaksiPage() {
   });
   const watchIsForMember = watch("isForMember");
 
-  // === QUERY: Data Hari Ini ===
-  const { data: todayData, isLoading } = useQuery({
-    queryKey: ["transaksi-hari-ini"],
-    queryFn: async () => {
-      const res = await api.get("today", {
-        headers: { Authorization: `Bearer ${user?.token}` },
-      });
-      return res.data;
-    },
-    enabled: !!user?.token,
-  });
+  // // === QUERY: Data Hari Ini ===
+  // const { data: todayData, isLoading } = useQuery({
+  //   queryKey: ["transaksi-hari-ini"],
+  //   queryFn: async () => {
+  //     const res = await api.get("today", {
+  //       headers: { Authorization: `Bearer ${user?.token}` },
+  //     });
+  //     return res.data;
+  //   },
+  //   enabled: !!user?.token,
+  // });
 
-  const keuntunganData = todayData?.jualanHarian || [];
-  const totalKeuntungan = todayData?.totalKeuntungan || 0;
-  const unexpectedData = todayData?.kejadianTakTerduga || [];
+  // const keuntunganData = todayData?.jualanHarian || [];
+  // const totalKeuntungan = todayData?.totalKeuntungan || 0;
+  // const unexpectedData = todayData?.kejadianTakTerduga || [];
 
-  console.log("sas", todayData);
+  // console.log("sas", todayData);
 
   // === MUTATIONS ===
   const tambahTransaksiMutation = useMutation({
@@ -737,9 +737,9 @@ export default function TransaksiPage() {
   };
 
   // === RENDER ===
-  if (isLoading) {
-    return <div className="p-6 text-center">Memuat data hari ini...</div>;
-  }
+  // if (isLoading) {
+  //   return <div className="p-6 text-center">Memuat data hari ini...</div>;
+  // }
 
   return (
     <div className="min-h-screen   ">
@@ -762,22 +762,14 @@ export default function TransaksiPage() {
         </div> */}
 
         {/* Quick Input Section */}
-        <div className="bg-white rounded-2xl p-2 mb-6">
-          <h2 className="font-bold md:text-xl text=base text-gray-800 mb-6 flex items-center gap-2">
-            <DollarSign className="w-6 h-6 text-blue-600" />
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-3 md:p-4 mb-6 shadow-sm">
+          <h2 className="font-bold text-xs md:text-xl text-gray-800 dark:text-white mb-3 flex items-center gap-2">
             Pilih Kategori
           </h2>
 
-          {/* Kategori */}
+          {/* === KATEGORI === */}
           <div className="mb-6">
-            {/* <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-              <Tag className="w-4 h-4" />
-              Pilih Kategori
-            </label> */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {/* Semua Kategori Button (Optional) */}
-
-              {/* Category Buttons */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {kategoriList.map((kat) => {
                 const colors = getKategoriColor(kat);
                 const isSelected = selectedKategori === kat;
@@ -786,20 +778,22 @@ export default function TransaksiPage() {
                   <button
                     key={kat}
                     onClick={() => setSelectedKategori(kat)}
-                    className={`
-          px-4 py-3 text-sm md:text-base rounded-xl border-2 font-semibold 
-          transition-all duration-300 
-          hover:scale-105 hover:shadow-lg
-          flex items-center justify-center gap-2
-          min-h-[60px]
-          ${
-            isSelected
-              ? `bg-gradient-to-r ${colors.active} text-white border-transparent shadow-lg ${colors.shadow} scale-105`
-              : `${colors.bg} ${colors.text} border ${colors.border} hover:shadow-md hover:bg-opacity-80`
-          }
-        `}
+                    className={`flex items-center gap-3 p-2 rounded-xl text-xs font-medium transition-all duration-200 border
+            ${
+              isSelected
+                ? "bg-white text-gray-900 border-gray-300 shadow-sm"
+                : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-600 hover:border-blue-400"
+            }`}
                   >
-                    <span className="text-xl">{colors.icon}</span>
+                    <span
+                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background: colors.iconBg }}
+                    >
+                      <span style={{ color: colors.iconColor }}>
+                        {colors.icon}
+                      </span>
+                    </span>
+
                     <span>{kat}</span>
                   </button>
                 );
@@ -807,40 +801,47 @@ export default function TransaksiPage() {
             </div>
           </div>
 
-          {/* Nominal */}
+          {/* === NOMINAL === */}
           <div className="mb-6">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-              <DollarSign className="w-4 h-4" />
-              Pilih Nominal Keuntungan
-            </label>
-            <div className="grid grid-cols-4 gap-2">
-              {nominalList.map((num) => (
-                <button
-                  key={num}
-                  onClick={() => setSelectedNominal(num)}
-                  className={`px-3 py-3 rounded-xl border-2 font-semibold transition-all text-sm ${
-                    selectedNominal === num
-                      ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white border-green-600 shadow-lg scale-105"
-                      : "bg-white border-gray-200 text-gray-700 hover:border-green-300 hover:shadow-md"
-                  }`}
-                >
-                  {num.toLocaleString()}
-                </button>
-              ))}
+            <h2 className="font-bold text-xs md:text-xl text-gray-800 dark:text-white mb-3 flex items-center gap-2">
+              Pilih Nominal
+            </h2>
+
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {nominalList.map((num) => {
+                const isSelected = selectedNominal === num;
+
+                return (
+                  <button
+                    key={num}
+                    onClick={() => setSelectedNominal(num)}
+                    className={`py-2 rounded-xl text-sm font-medium transition-all duration-200 border
+            ${
+              isSelected
+                ? "bg-white text-gray-900 border-gray-300 shadow-sm"
+                : "bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-blue-400"
+            }`}
+                  >
+                    {num.toLocaleString()}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* === MODAL === */}
           {selectedKategori && selectedNominal && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-              <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl">
-                <h2 className="text-lg font-bold mb-4">Simpan Transaksi</h2>
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-3">
+              <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl p-5 md:p-6 shadow-xl">
+                <h2 className="text-lg font-bold mb-4 text-gray-800 dark:text-white">
+                  Simpan Transaksi
+                </h2>
 
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                   {selectedKategori} - Rp {selectedNominal?.toLocaleString()}
                 </p>
 
-                {/* Input No Telp */}
+                {/* INPUT */}
                 <div className="relative">
                   <input
                     ref={memberInputRef}
@@ -848,43 +849,44 @@ export default function TransaksiPage() {
                     value={memberSearch}
                     onChange={(e) => setMemberSearch(e.target.value)}
                     placeholder="Masukkan No Telp / Kode Member (Opsional)"
-                    className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 pr-12 focus:border-blue-500 focus:outline-none"
+                    className="w-full border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg px-4 py-3 pr-12 focus:border-blue-500 focus:outline-none"
                   />
+
                   <button
                     type="button"
-                    onClick={() => setIsScanning(true)} // ✅ BENAR
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800"
+                    onClick={() => setIsScanning(true)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600"
                   >
                     📷
                   </button>
                 </div>
 
-                {/* Area Scanner — selalu ada di DOM, tapi hidden jika tidak scan */}
+                {/* SCANNER */}
                 <div
                   id="reader"
-                  className={`w-full mx-auto transition-opacity duration-300 ${
-                    isScanning ? "block opacity-100" : "hidden opacity-0"
+                  className={`w-full mx-auto mt-3 ${
+                    isScanning ? "block" : "hidden"
                   }`}
                 ></div>
 
                 {isScanning && (
                   <button
-                    type="button"
                     onClick={() => setIsScanning(false)}
                     className="w-full mt-3 py-2 bg-red-500 text-white rounded-lg"
                   >
                     Batal Scan
                   </button>
                 )}
-                {/* Selected */}
+
+                {/* MEMBER */}
                 {selectedMember && (
-                  <div className="mt-3 bg-green-50 p-3 rounded-lg text-sm">
+                  <div className="mt-3 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 p-3 rounded-lg text-sm">
                     ✅ {selectedMember.nama}
                   </div>
                 )}
 
-                {/* Buttons */}
-                <div className="flex gap-3 mt-6">
+                {/* BUTTON */}
+                <div className="flex flex-col sm:flex-row gap-3 mt-6">
                   <button
                     onClick={() => {
                       submitTransaksi();
@@ -892,7 +894,7 @@ export default function TransaksiPage() {
                     }}
                     className="flex-1 py-3 bg-blue-600 text-white rounded-lg"
                   >
-                    Simpan Tanpa Member
+                    Simpan
                   </button>
 
                   <button
@@ -909,14 +911,11 @@ export default function TransaksiPage() {
               </div>
             </div>
           )}
-
-          {/* Member Input */}
         </div>
-
         {/* Manual Input Section */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
-          <h2 className="font-bold md:text-xl text-base text-gray-800 mb-6 flex items-center gap-2">
-            <Wallet className="w-6 h-6 text-purple-600" />
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-4 md:p-6 mb-16">
+          <h2 className="font-bold text-base md:text-xl text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+            <Wallet className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
             Input Manual Keuntungan
           </h2>
 
@@ -924,9 +923,11 @@ export default function TransaksiPage() {
             className="space-y-4"
             onSubmit={handleSubmit(handleManualSubmit)}
           >
+            {/* INPUT GRID */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* KATEGORI */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Kategori <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -935,11 +936,13 @@ export default function TransaksiPage() {
                     required: "Kategori wajib diisi",
                   })}
                   placeholder="Contoh: Tarik Tunai"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:border-purple-500 focus:outline-none transition"
                 />
               </div>
+
+              {/* NOMINAL */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Nominal <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -951,15 +954,15 @@ export default function TransaksiPage() {
                   min="1"
                   placeholder="Contoh: 5000"
                   onKeyDown={(e) => {
-                    if (e.key === "-" || e.key === "e" || e.key === "E")
-                      e.preventDefault();
+                    if (["-", "e", "E"].includes(e.key)) e.preventDefault();
                   }}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:border-purple-500 focus:outline-none transition"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-lg">
+            {/* CHECKBOX */}
+            <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/30 p-3 rounded-lg">
               <input
                 checked={watchIsForMember}
                 type="checkbox"
@@ -969,22 +972,23 @@ export default function TransaksiPage() {
               />
               <label
                 htmlFor="isForMember"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Tambahkan ke member? (opsional)
               </label>
             </div>
 
+            {/* MEMBER SECTION */}
             {watchIsForMember && (
-              <div className="mt-4 p-5 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50">
-                <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <div className="mt-4 p-4 md:p-5 border-2 border-blue-200 dark:border-blue-700 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
+                <h3 className="font-semibold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
                   <Search className="w-5 h-5 text-blue-600" />
                   Pilih Member
                 </h3>
+
                 <div className="relative mb-4">
-                  <Search
-                    className={`absolute left-3  ${selectedMember ? "top-6" : "top-1/2"} -translate-y-1/2 w-5 h-5 text-gray-400`}
-                  />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+
                   <input
                     type="text"
                     value={memberSearch}
@@ -993,18 +997,27 @@ export default function TransaksiPage() {
                       if (e.target.value.trim()) setShowMemberDropdown(true);
                     }}
                     placeholder="Cari nama atau no HP..."
-                    className="w-full border-2 border-blue-200 rounded-lg pl-10 pr-4 py-3 focus:border-blue-500 focus:outline-none transition"
+                    className="w-full border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg pl-10 pr-12 py-3 focus:border-blue-500 focus:outline-none transition"
                     onFocus={() =>
                       membersList.length > 0 && setShowMemberDropdown(true)
                     }
                   />
+
                   <button
                     type="button"
-                    onClick={() => setIsScanning2(true)} // ✅ BENAR
-                    className={`absolute right-3 ${selectedMember ? "top-6" : "top-1/2"} -translate-y-1/2 text-blue-600 hover:text-blue-800`}
+                    onClick={() => setIsScanning2(true)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600"
                   >
                     📷
                   </button>
+
+                  {/* SCANNER */}
+                  <div
+                    id="reader2"
+                    className={`w-full mt-3 ${
+                      isScanning2 ? "block" : "hidden"
+                    }`}
+                  ></div>
 
                   {isScanning2 && (
                     <button
@@ -1016,29 +1029,24 @@ export default function TransaksiPage() {
                     </button>
                   )}
 
-                  {/* Area Scanner — selalu ada di DOM, tapi hidden jika tidak scan */}
-                  <div
-                    id="reader2"
-                    className={`w-full mx-auto transition-opacity duration-300 ${
-                      isScanning2 ? "block opacity-100" : "hidden opacity-0"
-                    }`}
-                  ></div>
-
+                  {/* DROPDOWN */}
                   {showMemberDropdown && (
-                    <div className="absolute z-50 bg-white border-2 border-blue-200 w-full rounded-lg shadow-md mt-2 max-h-48 overflow-y-auto">
+                    <div className="absolute z-50 bg-white dark:bg-gray-800 border-2 border-blue-200 dark:border-blue-700 w-full rounded-lg shadow-md mt-2 max-h-48 overflow-y-auto">
                       {membersList.length === 0 ? (
-                        <p className="p-3 text-gray-500 text-center">
+                        <p className="p-3 text-gray-500 dark:text-gray-400 text-center">
                           Member tidak ditemukan
                         </p>
                       ) : (
                         membersList.map((m) => (
                           <div
                             key={m.id}
-                            className="p-3 hover:bg-blue-50 cursor-pointer flex justify-between transition"
                             onClick={() => selectMember(m)}
+                            className="p-3 hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer flex justify-between transition"
                           >
-                            <span className="font-medium">{m.nama}</span>
-                            <span className="text-gray-500 text-sm">
+                            <span className="font-medium text-gray-800 dark:text-white">
+                              {m.nama}
+                            </span>
+                            <span className="text-gray-500 dark:text-gray-400 text-sm">
                               {m.noTelp || "-"}
                             </span>
                           </div>
@@ -1047,11 +1055,12 @@ export default function TransaksiPage() {
                     </div>
                   )}
 
+                  {/* SELECTED MEMBER */}
                   {selectedMember && (
-                    <div className="mt-3 flex items-center justify-between bg-green-50 border-2 border-green-200 rounded-lg p-3">
+                    <div className="mt-3 flex items-center justify-between bg-green-50 dark:bg-green-900/30 border-2 border-green-200 dark:border-green-700 rounded-lg p-3">
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-5 h-5 text-green-600" />
-                        <span className="text-sm text-green-800">
+                        <span className="text-sm text-green-800 dark:text-green-300">
                           Member: <b>{selectedMember.nama}</b>
                         </span>
                       </div>
@@ -1066,9 +1075,11 @@ export default function TransaksiPage() {
                 </div>
               </div>
             )}
+
+            {/* SUBMIT */}
             <button
               type="submit"
-              className="w-full text-sm md:text-base md:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+              className="w-full md:w-auto px-6 md:px-8 py-3 text-sm md:text-base bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all active:scale-95"
             >
               ➕ Tambah Keuntungan
             </button>
@@ -1076,7 +1087,7 @@ export default function TransaksiPage() {
         </div>
 
         {/* Summary Card */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl shadow-md p-6 mb-6 text-white">
+        {/* <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl shadow-md p-6 mb-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm mb-1">
@@ -1090,10 +1101,10 @@ export default function TransaksiPage() {
               <TrendingUp className="w-12 h-12" />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Table Section */}
-        <div className="bg-white rounded-2xl shadow-md p-6">
+        {/* <div className="bg-white rounded-2xl shadow-md p-6">
           <h2 className="font-bold md:text-xl text-base text-gray-800 mb-4 flex items-center gap-2">
             <Calendar className="w-6 h-6 text-blue-600" />
             Riwayat Keuntungan Hari Ini
@@ -1155,12 +1166,12 @@ export default function TransaksiPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </div> */}
       </div>
-      <KejadianTakTerduga
+      {/* <KejadianTakTerduga
         data={unexpectedData}
         onDelete={(id) => deleteUnexpectedMutation.mutate(id)}
-      />
+      /> */}
     </div>
   );
 }

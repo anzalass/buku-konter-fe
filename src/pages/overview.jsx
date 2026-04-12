@@ -1,298 +1,341 @@
-import React, { lazy, Suspense, useCallback, useMemo, useState } from "react";
-import {
-  Wallet,
-  X,
-  TrendingUp,
-  Package,
-  BarChart3,
-  PlusCircle,
-  Loader2Icon,
-  DollarSign,
-  Building2,
-  ChevronDown,
-  ArrowRightLeft,
-  Clock,
-  Wrench,
-} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 import api from "../api/client";
-
-import TableSectionVoucherGrosirToday from "../components/table-grosir-voucher-today";
-import TableSectionAccToday from "../components/table-acc-today";
-import TableSectionSparepartToday from "../components/table-sparepart-today";
-import TableUangModalToday from "../components/table-uang-modal";
-import TableSectionServiceToday from "../components/table-service-today";
-import TableStokVoucher from "../components/stok-voucher";
-import TableStokAcc from "../components/stok-acc";
-import TableStokSparepart from "../components/stok-sparepart";
-
-import ModalGrosirVoucher from "../components/modal-trans-voucher";
-import ModalTransaksiSparepart from "../components/modal-trans-sparepart";
-import ModalServiceHP from "../components/modal-service";
-import ModalTransaksiAcc from "../components/modal-trans-acc";
 import { useAuthStore } from "../store/useAuthStore";
-import PencarianCepat from "../components/pencarian-cepat";
-import GrafikKeuntungan from "../components/grafik";
-import GrafikKeuntungan2 from "../components/grafik2";
-const DetailKeuntunganModal = lazy(() =>
-  import("../components/detail-keuntungan-modal").then((m) => ({
-    default: m.DetailKeuntunganModal,
-  }))
-);
 
-const DetailOmsetModal = lazy(() =>
-  import("../components/detail-omset-modal").then((m) => ({
-    default: m.DetailOmsetModal,
-  }))
-);
+const COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444"];
 
-const DetailTrxModal = lazy(() =>
-  import("../components/detail-trx-modal").then((m) => ({
-    default: m.DetailTrxModal,
-  }))
-);
-
-const DetailServiceModal = lazy(() =>
-  import("../components/detail-service-modal").then((m) => ({
-    default: m.DetailServiceModal,
-  }))
-);
-
-const DetailServiceModal2 = lazy(() =>
-  import("../components/detail-service-modal2").then((m) => ({
-    default: m.DetailServiceModal2,
-  }))
-);
-
-const StatsSection = lazy(() =>
-  import("../components/stats-components").then((m) => ({
-    default: m.StatsSection,
-  }))
-);
-export default function Overview() {
+export default function DashboardKeuntungan() {
   const { user } = useAuthStore();
 
-  // Modal
-  const [openModalAcc, setOpenModalAcc] = useState(false);
-  const [openModalVD, setOpenModalVD] = useState(false);
-  const [openModalSparepart, setOpenModalSparepart] = useState(false);
-  const [openModalService, setOpenModalService] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  const [jenis, setJenis] = useState("Transaksi Aksesoris Harian");
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-  // === REACT QUERY DASHBOARD ===
-  const {
-    data: dashboardData,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["dashboard"],
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const [periode, setPeriode] = useState("mingguan");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const isCustomReady = Boolean(startDate && endDate);
+  const FIVE_HOURS = 1000 * 60 * 60 * 5;
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["dashboard-keuntungan", periode, startDate, endDate],
     queryFn: async () => {
-      const res = await api.get("/dashboard2", {
+      const res = await api.get("keuntungan-new", {
+        params: { periode, startDate, endDate },
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${user.token}`,
         },
       });
       return res.data.data;
     },
-    enabled: !!user?.token,
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 30,
+
+    enabled: !!user?.token && (periode !== "custom" || isCustomReady),
+    staleTime: FIVE_HOURS,
+    cacheTime: FIVE_HOURS,
     refetchOnWindowFocus: false,
+    placeholderData: [],
+    refetchOnReconnect: false,
+    // refetchInterval: FIVE_HOURS, // optional
   });
-
-  const stats = useMemo(() => {
-    const d = dashboardData || {};
-
-    return {
-      keuntunganHariIni:
-        Number(d.totalKeuntunganHariIni || 0) +
-        Number(d.keuntunganGrosirVoucherHariIni || 0) +
-        Number(d.keuntunganAccHariIni || 0) +
-        Number(d.keuntunganVoucherHarian || 0) +
-        Number(d.keuntunganServiceHariIni || 0) +
-        Number(d.keuntunganSparepartHariIni || 0),
-
-      omsetHariIni:
-        (d.omsetAccHariIni || 0) +
-        (d.omsetVoucherHarian || 0) +
-        (d.omsetGrosirVoucherHariIni || 0) +
-        (d.omsetSparepartHariIni || 0) +
-        (d.omsetServicetHariIni || 0),
-
-      transaksiHariIni:
-        (d.totalTransaksiVoucherHarian || 0) +
-        (d.trxAccHariIniTotal || 0) +
-        (d.trxVoucherDownlineHariIniTotal || 0) +
-        (d.trxHariIniTotal || 0) +
-        (d.trxSparepartHariIniTotal || 0) +
-        (d.trxServiceHariIniTotal || 0),
-
-      voucherPending: d.trxVoucherPendingHariIni || 0,
-
-      omsetService:
-        (d.omsetServicetHariIni || 0) + (d.omsetSparepartHariIni || 0),
-
-      keuntunganService:
-        (d.keuntunganServiceHariIni || 0) + (d.keuntunganSparepartHariIni || 0),
-    };
-  }, [dashboardData]);
-
-  if (isLoading) {
-    return <div className="p-6">Memuat data dashboard..</div>;
-  }
-
-  return (
-    <div className="p-2 space-y-8 mt-6">
-      {/* HEADER */}
-      {/* STAT CARDS — DATA REAL */}
-      {/* Tambahkan loading state */}
-      <Suspense fallback={<div className="p-4">Loading stats...</div>}>
-        <StatsSection stats={stats} />
-      </Suspense>{" "}
-      <div className="flex flex-col lg:flex-row gap-x-3">
-        <div className="lg:w-1/2 w-full ">
-          <GrafikKeuntungan />
-        </div>
-        <div className="lg:w-1/2 w-full">
-          <GrafikKeuntungan2 />
-        </div>
-      </div>
-      {/* ACTION BUTTONS */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <ActionButton
-          onClick={() => setOpenModalVD(true)}
-          label="  Grosir Voucher"
-        />
-        <ActionButton
-          label="  Aksesoris"
-          onClick={() => setOpenModalAcc(true)}
-        />
-        <ActionButton
-          onClick={() => setOpenModalService(true)}
-          label=" Service HP"
-        />
-        <ActionButton
-          onClick={() => setOpenModalSparepart(true)}
-          label="  Sparepart"
-        />
-      </div>
-      {/* SEARCH INPUTS STOK */}
-      <div className="">
-        <PencarianCepat />
-      </div>
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Pilih Transaksi
-        </label>
-
-        <div className="relative">
-          <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-
-          <select
-            value={jenis}
-            onChange={(e) => setJenis(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 
-                 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 
-                 outline-none transition appearance-none"
-          >
-            <option value="Transaksi Voucher Harian">
-              Transaksi Voucher Harian
-            </option>
-            <option value="Transaksi Sparepart Harian">
-              Transaksi Sparepart Harian
-            </option>
-            <option value="Service Harian">Service Harian</option>
-            <option value="Transaksi Aksesoris Harian">
-              Transaksi Aksesoris Harian
-            </option>
-          </select>
-
-          {/* Arrow */}
-          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-        </div>
-      </div>
-      {/* MODALS */}
-      <ModalTransaksiAcc
-        isOpen={openModalAcc}
-        onClose={() => setOpenModalAcc(false)}
-        onSuccess={refetch}
-      />
-      <ModalTransaksiSparepart
-        isOpen={openModalSparepart}
-        onClose={() => setOpenModalSparepart(false)}
-        onSuccess={refetch}
-      />
-      <ModalGrosirVoucher
-        isOpen={openModalVD}
-        onClose={() => setOpenModalVD(false)}
-        onSuccess={refetch}
-      />
-      <ModalServiceHP
-        isOpen={openModalService}
-        onClose={() => setOpenModalService(false)}
-        onSuccess={refetch}
-      />
-      {/* TABLES — KIRIM DATA & PAGINATION */}
-      <div className="space-y-10">
-        {jenis === "Transaksi Voucher Harian" ? (
-          <TableSectionVoucherGrosirToday
-            title="Grosir Voucher Hari Ini"
-            data={dashboardData.trxVoucherDownlineHariIni}
-            onSuccess={refetch}
-          />
-        ) : jenis === "Transaksi Sparepart Harian" ? (
-          <TableSectionSparepartToday
-            title="Sparepart Hari Ini"
-            data={dashboardData.trxSparepartHariIni}
-            onSuccess={refetch}
-          />
-        ) : jenis === "Transaksi Aksesoris Harian" ? (
-          <TableSectionAccToday
-            title="Aksesoris Hari Ini"
-            data={dashboardData.trxAccHariIni}
-            onSuccess={refetch}
-          />
-        ) : jenis === "Service Harian" ? (
-          <TableSectionServiceToday
-            title="Service HP"
-            data={dashboardData.trxServiceHariIni}
-            onSuccess={refetch}
-          />
-        ) : null}
-
-        <TableUangModalToday
-          title="Uang Keluar / Hutang Hari Ini"
-          data={dashboardData.uangModalHariIni}
-          onSuccess={refetch}
-        />
-        <TableStokVoucher
-          title="Stok Voucher Menipis"
-          data={dashboardData.stokVd}
-        />
-        <TableStokAcc
-          title="Stok Aksesoris Menipis"
-          data={dashboardData.stokAcc}
-        />
-        <TableStokSparepart
-          title="Stok Sparepart Menipis"
-          data={dashboardData.stokSparepart}
-        />
-
-        {/* Uang Keluar — sesuaikan jika punya data */}
-      </div>
-    </div>
+  // 🔥 TOTAL UNTUK PIE
+  const total = (data || []).reduce(
+    (acc, item) => {
+      acc.service += item.keuntunganService || 0;
+      acc.penjualan += item.penjualan || 0;
+      acc.jualanHarian += item.jualanHarian || 0;
+      acc.voucher += item.voucherHarian || 0;
+      return acc;
+    },
+    { service: 0, penjualan: 0, jualanHarian: 0, voucher: 0 }
   );
-}
 
-function ActionButton({ label, onClick }) {
+  const pieData = total
+    ? [
+        { name: "Service", value: total.service },
+        { name: "Penjualan", value: total.penjualan },
+        { name: "Harian", value: total.jualanHarian },
+        { name: "Voucher", value: total.voucher },
+      ]
+    : [];
+
+  useEffect(() => {
+    if (periode === "custom" && !startDate && !endDate) {
+      const now = new Date();
+      const last7 = new Date();
+      last7.setDate(now.getDate() - 7);
+
+      setStartDate(last7.toISOString().slice(0, 10));
+      setEndDate(now.toISOString().slice(0, 10));
+    }
+  }, [periode]);
+
+  const cardStyle =
+    "bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.3)]";
+
   return (
-    <button
-      onClick={onClick}
-      className="flex items-center text-xs justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium shadow-sm transition w-full"
-    >
-      <PlusCircle className="w-5 h-5" />
-      {label}
-    </button>
+    <div className="min-h-screen max-w-7xl mx-auto p-2  text-white">
+      {" "}
+      {/* 🔥 HEADER */}
+      <div className="flex justify-between items-center mb-4">
+        {/* <div>
+          <h1 className="text-lg font-semibold tracking-tight">
+            Dashboard Keuntungan
+          </h1>
+          <p className="text-[11px] text-gray-400">
+            Monitoring performa bisnis
+          </p>
+        </div> */}
+
+        <select
+          value={periode}
+          onChange={(e) => {
+            const val = e.target.value;
+            setPeriode(val);
+
+            if (val !== "custom") {
+              setStartDate("");
+              setEndDate("");
+            }
+          }}
+          className="bg-white/5 border border-white/10 text-white text-xs px-3 py-2 rounded-xl backdrop-blur-lg"
+        >
+          <option value="harian">Harian</option>
+          <option value="mingguan">Mingguan</option>
+          <option value="bulanan">Bulanan</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      {periode === "custom" && (!startDate || !endDate) && (
+        <p className="text-xs text-gray-500 mt-2">
+          Pilih tanggal dulu untuk melihat data
+        </p>
+      )}
+      {periode === "custom" && (
+        <div className="flex gap-2 mt-2">
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="bg-[#181820] border border-[#2A2A38] text-white text-xs px-2 py-2 rounded-lg w-full"
+          />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="bg-[#181820] border border-[#2A2A38] text-white text-xs px-2 py-2 rounded-lg w-full"
+          />
+        </div>
+      )}
+      <div className="grid md:grid-cols-4 grid-cols-2 gap-2 mt-4">
+        {[
+          { label: "Service", value: total.service, color: "text-green-400" },
+          {
+            label: "Penjualan",
+            value: total.penjualan,
+            color: "text-indigo-400",
+          },
+          {
+            label: "Harian",
+            value: total.jualanHarian,
+            color: "text-yellow-400",
+          },
+          { label: "Voucher", value: total.voucher, color: "text-red-400" },
+        ].map((item, i) => (
+          <div key={i} className={`${cardStyle} p-3`}>
+            <p className="text-[10px] text-gray-400">{item.label}</p>
+            <p className={`text-sm font-semibold ${item.color}`}>
+              Rp {item.value.toLocaleString("id-ID")}
+            </p>
+          </div>
+        ))}
+      </div>
+      {/* ======================= */}
+      {/* 🔥 SKELETON */}
+      {/* ======================= */}
+      {isLoading ? (
+        <div className="space-y-3  mx-auto md:grid md:grid-cols-2">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="h-32 rounded-xl bg-[#181820] animate-pulse"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="gap-3  mx-auto md:grid md:grid-cols-2">
+          {/* ======================= */}
+          {/* 🔥 LINE CHART */}
+          {/* ======================= */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`${cardStyle} p-2 mt-4`}
+          >
+            <p className="text-xs text-gray-400 mb-2">Trend Keuntungan</p>
+
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={data}>
+                <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} />
+                {!isMobile && <YAxis />}
+                <Tooltip
+                  contentStyle={{
+                    background: "#111",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "12px",
+                  }}
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="keuntunganService"
+                  stroke="#22c55e"
+                  strokeWidth={3}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="penjualan"
+                  stroke="#6366f1"
+                  strokeWidth={3}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="jualanHarian"
+                  stroke="#f59e0b"
+                  strokeWidth={3}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="voucherHarian"
+                  stroke="#ef4444"
+                  strokeWidth={3}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </motion.div>
+
+          {/* ======================= */}
+          {/* 🔥 BAR CHART */}
+          {/* ======================= */}
+          <motion.div className={`${cardStyle} p-4 mt-4`}>
+            <p className="text-xs text-gray-400 mb-2">Perbandingan</p>
+
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={data}>
+                <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} />
+                {!isMobile && <YAxis />}
+                <Tooltip />
+
+                <Bar
+                  dataKey="keuntunganService"
+                  fill="#22c55e"
+                  radius={[6, 6, 0, 0]}
+                />
+                <Bar dataKey="penjualan" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                <Bar
+                  dataKey="jualanHarian"
+                  fill="#f59e0b"
+                  radius={[6, 6, 0, 0]}
+                />
+                <Bar
+                  dataKey="voucherHarian"
+                  fill="#ef4444"
+                  radius={[6, 6, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </motion.div>
+
+          {/* ======================= */}
+          <motion.div className={`${cardStyle} p-4 mt-4`}>
+            <p className="text-xs text-gray-400 mb-2">Distribusi</p>
+
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  innerRadius={60} // 🔥 donut
+                  outerRadius={90}
+                  paddingAngle={3}
+                >
+                  {pieData.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </motion.div>
+
+          {/* ======================= */}
+          {/* 🔥 TABLE */}
+          {/* ======================= */}
+          <motion.div className={`${cardStyle} mt-4 overflow-hidden`}>
+            <table className="w-full text-xs">
+              <thead className="bg-white/5 text-gray-300">
+                <tr>
+                  <th className="p-3 text-left">Tanggal</th>
+                  <th>Service</th>
+                  <th>Penjualan</th>
+                  <th>Harian</th>
+                  <th>Voucher</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {data?.map((d, i) => (
+                  <tr
+                    key={i}
+                    className="border-t border-white/10 hover:bg-white/5 transition"
+                  >
+                    <td className="p-3">{d.tanggal}</td>
+                    <td className="text-green-400">
+                      Rp {d.keuntunganService.toLocaleString("id-ID")}
+                    </td>
+                    <td className="text-indigo-400">
+                      Rp {d.penjualan.toLocaleString("id-ID")}
+                    </td>
+                    <td className="text-yellow-400">
+                      Rp {d.jualanHarian.toLocaleString("id-ID")}
+                    </td>
+                    <td className="text-red-400">
+                      Rp {d.voucherHarian.toLocaleString("id-ID")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </motion.div>
+        </div>
+      )}
+    </div>
   );
 }

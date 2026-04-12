@@ -1,102 +1,35 @@
-// src/pages/MemberTransactionHistory.jsx
-import { useState, useEffect, useMemo } from "react";
-import api from "../api/client";
-import { useAuthStore } from "../store/useAuthStore";
 import { useParams } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-
-const getTypeIcon = (jenis) => {
-  switch (jenis) {
-    case "voucher":
-      return "🎟️";
-    case "service":
-      return "🔧";
-    case "aksesoris":
-      return "🎧";
-    case "sparepart":
-      return "⚙️";
-    case "jualanHarian":
-      return "💰";
-    default:
-      return "📄";
-  }
-};
-
-const getTypeColor = (jenis) => {
-  switch (jenis) {
-    case "voucher":
-      return "bg-blue-100 text-blue-800";
-    case "service":
-      return "bg-amber-100 text-amber-800";
-    case "aksesoris":
-      return "bg-purple-100 text-purple-800";
-    case "sparepart":
-      return "bg-emerald-100 text-emerald-800";
-    case "jualanHarian":
-      return "bg-rose-100 text-rose-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
-const formatRupiah = (angka) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(angka);
-};
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-// Helper: cek apakah tanggal dalam rentang
-const isDateInRange = (dateStr, start, end) => {
-  const date = new Date(dateStr);
-  return date >= start && date <= end;
-};
+import api from "../api/client";
 
 export default function MemberTransactionHistory() {
-  const { memberId } = useParams();
+  const { id } = useParams();
+  const { user } = useAuthStore();
 
   const [filterJenis, setFilterJenis] = useState("all");
-  const [filterPeriod, setFilterPeriod] = useState("all"); // 'today', 'month', 'year', 'custom'
+  const [filterPeriod, setFilterPeriod] = useState("all");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
 
-  const { user } = useAuthStore();
-
-  const fetchTransactions = async ({ queryKey }) => {
-    const [_key, { memberId, token }] = queryKey;
-
-    const res = await api.get(`/member/trx/${memberId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    return res.data.data;
-  };
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["member-transactions", { memberId, token: user?.token }],
-    queryFn: fetchTransactions,
-    enabled: !!memberId && !!user?.token,
+  const { data, isLoading } = useQuery({
+    queryKey: ["member-transactions", { id, token: user?.token }],
+    queryFn: async () => {
+      const res = await api.get(`/member/trx/${id}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      return res.data.data;
+    },
+    enabled: !!id && !!user?.token,
   });
 
   const transactions = data?.result || [];
-  const dataMember = data || null;
-  const loading = isLoading;
 
-  // Hitung rentang tanggal berdasarkan filter
+  // 🔥 DATE RANGE
   const getDateRange = () => {
     const now = new Date();
-    let start = new Date(0); // awal waktu
+    let start = new Date(0);
     let end = new Date(now);
 
     if (filterPeriod === "today") {
@@ -108,221 +41,169 @@ export default function MemberTransactionHistory() {
     } else if (filterPeriod === "custom" && customStart && customEnd) {
       start = new Date(customStart);
       end = new Date(customEnd);
-      end.setHours(23, 59, 59, 999); // sampai akhir hari
+      end.setHours(23, 59, 59, 999);
     }
 
     return { start, end };
   };
 
-  console.log(transactions);
-
-  // Filter data
-  const filteredTransactions = useMemo(() => {
+  // 🔥 FILTER
+  const filtered = useMemo(() => {
     const { start, end } = getDateRange();
 
-    return transactions?.filter((trx) => {
-      // Filter jenis
+    return transactions.filter((trx) => {
       if (filterJenis !== "all" && trx.jenis !== filterJenis) return false;
-      // Filter tanggal
-      return isDateInRange(trx.tanggal, start, end);
+
+      const tgl = new Date(trx.tanggal);
+      return tgl >= start && tgl <= end;
     });
   }, [transactions, filterJenis, filterPeriod, customStart, customEnd]);
 
-  // Hitung total keuntungan
+  // 🔥 TOTAL
   const totalKeuntungan = useMemo(() => {
-    return filteredTransactions.reduce(
-      (sum, trx) => sum + (trx.keuntungan || 0),
-      0
-    );
-  }, [filteredTransactions]);
+    return filtered.reduce((sum, trx) => sum + (trx.keuntungan || 0), 0);
+  }, [filtered]);
 
-  const jenisOptions = [
-    { value: "all", label: "Semua Transaksi" },
-    { value: "voucher", label: "Voucher" },
-    { value: "service", label: "Service HP" },
-    { value: "aksesoris", label: "Aksesoris" },
-    { value: "sparepart", label: "Sparepart" },
-    { value: "jualanHarian", label: "Jualan Harian" },
-  ];
-
-  const periodOptions = [
-    { value: "all", label: "Semua Waktu" },
-    { value: "today", label: "Hari Ini" },
-    { value: "month", label: "Bulan Ini" },
-    { value: "year", label: "Tahun Ini" },
-    { value: "custom", label: "Custom Tanggal" },
-    useQuery,
-  ];
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-20 bg-gray-200 rounded-lg"></div>
-          ))}
-        </div>
-      </div>
+      <div className="p-4 text-center text-gray-400 text-sm">Loading...</div>
     );
-  }
-
-  if (error) {
-    return <div className="p-6 text-center text-red-500">{error}</div>;
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-base md:text-2xl mt-4 font-bold text-gray-800">
-          Riwayat Transaksi - {dataMember?.nama}
-        </h1>
-        <p className="text-gray-600 text-xs">
-          Semua aktivitas transaksi member ini
+    <div className="max-w-[480px] mx-auto p-2 pb-20">
+      {/* 🔥 HEADER */}
+      <div className="mb-4">
+        <p className="text-base text-gray-400">{data?.nama || "-"}</p>
+      </div>
+
+      {/* 🔥 SUMMARY */}
+      <div className="mb-4 rounded-xl p-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-800">
+        <p className="text-xs text-green-300 mb-1">Total Keuntungan</p>
+        <p className="text-xl font-bold text-green-400">
+          Rp {totalKeuntungan.toLocaleString("id-ID")}
         </p>
       </div>
 
-      {/* STATS */}
-      <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-        <h3 className="text-sm font-medium text-green-800 mb-1">
-          Total Keuntungan
-        </h3>
-        <p className="text-2xl font-bold text-green-700">
-          {formatRupiah(totalKeuntungan)}
-        </p>
+      {/* 🔥 FILTER PERIODE */}
+      <div className="flex gap-2 overflow-x-auto mb-3">
+        {["all", "today", "month", "year", "custom"].map((p) => (
+          <button
+            key={p}
+            onClick={() => setFilterPeriod(p)}
+            className="px-3 py-1.5 text-xs rounded-lg whitespace-nowrap"
+            style={{
+              background: filterPeriod === p ? "#16a34a" : "#252530",
+              color: filterPeriod === p ? "#fff" : "#aaa",
+            }}
+          >
+            {p}
+          </button>
+        ))}
       </div>
 
-      {/* FILTERS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {/* Filter Jenis */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Jenis Transaksi
-          </label>
-          <select
-            value={filterJenis}
-            onChange={(e) => setFilterJenis(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-          >
-            {jenisOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+      {filterPeriod === "custom" && (
+        <div className="flex gap-2 mb-4">
+          <input
+            type="date"
+            value={customStart}
+            onChange={(e) => setCustomStart(e.target.value)}
+            className="w-full px-2 py-2 rounded-lg text-xs bg-[#111118] border border-[#2A2A38] text-white"
+          />
+          <input
+            type="date"
+            value={customEnd}
+            onChange={(e) => setCustomEnd(e.target.value)}
+            className="w-full px-2 py-2 rounded-lg text-xs bg-[#111118] border border-[#2A2A38] text-white"
+          />
         </div>
+      )}
 
-        {/* Filter Periode */}
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Periode
-          </label>
-          <select
-            value={filterPeriod}
-            onChange={(e) => setFilterPeriod(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+      {/* 🔥 FILTER */}
+      <div className="flex gap-2 overflow-x-auto mb-4">
+        {["all", "voucher", "penjualan", "transaksi"].map((j) => (
+          <button
+            key={j}
+            onClick={() => setFilterJenis(j)}
+            className="px-3 py-1.5 text-xs rounded-lg whitespace-nowrap"
+            style={{
+              background: filterJenis === j ? "#4f46e5" : "#252530",
+              color: filterJenis === j ? "#fff" : "#aaa",
+            }}
           >
-            {periodOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Custom Start */}
-        {filterPeriod === "custom" && (
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Dari
-            </label>
-            <input
-              type="date"
-              value={customStart}
-              onChange={(e) => setCustomStart(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-            />
-          </div>
-        )}
-
-        {/* Custom End */}
-        {filterPeriod === "custom" && (
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Sampai
-            </label>
-            <input
-              type="date"
-              value={customEnd}
-              onChange={(e) => setCustomEnd(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-            />
-          </div>
-        )}
+            {j}
+          </button>
+        ))}
       </div>
 
-      {/* Daftar Transaksi */}
-      {filteredTransactions.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          Tidak ada transaksi ditemukan.
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredTransactions.map((trx) => (
-            <div
-              key={trx.id}
-              className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start gap-4">
-                <div
-                  className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${getTypeColor(trx.jenis)}`}
-                >
-                  <span className="text-lg">{getTypeIcon(trx.jenis)}</span>
-                </div>
+      {/* 🔥 LIST */}
+      <div className="flex flex-col gap-2">
+        {filtered.map((trx) => (
+          <div
+            key={trx.id}
+            className="rounded-xl p-3"
+            style={{
+              background: "#181820",
+              border: "1px solid #232330",
+            }}
+          >
+            {/* TOP */}
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-2">
+                {/* <div className="text-lg">{getTypeIcon(trx.jenis)}</div> */}
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap justify-between gap-2">
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(trx.jenis)}`}
-                    >
-                      {jenisOptions.find((j) => j.value === trx.jenis)?.label ||
-                        trx.jenis}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {formatDate(trx.tanggal)}
-                    </span>
-                  </div>
-
-                  {trx.items.length > 0 ? (
-                    <ul className="mt-2 space-y-1">
-                      {trx.items.map((item, idx) => (
-                        <li key={idx} className="text-sm text-gray-700">
-                          <span className="font-medium">{item.nama}</span>
-                          {item.qty && <span> × {item.qty}</span>}
-                          {trx.jenis !== "jualan Harian" &&
-                            item.harga != null && (
-                              <span className="ml-2 text-gray-500">
-                                {formatRupiah(item.harga)}
-                              </span>
-                            )}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="mt-2 text-sm text-gray-600 italic">
-                      Tidak ada detail item
-                    </p>
-                  )}
-
-                  <div className="mt-3 flex justify-between text-sm font-medium">
-                    <span>Total: {formatRupiah(trx.totalHarga)}</span>
-                    <span className="text-green-600">
-                      Keuntungan: {formatRupiah(trx.keuntungan)}
-                    </span>
-                  </div>
+                <div>
+                  <p className="text-xs text-gray-400">{trx.jenis}</p>
+                  <p className="text-[10px] text-gray-500">
+                    {new Date(trx.tanggal).toLocaleString("id-ID")}
+                  </p>
                 </div>
               </div>
+
+              <div className="text-right">
+                <p className="text-xs text-gray-400">Untung</p>
+                <p className="text-sm font-semibold text-green-400">
+                  Rp {trx.keuntungan?.toLocaleString("id-ID")}
+                </p>
+              </div>
             </div>
-          ))}
+
+            {/* ITEMS */}
+            <div className="mt-2 border-t border-[#2a2a38] pt-2 space-y-1">
+              {trx.items?.length > 0 ? (
+                trx.items.map((item, i) => (
+                  <div key={i} className="flex justify-between text-xs">
+                    <span className="text-gray-300">
+                      {item.nama} {item.qty ? `×${item.qty}` : ""}
+                    </span>
+                    {item.harga && (
+                      <span className="text-gray-500">
+                        Rp {item.harga.toLocaleString("id-ID")}
+                      </span>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-[10px] text-gray-500 italic">
+                  Tidak ada item
+                </p>
+              )}
+            </div>
+
+            {/* FOOTER */}
+            <div className="flex justify-between mt-2 text-xs">
+              <span className="text-gray-400">Total</span>
+              <span className="text-blue-400 font-medium">
+                Rp {trx.totalHarga?.toLocaleString("id-ID")}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="text-center text-gray-500 text-xs mt-6">
+          Tidak ada transaksi
         </div>
       )}
     </div>

@@ -92,7 +92,7 @@ export default function JualanVoucher() {
   } = useQuery({
     queryKey: ["voucherMaster"],
     queryFn: async () => {
-      const res = await api.get("vouchers-master", {
+      const res = await api.get("produk-voucher", {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       return res.data;
@@ -100,26 +100,28 @@ export default function JualanVoucher() {
     staleTime: 5000,
   });
 
+  console.log(voucherMaster);
+
   // === QUERY: Ambil Transaksi Hari Ini ===
-  const {
-    data: transaksiHarian,
-    isLoading: loadingTransaksi,
-    isError: errorTransaksi,
-    refetch: refetchTransaksi,
-  } = useQuery({
-    queryKey: ["transaksiHarian"],
-    queryFn: async () => {
-      const res = await api.get("voucher-harian", {
-        headers: { Authorization: `Bearer ${user?.token}` },
-      });
-      return res.data;
-    },
-  });
+  // const {
+  //   data: transaksiHarian,
+  //   isLoading: loadingTransaksi,
+  //   isError: errorTransaksi,
+  //   refetch: refetchTransaksi,
+  // } = useQuery({
+  //   queryKey: ["transaksiHarian"],
+  //   queryFn: async () => {
+  //     const res = await api.get("voucher-harian", {
+  //       headers: { Authorization: `Bearer ${user?.token}` },
+  //     });
+  //     return res.data;
+  //   },
+  // });
 
-  const vouchers = voucherMaster || [];
-  const keranjang = transaksiHarian?.data.transaksi || [];
+  const vouchers = voucherMaster?.data || [];
+  // const keranjang = transaksiHarian?.data.transaksi || [];
 
-  console.log(transaksiHarian);
+  // console.log(transaksiHarian);
 
   // Brand unik
   const brands = [...new Set(vouchers.map((v) => v.brand))];
@@ -130,15 +132,15 @@ export default function JualanVoucher() {
     : vouchers;
 
   // Hitung statistik
-  const stats = useMemo(() => {
-    let omset = 0;
-    let keuntungan = 0;
-    keranjang.forEach((item) => {
-      omset += item.hargaJual;
-      keuntungan += item.keuntungan;
-    });
-    return { omset, keuntungan };
-  }, [keranjang]);
+  // const stats = useMemo(() => {
+  //   let omset = 0;
+  //   let keuntungan = 0;
+  //   keranjang.forEach((item) => {
+  //     omset += item.hargaJual;
+  //     keuntungan += item.keuntungan;
+  //   });
+  //   return { omset, keuntungan };
+  // }, [keranjang]);
 
   // === MUTATION: Jual Voucher ===
   const jualVoucherMutation = useMutation({
@@ -217,8 +219,8 @@ export default function JualanVoucher() {
     });
   };
 
-  const isLoading = loadingMaster || loadingTransaksi;
-  const isError = errorMaster || errorTransaksi;
+  // const isLoading = loadingMaster || loadingTransaksi;
+  // const isError = errorMaster || errorTransaksi;
 
   // Tambahkan state untuk scanner
   const scannerInstance = useRef(null);
@@ -389,7 +391,7 @@ export default function JualanVoucher() {
     );
   };
 
-  if (isLoading) {
+  if (loadingMaster) {
     return (
       <div className="p-6 text-center">
         <RefreshCw className="animate-spin w-8 h-8 mx-auto text-blue-600" />
@@ -398,7 +400,7 @@ export default function JualanVoucher() {
     );
   }
 
-  if (isError) {
+  if (errorMaster) {
     return (
       <div className="p-6 text-center text-red-500">
         Gagal memuat data. Silakan coba lagi.
@@ -407,145 +409,91 @@ export default function JualanVoucher() {
   }
 
   return (
-    <div className="w-full mx-auto">
-      {/* <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
-        <div className="flex items-center gap-4">
-          <div className="bg-gradient-to-r from-cyan-600 to-blue-600 p-4 rounded-xl">
-            <Wallet className="w-8 h-8 text-white" />
-          </div>
-          <div>
-            <h1 className="text-base  font-bold text-gray-800">
-              Penjualan Voucher
-            </h1>
-            <p className="text-gray-600 text-sm mt-1">
-              transaksi penjualan voucher
-            </p>
-          </div>
-        </div>
-      </div> */}
-      <div className="grid grid-cols-1  gap-6">
+    <div className="w-full mx-auto pb-20 ">
+      <div className="grid-cols-1 gap-6">
         {/* === KIRI: BRAND & VOUCHER === */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Brand Buttons */}
-          <div className="bg-white rounded-2xl shadow-sm p-3">
-            <div className="flex items-center gap-2 mb-4">
-              <Tag className="w-5 h-5 text-cyan-600" />
-              <h2 className="text-lg font-bold text-gray-800">
-                Pilih Provider
-              </h2>
-            </div>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
-              {/* Semua Brands Button */}
+        <div className="lg:col-span-2 space-y-2">
+          {/* Brand */}
+          <div>
+            <div className="flex gap-2 overflow-x-auto text-xs pb-1">
               <button
                 onClick={() => setSelectedBrand("")}
-                className={`
-      px-4 py-3 text-sm rounded-xl font-semibold 
-      transition-all duration-300 hover:scale-105
-      flex items-center justify-center gap-2
-      min-w-[110px]
-      ${
-        !selectedBrand
-          ? "bg-gradient-to-r from-slate-700 to-slate-900 text-white shadow-lg shadow-slate-500/30 scale-105"
-          : "bg-gray-100 text-gray-700 border border-gray-200 hover:shadow-md"
-      }
-    `}
+                className={`flex-shrink-0 px-4 py-2 text-xs rounded-full  transition ${
+                  !selectedBrand
+                    ? "bg-gray-200  dark:bg-white text-gray-900"
+                    : "bg-transparent text-gray-500 dark:text-gray-300 border border-gray-300 dark:border-gray-600"
+                }`}
               >
-                <span className="text-lg">📱</span>
-                <span>Semua</span>
+                Semua
               </button>
 
-              {/* Brand Buttons */}
               {brands.map((brand) => {
-                const colors = getBrandColor(brand);
                 const isSelected = selectedBrand === brand;
+                const displayName =
+                  brand === "Indosat / IM3" ? "Indosat" : brand;
 
                 return (
                   <button
                     key={brand}
                     onClick={() => setSelectedBrand(brand)}
-                    className={`
-          px-4 py-3 text-sm rounded-xl font-semibold 
-          transition-all duration-300 
-          hover:scale-105 hover:shadow-lg
-          flex items-center justify-center gap-2
-          min-w-[110px]
-          ${
-            isSelected
-              ? `bg-gradient-to-r ${colors.active} text-white shadow-lg shadow-${brand.toLowerCase()}-500/30 scale-105`
-              : `${colors.bg} ${colors.text} border ${colors.border} hover:shadow-md`
-          }
-        `}
+                    className={`flex-shrink-0 px-4 py-2 text-xs rounded-full  transition ${
+                      isSelected
+                        ? "bg-gray-200 dark:bg-white text-gray-900"
+                        : "bg-transparent text-gray-500 dark:text-gray-300 border border-gray-300 dark:border-gray-600"
+                    }`}
                   >
-                    {brand === "Telkomsel" && (
-                      <span className="text-sm">📡</span>
-                    )}
-                    {brand === "Byu" && <span className="text-sm">🎧</span>}
-                    {brand === "Indosat / IM3" && (
-                      <span className="text-sm">🌐</span>
-                    )}
-                    {brand === "XL" && <span className="text-sm">📶</span>}
-                    {brand === "Axis" && <span className="text-sm">🎯</span>}
-                    {brand === "Smartfren" && (
-                      <span className="text-sm">⚡</span>
-                    )}
-                    {brand === "Tri" && <span className="text-sm">🍀</span>}
-                    <span>{brand === "Indosat / IM3" ? "Indosat" : brand}</span>
+                    {displayName}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Voucher Cards */}
+          {/* Voucher */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-700 mb-3">
+            <h2 className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-3">
               Daftar Voucher {selectedBrand && `(${selectedBrand})`}
             </h2>
+
             {filteredVouchers.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 Tidak ada voucher tersedia
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5  gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
                 {filteredVouchers.map((v) => (
                   <div
                     key={v.id}
-                    onClick={() => tambahKeKeranjang(v)}
-                    className={`bg-white border-2 rounded-xl p-4 transition cursor-pointer ${
-                      v.stok <= 0
-                        ? "border-gray-300 opacity-60"
-                        : "border-gray-200 hover:border-blue-400 hover:shadow-md"
-                    }`}
+                    onClick={() => v.stok > 0 && tambahKeKeranjang(v)}
+                    className={`p-2.5 rounded-lg border transition cursor-pointer
+    ${
+      v.stok <= 0
+        ? "opacity-50 cursor-not-allowed border-gray-200 dark:border-gray-700"
+        : "border-gray-200 dark:border-gray-700 hover:border-blue-400"
+    } bg-white dark:bg-gray-800`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-bold text-sm text-gray-800">
-                          {v.nama}
-                        </h3>
-                        <p className="text-xs text-gray-600">{v.brand}</p>
-                      </div>
-                    </div>
-                    <div className="mt-2 flex justify-between items-center">
-                      <span className="text-green-600 font-bold text-sm">
-                        Rp {v.hargaEceran?.toLocaleString() || 0}
+                    <p className="text-xs font-medium text-gray-800 dark:text-white truncate">
+                      {v.nama}
+                    </p>
+                    <p className="text-[11px] text-green-600 mt-0.5">
+                      Rp {v.hargaEceran?.toLocaleString()}
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                      <span className="text-[11px] text-gray-400">
+                        {v.brand}
+                      </span>
+                      <span className="text-[11px] text-gray-300">·</span>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.5 rounded-full
+      ${
+        v.stok <= 0
+          ? "bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400"
+          : "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+      }`}
+                      >
+                        {v.stok <= 0 ? "Habis" : `Stok ${v.stok}`}
                       </span>
                     </div>
-                    <p
-                      className={`mt-2 w-fit text-xs px-2 py-1 rounded-full ${
-                        v.stok <= 0
-                          ? "bg-red-100 text-red-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}
-                    >
-                      Stok: {v.stok}
-                    </p>
-                    {v.stok <= 0 && (
-                      <div className="mt-1 text-center">
-                        <span className="text-red-500 text-xs font-medium">
-                          Stok Habis
-                        </span>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -553,109 +501,81 @@ export default function JualanVoucher() {
           </div>
         </div>
 
-        {/* === KANAN: RINGKASAN & KERANJANG === */}
-        <div className="space-y-6">
-          {/* Stats Cards */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+        {/* === KANAN: RINGKASAN === */}
+        {/* <div className="space-y-6">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 p-5 rounded-xl border dark:border-gray-700">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-blue-600" />
               Ringkasan Hari Ini
             </h2>
+
             <div className="space-y-4">
               <div className="flex justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Wallet className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <span className="text-gray-600">Omset</span>
-                </div>
-                <span className="font-bold text-lg text-blue-700">
+                <span className="text-gray-600 dark:text-gray-300">Omset</span>
+                <span className="font-bold text-blue-600">
                   Rp {stats.omset.toLocaleString()}
                 </span>
               </div>
+
               <div className="flex justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <TrendingUp className="w-4 h-4 text-green-600" />
-                  </div>
-                  <span className="text-gray-600">Keuntungan</span>
-                </div>
-                <span className="font-bold text-lg text-green-700">
+                <span className="text-gray-600 dark:text-gray-300">
+                  Keuntungan
+                </span>
+                <span className="font-bold text-green-600">
                   Rp {stats.keuntungan.toLocaleString()}
                 </span>
               </div>
-              <div className="flex justify-between pt-2 border-t">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Package className="w-4 h-4 text-purple-600" />
-                  </div>
-                  <span className="text-gray-600">Total Item</span>
-                </div>
-                <span className="font-bold text-lg text-purple-700">
+
+              <div className="flex justify-between border-t pt-2 dark:border-gray-700">
+                <span className="text-gray-600 dark:text-gray-300">
+                  Total Item
+                </span>
+                <span className="font-bold text-purple-600">
                   {keranjang.length}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Keranjang */}
-          <div className="bg-white border rounded-xl p-5">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5 text-orange-600" />
+          <div className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-xl p-5">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
               Penjualan Hari Ini ({keranjang.length})
             </h2>
+
             {keranjang.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">
                 Belum ada penjualan
               </p>
             ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+              <div className="space-y-3 max-h-80 overflow-y-auto">
                 {keranjang.map((item) => (
                   <div
                     key={item.id}
-                    className="flex justify-between items-center bg-gray-50 p-3 rounded-lg"
+                    className="flex justify-between bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"
                   >
                     <div>
-                      <p className="font-medium text-gray-800 text-sm">
+                      <p className="text-sm  text-gray-800 dark:text-white">
                         {item.voucher.nama}
                       </p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-gray-600 dark:text-gray-300">
                         {item.voucher.brand}
                       </p>
-                      <p className="text-xs">
-                        {" "}
-                        {new Date(item.tanggal).toLocaleString("id-ID", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "numeric",
-                        })}{" "}
-                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-600 font-medium text-sm">
-                        Rp {item.hargaJual?.toLocaleString() || 0}
-                      </span>
-                      <button
-                        onClick={() => hapusDariKeranjang(item.id)}
-                        disabled={hapusTransaksiMutation.isPending}
-                        className="text-red-500 bg-red-100 rounded-full p-1 hover:bg-red-200 disabled:opacity-50"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
+
+                    <span className="text-green-600 text-sm ">
+                      Rp {item.hargaJual?.toLocaleString() || 0}
+                    </span>
                   </div>
                 ))}
               </div>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
 
       {selectedVoucher && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl relative">
+          <div className="bg-white w-full max-w-md rounded-2xl p-2 shadow-xl relative">
             <h2 className="text-lg font-bold mb-4">Jual Voucher</h2>
 
             <p className="text-sm text-gray-600 mb-4">
