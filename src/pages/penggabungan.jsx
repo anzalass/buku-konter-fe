@@ -28,12 +28,12 @@ export default function Penggabungan() {
   const openPPOB = () => {
     window.location.href = "intent://#Intent;package=com.shopee.mitra.id;end";
 
-    setTimeout(() => {
-      window.open(
-        "https://play.google.com/store/apps/details?id=com.shopee.mitra.id",
-        "_blank"
-      );
-    }, 1500);
+    // setTimeout(() => {
+    //   window.open(
+    //     "https://play.google.com/store/apps/details?id=com.shopee.mitra.id",
+    //     "_blank"
+    //   );
+    // }, 1500);
   };
   const { user } = useAuthStore();
   const nav = useNavigate();

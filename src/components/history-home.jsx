@@ -190,7 +190,6 @@ export default function HistoryTransaksiHome() {
   }
 
   const handleDetail = (r) => {
-    console.log(r);
     if (r.type === "penjualan") {
       nav(`/dashboard/detail/transaksi/${r.id}`);
     } else if (r.type === "jualan-harian") {
