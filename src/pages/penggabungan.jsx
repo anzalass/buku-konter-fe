@@ -40,24 +40,19 @@ export default function Penggabungan() {
       window.location.href = "https://mitra.bukalapak.com";
 
       // fallback ke PlayStore
-      setTimeout(() => {
-        window.open(
-          "https://play.google.com/store/apps/details?id=com.shopee.mitra.id",
-          "_blank"
-        );
-        setLoading(false);
-      }, 1500);
+      // setTimeout(() => {
+      //   window.open(
+      //     "https://play.google.com/store/apps/details?id=com.shopee.mitra.id",
+      //     "_blank"
+      //   );
+      //   setLoading(false);
+      // }, 1500);
     } else if (isIOS) {
       // ❌ iOS ga support intent
-      window.open(
-        "https://apps.apple.com/id/app/shopee-mitra/id1528703883",
-        "_blank"
-      );
-      setLoading(false);
+      window.location.href = "https://mitra.bukalapak.com";
     } else {
       // 🌐 desktop fallback
-      window.open("https://mitra.shopee.co.id", "_blank");
-      setLoading(false);
+      window.location.href = "https://mitra.bukalapak.com";
     }
   };
   const { user } = useAuthStore();
