@@ -37,8 +37,7 @@ export default function Penggabungan() {
 
     if (isAndroid) {
       // 🔥 intent Android
-      window.location.href =
-        "intent://#Intent;scheme=https;package=com.shopee.mitra.id;end";
+      window.location.href = "https://mitra.bukalapak.com";
 
       // fallback ke PlayStore
       setTimeout(() => {
