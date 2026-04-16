@@ -98,43 +98,42 @@ function SectionHeader({ title, count, onAdd, onFilter, activeFilters }) {
   return (
     <div className="flex items-center justify-between px-1 mb-3">
       <div>
-        <p
-          className="text-[11px] md:text-sm uppercase tracking-widest mb-0.5"
-          style={{ color: "#fff" }}
-        >
+        <p className="text-[11px] md:text-sm uppercase tracking-widest mb-0.5 text-gray-800 dark:text-white">
           {title}
         </p>
-        <p className="text-[10px]" style={{ color: "#fff" }}>
+        <p className="text-[10px] text-gray-500 dark:text-gray-400">
           {count} data
         </p>
       </div>
+
       <div className="flex gap-1.5">
         <button
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] md:text-sm cursor-pointer hover:opacity-80"
-          style={{
-            background: "#1a1a28",
-            color: "#9a9aae",
-            border: "1px solid #2e2e42",
-          }}
           onClick={onFilter}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] md:text-sm cursor-pointer transition-colors
+            bg-gray-100 dark:bg-[#1a1a28]
+            text-gray-500 dark:text-[#9a9aae]
+            border border-gray-200 dark:border-[#2e2e42]
+            hover:bg-gray-200 dark:hover:bg-[#222232]"
         >
+          <SlidersHorizontal size={12} />
+          Filter
           {activeFilters > 0 && (
             <span
-              className="ml-1 px-1.5 py-px rounded text-[9px]"
-              style={{
-                background: "#4A4A68",
-                color: "#ECEAE3",
-              }}
+              className="ml-1 px-1.5 py-px rounded text-[9px]
+              bg-indigo-200 dark:bg-[#4A4A68]
+              text-indigo-700 dark:text-[#ECEAE3]"
             >
               {activeFilters}
             </span>
           )}
-          <SlidersHorizontal size={12} /> Filter
         </button>
+
         <button
           onClick={onAdd}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] md:text-sm font-semibold cursor-pointer"
-          style={{ background: "#ECEAE3", color: "#0D0D10" }}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] md:text-sm font-semibold cursor-pointer transition-colors
+            bg-green-700 dark:bg-[#ECEAE3]
+            text-white dark:text-[#0D0D10]
+            hover:bg-gray-700 dark:hover:bg-white"
         >
           <Plus size={12} strokeWidth={2.5} /> Tambah
         </button>
@@ -148,22 +147,26 @@ function Acts({ onEdit, onDelete }) {
     <div className="flex gap-1.5 flex-shrink-0">
       <button
         onClick={onEdit}
-        className="w-7 h-7 rounded-[7px] flex items-center justify-center hover:opacity-70 transition-opacity cursor-pointer"
-        style={{ background: "#1a1204", border: "1px solid #3a2a08" }}
+        className="w-7 h-7 rounded-[7px] flex items-center justify-center cursor-pointer transition-colors
+          bg-amber-50 dark:bg-[#1a1204]
+          border border-amber-200 dark:border-[#3a2a08]
+          hover:bg-amber-100 dark:hover:bg-[#251a06]"
       >
-        <Pencil size={11} color="#ca8030" />
+        <Pencil size={11} className="text-amber-500 dark:text-[#ca8030]" />
       </button>
+
       <button
         onClick={onDelete}
-        className="w-7 h-7 rounded-[7px] flex items-center justify-center hover:opacity-70 transition-opacity cursor-pointer"
-        style={{ background: "#1c0808", border: "1px solid #3a1010" }}
+        className="w-7 h-7 rounded-[7px] flex items-center justify-center cursor-pointer transition-colors
+          bg-red-50 dark:bg-[#1c0808]
+          border border-red-200 dark:border-[#3a1010]
+          hover:bg-red-100 dark:hover:bg-[#2a1010]"
       >
-        <Trash2 size={11} color="#d07070" />
+        <Trash2 size={11} className="text-red-400 dark:text-[#d07070]" />
       </button>
     </div>
   );
 }
-
 function Empty({ label }) {
   return (
     <div
@@ -180,10 +183,9 @@ function Empty({ label }) {
 function Card({ children }) {
   return (
     <div
-      className="rounded-2xl px-4 py-3.5 transition-all"
-      style={{ background: BG, border: BDR }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = BDR_H)}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#232330")}
+      className="rounded-2xl px-4 py-3.5 transition-all dark:bg-[#181820] border-[1px] border-gray-400"
+      // onMouseEnter={(e) => (e.currentTarget.style.borderColor = BDR_H)}
+      // onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#232330")}
     >
       {children}
     </div>
@@ -204,20 +206,20 @@ export default function MasterData() {
   const current = TABS.find((t) => t.id === activeTab);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen p-2">
       <div className="max-w-7xl mx-auto">
         {/* TABS */}
-        <div className="flex gap-1.5 mb-5 overflow-x-auto">
+        <div className="flex gap-1.5 mb-5 overflow-x-auto pb-1">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className="px-3.5 py-1.5 rounded-full text-[11px] md:text-sm"
-              style={{
-                background: activeTab === t.id ? "#ECEAE3" : "#181820",
-                color: activeTab === t.id ? "#0D0D10" : "#fff",
-                border: "1px solid #252530",
-              }}
+              className={`px-3.5 py-1.5 rounded-full text-[11px] md:text-sm whitespace-nowrap transition-colors border
+            ${
+              activeTab === t.id
+                ? "bg-green-700 dark:bg-[#ECEAE3] text-white dark:text-[#0D0D10] dark:border-[#ECEAE3]"
+                : "bg-white dark:bg-[#181820] text-gray-600 dark:text-white border-gray-200 dark:border-[#252530] hover:bg-gray-100 dark:hover:bg-[#222232]"
+            }`}
             >
               {t.label}
             </button>
@@ -337,17 +339,16 @@ function PanelMember() {
             <Card key={m.id}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold"
-                    style={{ background: "#1e1b4b", color: "#818cf8" }}
-                  >
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold  dark:bg-[#1e1b4b] text-indigo-500 dark:text-[#818cf8] shrink-0">
                     {m.nama.charAt(0)}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#dbd9d2] truncate">{m.nama}</p>
+                    <p className="text-sm text-green-900 font-bold dark:text-[#dbd9d2] truncate">
+                      {m.nama}
+                    </p>
 
-                    <div className="flex gap-3 text-[10px] md:text-[12px] text-zinc-300">
+                    <div className="flex gap-3 text-[10px] md:text-[12px] text-gray-800 dark:text-zinc-200 mt-0.5">
                       <span className="flex items-center gap-1">
                         <Phone size={9} /> {m.noTelp || "-"}
                       </span>
@@ -358,23 +359,31 @@ function PanelMember() {
                     </div>
 
                     <span
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px]"
-                      style={{ background: "#0a1828", color: "#5a9ade" }}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] mt-1
+                bg-blue-50 dark:bg-[#0a1828]
+                text-blue-500 dark:text-[#5a9ade]"
                     >
                       <Hash size={8} /> {m.kodeMember}
                     </span>
                   </div>
                 </div>
+
                 <Acts
                   onEdit={() => handleEdit(m)}
                   onDelete={() => handleDelete(m.id)}
                 />
+
                 <button
                   onClick={() => nav(`/dashboard/member/trx/${m.id}`)}
-                  className="w-7 h-7 rounded-[7px] flex items-center justify-center hover:opacity-70 transition-opacity cursor-pointer"
-                  style={{ background: "#0A2012", border: "1px solid #1E3A28" }}
+                  className="w-7 h-7 rounded-[7px] flex items-center justify-center cursor-pointer transition-colors
+              bg-emerald-50 dark:bg-[#0A2012]
+              border border-emerald-200 dark:border-[#1E3A28]
+              hover:bg-emerald-100 dark:hover:bg-[#0e2a18]"
                 >
-                  <Eye size={11} color="#5AC47A" />
+                  <Eye
+                    size={11}
+                    className="text-emerald-500 dark:text-[#5AC47A]"
+                  />
                 </button>
               </div>
             </Card>
@@ -481,76 +490,79 @@ function ModalMember({ open, onClose, initial, user }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-      style={{ background: "rgba(0,0,0,.75)" }}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/75"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5"
-        style={{ background: "#181820", border: "1px solid #2A2A38" }}
+        className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-5
+    bg-white dark:bg-[#181820]
+    border border-gray-100 dark:border-[#2A2A38]
+    shadow-xl"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p
-              className="text-[11px] uppercase tracking-widest mb-0.5"
-              style={{ color: "#5A5868" }}
-            >
+            <p className="text-[11px] uppercase tracking-widest mb-0.5 text-gray-400 dark:text-[#5A5868]">
               {initial ? "edit" : "tambah"}
             </p>
-            <p className="text-sm font-semibold" style={{ color: "#ECEAE3" }}>
+            <p className="text-sm font-semibold text-gray-800 dark:text-[#ECEAE3]">
               Member
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
-            style={{ background: "#252530" }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors
+          bg-gray-100 dark:bg-[#252530]
+          hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
           >
-            <X size={12} color="#6A6878" />
+            <X size={12} className="text-gray-500 dark:text-[#6A6878]" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit((d) => mutation.mutate(d))}>
+        <form
+          onSubmit={handleSubmit((d) => mutation.mutate(d))}
+          className="space-y-3"
+        >
           {/* Nama */}
-          <div className="mb-3">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
-              Nama <span style={{ color: "#D07070" }}>*</span>
+          <div>
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
+              Nama <span className="text-red-400">*</span>
             </p>
             <input
               {...register("nama", { required: "Nama wajib diisi" })}
               placeholder="Masukkan nama member..."
-              className="w-full rounded-xl px-3 py-2.5 text-[13px] outline-none transition-colors"
-              style={{
-                ...inp,
-                border: `1px solid ${errors.nama ? "#D07070" : "#2A2A38"}`,
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) =>
-                (e.target.style.borderColor = errors.nama
-                  ? "#D07070"
-                  : "#2A2A38")
-              }
+              className={`w-full rounded-xl px-3 py-2.5 text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-[#ECEAE3]
+            placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+            border focus:border-indigo-400 dark:focus:border-[#4A4A68]
+            ${
+              errors.nama
+                ? "border-red-400 dark:border-red-500"
+                : "border-gray-200 dark:border-[#2A2A38]"
+            }`}
             />
             {errors.nama && (
-              <p className="text-[10px] mt-1" style={{ color: "#D07070" }}>
+              <p className="text-[10px] mt-1 text-red-400">
                 {errors.nama.message}
               </p>
             )}
           </div>
 
           {/* No Telp */}
-          <div className="mb-5">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+          <div className="pb-2">
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
               No Telepon
             </p>
             <input
               {...register("noTelp")}
               placeholder="08xxxxxxxxxx"
-              className="w-full rounded-xl px-3 py-2.5 text-[13px] outline-none transition-colors"
-              style={inp}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+              className="w-full rounded-xl px-3 py-2.5 text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-[#ECEAE3]
+            placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+            border border-gray-200 dark:border-[#2A2A38]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
             />
           </div>
 
@@ -559,20 +571,20 @@ function ModalMember({ open, onClose, initial, user }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium cursor-pointer"
-              style={{
-                background: "#1A1A28",
-                color: "#6A6878",
-                border: "1px solid #2A2A38",
-              }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium cursor-pointer transition-colors
+            bg-gray-100 dark:bg-[#1A1A28]
+            text-gray-500 dark:text-[#6A6878]
+            border border-gray-200 dark:border-[#2A2A38]
+            hover:bg-gray-200 dark:hover:bg-[#222232]"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-opacity disabled:opacity-60"
-              style={{ background: "#4f46e5" }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-opacity disabled:opacity-60
+            bg-green-600 dark:bg-indigo-600
+            hover:bg-green-700 dark:hover:bg-indigo-700"
             >
               {mutation.isPending ? "Menyimpan..." : "Simpan"}
             </button>
@@ -604,75 +616,76 @@ function ModalFilterMember({ open, onClose, onApply, initial }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3"
-      style={{ background: "rgba(0,0,0,.8)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-sm rounded-2xl p-5"
-        style={{
-          background: "#181820",
-          border: "1px solid #2A2A38",
-        }}
+        className="w-full max-w-sm rounded-2xl p-5
+    bg-white dark:bg-[#181820]
+    border border-gray-100 dark:border-[#2A2A38]
+    shadow-xl"
       >
-        <p className="text-sm text-white mb-4">Filter Member</p>
+        <p className="text-sm font-semibold text-gray-800 dark:text-white mb-4">
+          Filter Member
+        </p>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           {/* Nama */}
-          <div className="mb-3">
-            <label className="text-[10px] text-[#6A6870]">Nama</label>
+          <div>
+            <label className="text-[10px] text-gray-500 dark:text-[#6A6870] block mb-1.5">
+              Nama
+            </label>
             <input
               {...register("search")}
               placeholder="Cari nama..."
-              className="w-full px-3 py-2 rounded-lg text-xs"
-              style={{
-                background: "#111118",
-                border: "1px solid #2A2A38",
-                color: "#ECEAE3",
-              }}
+              className="w-full px-3 py-2 rounded-lg text-xs outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            border border-gray-200 dark:border-[#2A2A38]
+            text-gray-800 dark:text-[#ECEAE3]
+            placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
             />
           </div>
 
           {/* No Telp */}
-          <div className="mb-4">
-            <label className="text-[10px] text-[#6A6870]">No Telepon</label>
+          <div className="pb-2">
+            <label className="text-[10px] text-gray-500 dark:text-[#6A6870] block mb-1.5">
+              No Telepon
+            </label>
             <input
               {...register("noTelp")}
               placeholder="08xxxx..."
-              className="w-full px-3 py-2 rounded-lg text-xs"
-              style={{
-                background: "#111118",
-                border: "1px solid #2A2A38",
-                color: "#ECEAE3",
-              }}
+              className="w-full px-3 py-2 rounded-lg text-xs outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            border border-gray-200 dark:border-[#2A2A38]
+            text-gray-800 dark:text-[#ECEAE3]
+            placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
             />
           </div>
 
-          {/* ACTION */}
+          {/* Actions */}
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => {
                 reset();
-                onApply({ nama: "", noTelp: "" }); // reset filter
+                onApply({ nama: "", noTelp: "" });
                 onClose();
               }}
-              className="flex-1 py-2 rounded-lg text-xs"
-              style={{
-                background: "#252530",
-                color: "#6A6870",
-              }}
+              className="flex-1 py-2 rounded-lg text-xs cursor-pointer transition-colors
+            bg-gray-100 dark:bg-[#252530]
+            text-gray-500 dark:text-[#6A6870]
+            hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
             >
               Reset
             </button>
-
             <button
               type="submit"
-              className="flex-1 py-2 rounded-lg text-xs font-semibold"
-              style={{
-                background: "#ECEAE3",
-                color: "#0D0D10",
-              }}
+              className="flex-1 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors
+            bg-green-600 dark:bg-[#ECEAE3]
+            text-white dark:text-[#0D0D10]
+            hover:bg-green-700 dark:hover:bg-white"
             >
               Terapkan
             </button>
@@ -790,10 +803,12 @@ function PanelDataMember() {
             <Card key={d.id}>
               <div className="flex justify-between">
                 <div>
-                  <p className="text-sm text-[#dbd9d2]">{d.nama}</p>
-                  <p className="text-[10px] text-[#5a5868]">{d.nomor}</p>
+                  <p className="text-sm text-green-900 font-bold dark:text-[#dbd9d2]">
+                    {d.nama}
+                  </p>
+                  <p className="text-[10px] dark:text-[#5a5868]">{d.nomor}</p>
                   {d.Member && (
-                    <span className="text-[9px] text-purple-400">
+                    <span className="text-[9px] dark:text-purple-400 text-green-900">
                       {d.Member.nama}
                     </span>
                   )}
@@ -936,40 +951,39 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,.75)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-sm rounded-2xl p-5"
-        style={{ background: "#181820", border: "1px solid #2A2A38" }}
+        className="w-full max-w-sm rounded-2xl p-5
+    bg-white dark:bg-[#181820]
+    border border-gray-100 dark:border-[#2A2A38]
+    shadow-xl"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p
-              className="text-[11px] uppercase tracking-widest mb-0.5"
-              style={{ color: "#5A5868" }}
-            >
+            <p className="text-[11px] uppercase tracking-widest mb-0.5 text-gray-400 dark:text-[#5A5868]">
               {initial ? "edit" : "tambah"}
             </p>
-            <p className="text-sm font-semibold" style={{ color: "#ECEAE3" }}>
+            <p className="text-sm font-semibold text-gray-800 dark:text-[#ECEAE3]">
               Data Member
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
-            style={{ background: "#252530" }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors
+          bg-gray-100 dark:bg-[#252530]
+          hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
           >
-            <X size={12} color="#6A6878" />
+            <X size={12} className="text-gray-500 dark:text-[#6A6878]" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit((d) => onSubmit(d))}>
-          {/* 🔥 AUTOCOMPLETE MEMBER (FILTER DI FE) */}
-          <div className="mb-3 relative">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+        <form onSubmit={handleSubmit((d) => onSubmit(d))} className="space-y-3">
+          {/* Cari Member */}
+          <div className="relative">
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
               Cari Member
             </p>
             <input
@@ -977,22 +991,23 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
               onChange={(e) => {
                 setSearchMember(e.target.value);
                 setShowDropdown(true);
-                setValue("idMember", ""); // reset ID jika user ketik manual
-              }}
-              placeholder="Ketik nama member..."
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={{
-                ...inp,
-                borderColor: "#2A2A38",
+                setValue("idMember", "");
               }}
               onFocus={() => setShowDropdown(true)}
+              placeholder="Ketik nama member..."
+              className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+            border border-gray-200 dark:border-[#2A2A38]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
             />
 
-            {/* Dropdown Member */}
             {showDropdown && filteredMembers.length > 0 && (
               <div
-                className="absolute z-10 w-full mt-1 bg-[#111118] border border-[#2A2A38] rounded-xl max-h-40 overflow-y-auto"
-                style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}
+                className="absolute z-10 w-full mt-1 rounded-xl max-h-40 overflow-y-auto shadow-lg
+            bg-white dark:bg-[#111118]
+            border border-gray-200 dark:border-[#2A2A38]"
               >
                 {filteredMembers.map((m) => (
                   <div
@@ -1000,13 +1015,19 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
                     onClick={() => {
                       setSearchMember(m.nama);
                       setValue("idMember", m.id);
-                      // setValue("nama", m.nama);
-                      // setValue("nomor", m.noTelp || "");
                       setShowDropdown(false);
                     }}
-                    className="px-3 py-2 text-[13px] text-white hover:bg-[#1A1A28] cursor-pointer transition-colors"
+                    className="px-3 py-2 text-[13px] cursor-pointer transition-colors
+                  text-gray-700 dark:text-white
+                  hover:bg-gray-50 dark:hover:bg-[#1A1A28]
+                  border-b border-gray-100 dark:border-[#1E1E2C] last:border-0"
                   >
-                    {m.nama} {m.noTelp && `(${m.noTelp})`}
+                    {m.nama}{" "}
+                    {m.noTelp && (
+                      <span className="text-gray-400 dark:text-[#5A5868]">
+                        ({m.noTelp})
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1014,65 +1035,66 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
           </div>
 
           {/* Nama */}
-          <div className="mb-3">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
-              Nama <span style={{ color: "#D07070" }}>*</span>
+          <div>
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
+              Nama <span className="text-red-400">*</span>
             </p>
             <input
               {...register("nama", { required: "Nama wajib diisi" })}
               placeholder="Masukkan nama lengkap..."
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={{
-                ...inp,
-                borderColor: errors.nama ? "#D07070" : "#2A2A38",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) =>
-                (e.target.style.borderColor = errors.nama
-                  ? "#D07070"
-                  : "#2A2A38")
-              }
+              className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+            border focus:border-indigo-400 dark:focus:border-[#4A4A68]
+            ${
+              errors.nama
+                ? "border-red-400 dark:border-red-500"
+                : "border-gray-200 dark:border-[#2A2A38]"
+            }`}
             />
             {errors.nama && (
-              <p className="text-[10px] mt-1" style={{ color: "#D07070" }}>
+              <p className="text-[10px] mt-1 text-red-400">
                 {errors.nama.message}
               </p>
             )}
           </div>
 
-          {/* Nomor */}
-          <div className="mb-5">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+          {/* Nomor HP */}
+          <div className="pb-2">
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
               Nomor HP
             </p>
             <input
               {...register("nomor")}
               placeholder="08xxxxxxxxxx"
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={inp}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+              className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+            border border-gray-200 dark:border-[#2A2A38]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
             />
           </div>
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <div className="flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium"
-              style={{
-                background: "#1A1A28",
-                color: "#6A6878",
-                border: "1px solid #2A2A38",
-              }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium cursor-pointer transition-colors
+            bg-gray-100 dark:bg-[#1A1A28]
+            text-gray-500 dark:text-[#6A6878]
+            border border-gray-200 dark:border-[#2A2A38]
+            hover:bg-gray-200 dark:hover:bg-[#222232]"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white transition-opacity"
-              style={{ background: "#4f46e5" }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-opacity
+            bg-indigo-500 dark:bg-indigo-600
+            hover:bg-indigo-600 dark:hover:bg-indigo-700"
             >
               Simpan
             </button>
@@ -1104,33 +1126,32 @@ function ModalFilterDataMember({ open, onClose, onApply, initial }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,.75)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-sm rounded-2xl p-5"
-        style={{ background: "#181820", border: "1px solid #2A2A38" }}
+        className="w-full max-w-sm rounded-2xl p-5
+    bg-white dark:bg-[#181820]
+    border border-gray-100 dark:border-[#2A2A38]
+    shadow-xl"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p
-              className="text-[11px] uppercase tracking-widest mb-0.5"
-              style={{ color: "#5A5868" }}
-            >
+            <p className="text-[11px] uppercase tracking-widest mb-0.5 text-gray-400 dark:text-[#5A5868]">
               filter
             </p>
-            <p className="text-sm font-semibold" style={{ color: "#ECEAE3" }}>
+            <p className="text-sm font-semibold text-gray-800 dark:text-[#ECEAE3]">
               Member
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
-            style={{ background: "#252530" }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors
+          bg-gray-100 dark:bg-[#252530]
+          hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
           >
-            <X size={12} color="#6A6878" />
+            <X size={12} className="text-gray-500 dark:text-[#6A6878]" />
           </button>
         </div>
 
@@ -1139,23 +1160,26 @@ function ModalFilterDataMember({ open, onClose, onApply, initial }) {
             onApply(data);
             onClose();
           })}
+          className="space-y-4"
         >
           {/* Pencarian */}
-          <div className="mb-5">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+          <div className="pb-2">
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
               Cari Nama / No HP
             </p>
             <input
               {...register("search")}
               placeholder="Ketik nama atau nomor..."
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={inp}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+              className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+            border border-gray-200 dark:border-[#2A2A38]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
             />
           </div>
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <div className="flex gap-2">
             <button
               type="button"
@@ -1164,19 +1188,19 @@ function ModalFilterDataMember({ open, onClose, onApply, initial }) {
                 onApply({ search: "" });
                 onClose();
               }}
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium"
-              style={{
-                background: "#1A1A28",
-                color: "#6A6878",
-                border: "1px solid #2A2A38",
-              }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium cursor-pointer transition-colors
+            bg-gray-100 dark:bg-[#1A1A28]
+            text-gray-500 dark:text-[#6A6878]
+            border border-gray-200 dark:border-[#2A2A38]
+            hover:bg-gray-200 dark:hover:bg-[#222232]"
             >
               Reset
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white transition-opacity"
-              style={{ background: "#4f46e5" }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-opacity
+            bg-indigo-500 dark:bg-indigo-600
+            hover:bg-indigo-600 dark:hover:bg-indigo-700"
             >
               Terapkan
             </button>
@@ -1281,7 +1305,7 @@ function PanelUangKeluar() {
   const fmt = (n) => "Rp " + n.toLocaleString("id-ID");
 
   return (
-    <div>
+    <div className="">
       {/* <SectionHeader title="Uang Keluar" count={uangKeluar.length} /> */}
       <SectionHeader
         title="Uang Keluar"
@@ -1297,39 +1321,42 @@ function PanelUangKeluar() {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div
-          className="rounded-xl px-4 py-3 flex items-center gap-3"
-          style={{ background: BG, border: BDR }}
+          className="rounded-xl px-4 py-3 flex items-center gap-3
+    bg-white dark:bg-[#13151f]
+    border border-gray-100 dark:border-[#1e2130]"
         >
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: "#200808" }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+      bg-red-50 dark:bg-[#200808]"
           >
-            <Wallet size={14} color="#d07070" />
+            <Wallet size={14} className="text-red-400 dark:text-[#d07070]" />
           </div>
           <div>
-            <p className="text-[10px] mb-0.5" style={{ color: "#5a5868" }}>
+            <p className="text-[10px] mb-0.5 text-gray-800 dark:text-[#fff]">
               Total Keluar
             </p>
-            <p className="text-sm font-semibold" style={{ color: "#d07070" }}>
+            <p className="text-sm font-semibold text-red-400 dark:text-[#d07070]">
               {fmt(total)}
             </p>
           </div>
         </div>
+
         <div
-          className="rounded-xl px-4 py-3 flex items-center gap-3"
-          style={{ background: BG, border: BDR }}
+          className="rounded-xl px-4 py-3 flex items-center gap-3
+    bg-white dark:bg-[#13151f]
+    border border-gray-100 dark:border-[#1e2130]"
         >
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: "#1e1b4b" }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+      bg-indigo-50 dark:bg-[#1e1b4b]"
           >
-            <Hash size={14} color="#818cf8" />
+            <Hash size={14} className="text-indigo-400 dark:text-[#818cf8]" />
           </div>
           <div>
-            <p className="text-[10px] mb-0.5" style={{ color: "#5a5868" }}>
+            <p className="text-[10px] mb-0.5 text-gray-800 dark:text-[#fff]">
               Total Transaksi
             </p>
-            <p className="text-sm font-semibold" style={{ color: "#818cf8" }}>
+            <p className="text-sm font-semibold text-indigo-400 dark:text-[#818cf8]">
               {uangKeluar.length}
             </p>
           </div>
@@ -1347,10 +1374,7 @@ function PanelUangKeluar() {
             <Card key={u.id}>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p
-                    className="text-sm font-medium mb-0.5 truncate"
-                    style={{ color: "#dbd9d2" }}
-                  >
+                  <p className="text-sm  mb-0.5 truncate text-green-700 font-bold dark:text-zinc-100">
                     {u.keterangan}
                   </p>
                   <p
@@ -1360,10 +1384,7 @@ function PanelUangKeluar() {
                     <Calendar size={9} />{" "}
                     {new Date(u.tanggal).toLocaleDateString("id-ID")}
                   </p>
-                  <span
-                    className="px-2 py-0.5 rounded-md text-[11px] md:text-sm font-semibold"
-                    style={{ background: "#200808", color: "#d07070" }}
-                  >
+                  <span className="p-2 rounded-md text-[11px] md:text-sm font-semibold bg-red-300">
                     {fmt(u.jumlah)}
                   </span>
                 </div>
@@ -1384,9 +1405,9 @@ function PanelUangKeluar() {
         <button
           disabled={page === 1}
           onClick={() => setPage((p) => p - 1)}
-          className="px-3 py-1 rounded bg-gray-700 disabled:opacity-50"
+          className="px-3 py-1 rounded bg-green-700 dark:bg-indigo-700 disabled:opacity-50"
         >
-          Prev
+          <ChevronLeft className="text-white" />
         </button>
 
         <p className="text-xs text-gray-400">
@@ -1396,9 +1417,9 @@ function PanelUangKeluar() {
         <button
           disabled={page === meta.totalPages}
           onClick={() => setPage((p) => p + 1)}
-          className="px-3 py-1 rounded bg-gray-700 disabled:opacity-50"
+          className="px-3 py-1 rounded bg-green-700 dark:bg-indigo-700 disabled:opacity-50"
         >
-          Next
+          <ChevronRight className="text-white" />
         </button>
       </div>
       <p className="text-[10px] text-gray-500 mt-2">

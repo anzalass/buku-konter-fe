@@ -106,21 +106,25 @@ export default function DetailTransaksi() {
   const isVoid = data.deletedAt !== null;
 
   return (
-    <div className="min-h-screen p-2 pb-24 bg-[#0D0D10] text-white">
-      {/* 🔙 HEADER */}
-
+    <div className="min-h-screen w-full max-w-2xl mx-auto p-3 sm:p-4 pb-24 bg-gray-50 dark:bg-[#0D0D10] dark:text-white text-gray-900 transition-colors duration-300">
       {/* 💳 CARD HEADER */}
-      <div className="rounded-2xl p-4 bg-[#181820] border border-[#232330] mb-4">
+      <div className="rounded-2xl p-4 sm:p-5 bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#232330] mb-4 shadow-sm transition-colors duration-300">
         {/* STATUS */}
         <div className="flex justify-between items-start mb-3">
           <div>
-            <p className="text-xs text-gray-400">Nama</p>
-            <p className="text-sm font-medium">{data.namaMember}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+              Nama
+            </p>
+            <p className="text-sm sm:text-base font-semibold">
+              {data.namaMember}
+            </p>
           </div>
 
           <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              isVoid ? "bg-red-900 text-red-400" : "bg-green-900 text-green-400"
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors duration-300 border ${
+              isVoid
+                ? "bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900/50"
+                : "bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 border-green-100 dark:border-green-900/50"
             }`}
           >
             {isVoid ? "VOID" : "SUCCESS"}
@@ -128,41 +132,47 @@ export default function DetailTransaksi() {
         </div>
 
         {/* TANGGAL */}
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <Calendar size={14} />
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+          <Calendar size={16} />
           {formatDate(data.tanggal)}
         </div>
 
         {/* TOTAL */}
-        <div className="mt-4">
-          <p className="text-xs text-gray-400">Total</p>
-          <p className="text-2xl font-bold text-blue-400">
+        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#232330]">
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            Total
+          </p>
+          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
             {formatCurrency(data.totalHarga)}
           </p>
-          <p className="text-xs text-green-400 mt-1">
+          <p className="text-xs sm:text-sm text-green-600 dark:text-green-400 mt-1 font-medium">
             +{formatCurrency(data.keuntungan)}
           </p>
         </div>
       </div>
 
       {/* 📦 LIST ITEM */}
-      <div className="rounded-2xl bg-[#181820] border border-[#232330] p-4">
-        <p className="text-xs text-gray-400 mb-3">Items</p>
+      <div className="rounded-2xl bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#232330] p-4 shadow-sm transition-colors duration-300">
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-3">
+          Items
+        </p>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {data.items.map((item) => (
             <div
               key={item.id}
-              className="flex justify-between items-center border-b border-[#232330] pb-2"
+              className="flex justify-between items-start sm:items-center py-2 border-b border-gray-100 dark:border-[#232330] last:border-0 last:pb-0"
             >
-              <div>
-                <p className="text-sm">{item.Produk?.nama}</p>
-                <p className="text-[10px] text-gray-400">
+              <div className="flex-1 min-w-0 pr-4">
+                <p className="text-sm font-medium truncate dark:text-gray-200 text-gray-800">
+                  {item.Produk?.nama}
+                </p>
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   {item.quantity} x {formatCurrency(item.Produk?.hargaEceran)}
                 </p>
               </div>
 
-              <p className="text-xs text-blue-400">
+              <p className="text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
                 {formatCurrency(item.quantity * item.Produk?.hargaEceran)}
               </p>
             </div>
@@ -171,28 +181,26 @@ export default function DetailTransaksi() {
       </div>
 
       {/* 🔥 ACTION BUTTON */}
-      <div className="mt-2">
-        <div className="flex gap-3">
-          {/* PRINT */}
-          <button
-            onClick={() => window.print()}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0A1828] text-blue-400 border border-[#1A2A48]"
-          >
-            <Printer size={16} />
-            Print
-          </button>
+      <div className="mt-4 flex gap-3">
+        {/* PRINT */}
+        <button
+          onClick={() => navigate(`/print-transaksi/${id}`)}
+          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs sm:text-sm font-medium bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/50 border border-blue-100 dark:border-blue-900/30 transition-all active:scale-[0.98]"
+        >
+          <Printer size={16} />
+          Print Trx
+        </button>
 
-          {/* DELETE / VOID */}
-          {!isVoid && (
-            <button
-              onClick={handleDelete}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#2A0A12] text-red-400 border border-[#3A1A22]"
-            >
-              <Trash2 size={16} />
-              Void
-            </button>
-          )}
-        </div>
+        {/* DELETE / VOID */}
+        {!isVoid && (
+          <button
+            onClick={handleDelete}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs sm:text-sm font-medium bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/50 border border-red-100 dark:border-red-900/30 transition-all active:scale-[0.98]"
+          >
+            <Trash2 size={16} />
+            Void
+          </button>
+        )}
       </div>
     </div>
   );

@@ -76,14 +76,14 @@ export default function HistoryLogs() {
   // UI
   // =========================
   return (
-    <div className="p-2 text-white max-w-7xl mx-auto">
+    <div className="w-full max-w-7xl mx-auto p-3 sm:p-4 dark:text-white text-gray-900 transition-colors duration-300">
       {/* 🔥 FILTER */}
-      <div className="space-y-2 mb-4">
+      <div className="grid grid-cols-2  gap-3 mb-4">
         {/* NAMA (DROPDOWN) */}
         <select
           value={nama}
           onChange={(e) => setNama(e.target.value)}
-          className="w-full px-3 py-2 text-xs rounded bg-[#181820] border border-[#2A2A38]"
+          className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors"
         >
           <option value="">Semua User</option>
           {users.map((u) => (
@@ -97,7 +97,7 @@ export default function HistoryLogs() {
         <select
           value={kategori}
           onChange={(e) => setKategori(e.target.value)}
-          className="w-full px-3 py-2 text-xs rounded bg-[#181820] border border-[#2A2A38]"
+          className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors"
         >
           {KATEGORI_OPTIONS.map((k) => (
             <option key={k} value={k}>
@@ -107,75 +107,68 @@ export default function HistoryLogs() {
         </select>
 
         {/* KETERANGAN */}
-        <input
-          value={keterangan}
-          onChange={(e) => setKeterangan(e.target.value)}
-          placeholder="Cari keterangan..."
-          className="w-full px-3 py-2 text-xs rounded bg-[#181820] border border-[#2A2A38]"
-        />
+      </div>
+      <input
+        value={keterangan}
+        onChange={(e) => setKeterangan(e.target.value)}
+        placeholder="Cari keterangan..."
+        className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors"
+      />
 
-        {/* DATE RANGE */}
-        <div className="flex gap-2">
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-2 py-2 text-xs rounded bg-[#181820] border border-[#2A2A38]"
-          />
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-2 py-2 text-xs rounded bg-[#181820] border border-[#2A2A38]"
-          />
-        </div>
+      {/* DATE RANGE */}
+      <div className="flex mt-2 gap-2 sm:col-span-2 lg:col-span-1">
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors"
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors"
+        />
       </div>
 
       {/* 🔥 LIST */}
       {isLoading ? (
-        <p className="text-xs text-gray-400 text-center">Loading...</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-6">
+          Loading...
+        </p>
       ) : logs.length === 0 ? (
-        <p className="text-xs text-gray-500 text-center">Tidak ada data</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-6">
+          Tidak ada data
+        </p>
       ) : (
-        <div className="flex flex-col gap-2 md:grid md:grid-cols-3">
+        <div className="grid mt-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {logs.map((log) => (
             <div
               key={log.id}
-              className="p-3 rounded-xl bg-[#13151f] border border-[#1e2130] hover:border-[#2a2d42] transition"
+              className="p-3 rounded-xl bg-white dark:bg-[#13151f] border border-gray-200 dark:border-[#1e2130] hover:dark:border-[#2a2d42] hover:border-gray-300 shadow-sm transition-all duration-300"
             >
               {/* 🔹 ROW ATAS */}
-              <div className="flex justify-between items-center gap-2">
-                {/* kiri */}
-                <div className="flex items-center gap-2 min-w-0">
-                  {/* BADGE */}
-                  <span
-                    className="text-[10px] px-2 py-0.5 rounded-full"
-                    style={{
-                      background:
-                        log.kategori === "Pengeluaran"
-                          ? "#2a0a12"
-                          : log.kategori === "Transaksi"
-                            ? "#0f2318"
-                            : "#1e2130",
-                      color:
-                        log.kategori === "Pengeluaran"
-                          ? "#f87171"
-                          : log.kategori === "Transaksi"
-                            ? "#34d399"
-                            : "#9ca3af",
-                    }}
-                  >
-                    {log.kategori}
-                  </span>
-                </div>
+              <div className="flex justify-between items-center gap-2 mb-2">
+                {/* kiri - BADGE */}
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                    log.kategori === "Pengeluaran"
+                      ? "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
+                      : log.kategori === "Transaksi"
+                        ? "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                  }`}
+                >
+                  {log.kategori}
+                </span>
 
                 {/* kanan (nominal) */}
                 {log.nominal !== null && (
                   <span
                     className={`text-xs font-semibold ${
                       log.kategori === "Pengeluaran"
-                        ? "text-red-400"
-                        : "text-emerald-400"
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-emerald-600 dark:text-emerald-400"
                     }`}
                   >
                     Rp {(log.nominal || 0).toLocaleString("id-ID")}
@@ -184,18 +177,18 @@ export default function HistoryLogs() {
               </div>
 
               {/* 🔹 NAMA */}
-              <p className="text-xs font-medium text-[#c8cce0] mt-1 truncate">
+              <p className="text-xs font-medium dark:text-gray-200 text-gray-800 truncate">
                 {log.nama}
               </p>
 
               {/* 🔹 KETERANGAN */}
-              <p className="text-[11px] text-[#9095b0] mt-0.5 line-clamp-2">
+              <p className="text-[11px] dark:text-gray-400 text-gray-600 mt-0.5 line-clamp-2">
                 {log.keterangan}
               </p>
 
               {/* 🔹 FOOTER */}
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-[10px] text-[#4a4d62]">
+              <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-100 dark:border-[#1e2130]">
+                <span className="text-[10px] dark:text-gray-500 text-gray-400">
                   {new Date(log.createdAt).toLocaleDateString("id-ID", {
                     day: "2-digit",
                     month: "short",
@@ -203,7 +196,7 @@ export default function HistoryLogs() {
                   })}
                 </span>
 
-                <span className="text-[10px] text-[#4a4d62]">
+                <span className="text-[10px] dark:text-gray-500 text-gray-400">
                   {new Date(log.createdAt).toLocaleTimeString("id-ID", {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -216,23 +209,23 @@ export default function HistoryLogs() {
       )}
 
       {/* 🔥 PAGINATION */}
-      <div className="flex justify-between items-center mt-4 text-xs">
+      <div className="flex justify-between items-center mt-6 text-xs">
         <button
           disabled={page === 1}
           onClick={() => setPage((p) => p - 1)}
-          className="px-3 py-1 bg-[#252530] rounded disabled:opacity-50"
+          className="px-3 py-1.5 rounded-lg bg-white dark:bg-[#252530] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#2A2A38] hover:bg-gray-50 dark:hover:bg-[#2f3245] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           Prev
         </button>
 
-        <span>
+        <span className="dark:text-gray-400 text-gray-600 font-medium">
           {page} / {pagination.totalPage || 1}
         </span>
 
         <button
           disabled={page === pagination.totalPage}
           onClick={() => setPage((p) => p + 1)}
-          className="px-3 py-1 bg-[#252530] rounded disabled:opacity-50"
+          className="px-3 py-1.5 rounded-lg bg-white dark:bg-[#252530] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#2A2A38] hover:bg-gray-50 dark:hover:bg-[#2f3245] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           Next
         </button>

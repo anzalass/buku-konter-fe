@@ -6,7 +6,8 @@ import Sidebar from "./sidebar";
 import BottomNav from "./bottom-nav";
 import { navItems } from "../data/nav-items";
 import { useAuthStore } from "../store/useAuthStore";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Moon, Sun } from "lucide-react";
+import { toggleTheme } from "../utils/helperTheme";
 
 export default function DashboardLayout() {
   const { user, isLoading, isCheckingAuth, fetchUser } = useAuthStore();
@@ -53,7 +54,7 @@ export default function DashboardLayout() {
     // 🔥 DEFAULT
     switch (lastPath) {
       case "penggabungan":
-        return "Home";
+        return "Java Cell Mauk";
       case "new-transaksi":
         return "Mulai Transaksi";
       case "master-data":
@@ -116,7 +117,7 @@ export default function DashboardLayout() {
       {/* ✅ Overlay mobile */}
       {!isDesktop && sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40"
+          className="fixed inset-0 z-40"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -124,7 +125,7 @@ export default function DashboardLayout() {
       {/* ✅ CONTENT */}
       <div className="flex-1 flex flex-col w-full">
         {/* HEADER */}
-        <header className="sticky top-0 z-50 flex items-center justify-between bg-white dark:bg-gray-800 shadow px-3 py-3 md:px-4 md:py-3">
+        <header className="sticky top-0 z-50 flex items-center justify-between bg-green-600 dark:bg-indigo-800  px-3 py-3 md:px-4 md:py-3">
           <div className="flex items-center gap-3">
             {/* 🔥 BACK BUTTON */}
 
@@ -148,16 +149,16 @@ export default function DashboardLayout() {
               </button>
             )} */}
 
-            <h1 className="text-sm md:text-lg font-semibold text-gray-800 dark:text-white">
+            <h1 className="text-base md:text-lg font-semibold text-white dark:text-white">
               {formatTitle()}
             </h1>
           </div>
-
           {/* Avatar */}
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <div
               onClick={() => navigate("/dashboard/user")}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shadow"
+              className="w-8 cursor-pointer h-8 rounded-full flex items-center justify-center text-xs font-semibold shadow"
               style={{
                 background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
                 color: "#fff",
@@ -169,7 +170,7 @@ export default function DashboardLayout() {
         </header>
 
         {/* MAIN CONTENT */}
-        <main className="flex-1 p-2 md:p-6 pb-20 overflow-x-hidden ">
+        <main className="flex-1  md:p-6 pb-20 overflow-x-hidden ">
           <Outlet />
         </main>
 
@@ -180,3 +181,41 @@ export default function DashboardLayout() {
     </div>
   );
 }
+
+// import { toggleTheme } from "../utils/helperTheme";
+
+const ThemeToggle = () => {
+  const [isDark, setIsDark] = useState(
+    document.documentElement.classList.contains("dark")
+  );
+
+  const handleToggle = () => {
+    const next = !isDark;
+
+    // langsung set ke DOM
+    if (next) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+
+    setIsDark(next);
+  };
+
+  return (
+    <button
+      onClick={handleToggle}
+      className="p-2 rounded-lg 
+      bg-gray-200 dark:bg-gray-700 
+      hover:scale-95 transition"
+    >
+      {isDark ? (
+        <Sun className="w-5 h-5 text-yellow-400" />
+      ) : (
+        <Moon className="w-5 h-5 text-gray-800" />
+      )}
+    </button>
+  );
+};

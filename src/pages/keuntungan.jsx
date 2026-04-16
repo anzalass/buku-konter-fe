@@ -275,15 +275,15 @@ export default function KeuntunganPage() {
   //   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
       <div className="w-full mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
               Laporan Keuntungan
             </h1>
-            <p className="text-slate-500 mt-1 text-sm sm:text-base">
+            <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm sm:text-base">
               Pantau performa bisnis Anda secara real-time
             </p>
           </div>
@@ -292,8 +292,8 @@ export default function KeuntunganPage() {
             onClick={exportToExcel}
             disabled={loadingExport || !data?.data?.length}
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 
-                     text-white rounded-xl font-medium shadow-lg shadow-emerald-500/25 
-                     hover:shadow-emerald-500/40 hover:from-emerald-700 hover:to-teal-700 
+                     text-white rounded-xl font-medium shadow-lg shadow-emerald-500/25 dark:shadow-emerald-500/20 
+                     hover:shadow-emerald-500/40 dark:hover:shadow-emerald-500/30 hover:from-emerald-700 hover:to-teal-700 
                      transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loadingExport ? (
@@ -312,27 +312,27 @@ export default function KeuntunganPage() {
             return (
               <div
                 key={idx}
-                className={`${metric.bg} rounded-2xl p-4 sm:p-5 border border-slate-200/60 
-                          hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300 
+                className={`${metric.bg} dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200/60 dark:border-slate-700/60 
+                          hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all duration-300 
                           hover:-translate-y-0.5 group`}
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-slate-500 text-xs sm:text-sm font-medium">
+                    <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">
                       {metric.label}
                     </p>
                     <p
-                      className={`text-lg sm:text-xl font-bold mt-1 ${metric.text}`}
+                      className={`text-lg sm:text-xl font-bold mt-1 ${metric.text} dark:text-white`}
                     >
                       {formatShort(metric.value)}
                     </p>
-                    <p className="text-slate-400 text-xs mt-0.5 hidden sm:block">
+                    <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5 hidden sm:block">
                       {formatRupiah(metric.value)}
                     </p>
                   </div>
                   <div
                     className={`p-2.5 rounded-xl bg-gradient-to-br ${metric.color} 
-                                shadow-lg shadow-slate-200/50 group-hover:scale-110 transition-transform`}
+                                shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 group-hover:scale-110 transition-transform`}
                   >
                     <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
@@ -343,10 +343,10 @@ export default function KeuntunganPage() {
         </div>
 
         {/* FILTER SECTION */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-4 sm:p-5 mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 p-4 sm:p-5 mb-6 transition-colors duration-300">
           <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-semibold text-slate-700">
+            <Filter className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
               Filter Periode
             </span>
           </div>
@@ -366,7 +366,7 @@ export default function KeuntunganPage() {
                           ${
                             filter === opt.key
                               ? "bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md shadow-indigo-500/25"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800"
+                              : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 hover:text-slate-800 dark:hover:text-slate-100"
                           }`}
               >
                 {opt.label}
@@ -375,26 +375,28 @@ export default function KeuntunganPage() {
           </div>
 
           {filter === "custom" && (
-            <div className="flex flex-col sm:flex-row gap-3 mt-4 pt-4 border-t border-slate-100">
-              <div className="flex items-center gap-2 text-sm text-slate-600">
+            <div className="flex flex-col sm:flex-row gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 transition-colors duration-300">
+              <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                 <Calendar className="w-4 h-4" />
                 <span>Periode Custom:</span>
               </div>
               <div className="flex gap-3">
                 <input
                   type="date"
-                  className="px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 
-                           focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 
+                  className="px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200
+                           focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 
                            outline-none transition text-sm"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   max={endDate || undefined}
                 />
-                <span className="flex items-center text-slate-400">—</span>
+                <span className="flex items-center text-slate-400 dark:text-slate-500">
+                  —
+                </span>
                 <input
                   type="date"
-                  className="px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 
-                           focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 
+                  className="px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200
+                           focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 
                            outline-none transition text-sm"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
@@ -406,12 +408,12 @@ export default function KeuntunganPage() {
         </div>
 
         {/* DATA TABLE */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 overflow-hidden mb-6 transition-colors duration-300">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gradient-to-r from-slate-50 to-slate-100">
-                  <th className="px-4 sm:px-6 py-4 text-left font-semibold text-slate-700 border-b border-slate-200">
+                <tr className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800">
+                  <th className="px-4 sm:px-6 py-4 text-left font-semibold text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
                     Tanggal
                   </th>
                   {columns.map((col) => {
@@ -419,7 +421,7 @@ export default function KeuntunganPage() {
                     return (
                       <th
                         key={col.key}
-                        className="px-3 sm:px-4 py-4 text-center font-semibold text-slate-700 border-b border-slate-200"
+                        className="px-3 sm:px-4 py-4 text-center font-semibold text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700"
                       >
                         <div className="flex items-center justify-center gap-1.5">
                           <Icon className="w-3.5 h-3.5" />
@@ -428,28 +430,28 @@ export default function KeuntunganPage() {
                       </th>
                     );
                   })}
-                  <th className="px-4 sm:px-6 py-4 text-center font-bold text-slate-800 border-b border-slate-200">
+                  <th className="px-4 sm:px-6 py-4 text-center font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700">
                     <div className="flex items-center justify-center gap-1.5">
-                      <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                      <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span className="inline">Total</span>
                     </div>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                 {!data?.data?.length ? (
                   <tr>
                     <td
                       colSpan={columns.length + 2}
                       className="px-6 py-12 text-center"
                     >
-                      <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-slate-100 mb-3">
-                        <Package className="w-6 h-6 text-slate-400" />
+                      <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700/50 mb-3">
+                        <Package className="w-6 h-6 text-slate-400 dark:text-slate-500" />
                       </div>
-                      <p className="text-slate-500 font-medium">
+                      <p className="text-slate-500 dark:text-slate-400 font-medium">
                         Tidak ada data
                       </p>
-                      <p className="text-slate-400 text-sm mt-1">
+                      <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
                         Coba ubah filter periode
                       </p>
                     </td>
@@ -458,9 +460,9 @@ export default function KeuntunganPage() {
                   data?.data?.map((item, idx) => (
                     <tr
                       key={item.id || idx}
-                      className="hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-transparent transition-colors"
+                      className="hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-transparent dark:hover:from-indigo-900/20 dark:hover:to-slate-800 transition-colors"
                     >
-                      <td className="px-4 sm:px-6 py-4 font-medium text-slate-700">
+                      <td className="px-4 sm:px-6 py-4 font-medium text-slate-700 dark:text-slate-200">
                         {new Date(item.tanggal).toLocaleDateString("id-ID", {
                           weekday: "short",
                           day: "numeric",
@@ -472,7 +474,9 @@ export default function KeuntunganPage() {
                           key={col.key}
                           className="px-3 sm:px-4 py-4 text-center"
                         >
-                          <span className={`${col.color} font-medium`}>
+                          <span
+                            className={`${col.color} dark:text-slate-200 font-medium`}
+                          >
                             {formatShort(item[col.key])}
                           </span>
                         </td>
@@ -480,8 +484,8 @@ export default function KeuntunganPage() {
                       <td className="px-4 sm:px-6 py-4 text-center">
                         <span
                           className="inline-flex items-center px-2.5 py-1 rounded-lg 
-                                       bg-gradient-to-r from-emerald-50 to-teal-50 
-                                       text-emerald-700 font-bold text-sm"
+                                       bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 
+                                       text-emerald-700 dark:text-emerald-300 font-bold text-sm"
                         >
                           {formatShort(item.totalKeuntungan)}
                         </span>
@@ -494,82 +498,30 @@ export default function KeuntunganPage() {
           </div>
         </div>
 
-        {/* SUMMARY CARD */}
         {/* SUMMARY CARD - LIGHT THEME */}
-        {/* <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-lg shadow-slate-200/50 border border-slate-200">
-          <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <DollarSign className="w-5 h-5 text-emerald-600" />
+        {/* <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/60 dark:border-slate-700/60">
+          <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-slate-100">
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+              <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             Ringkasan Total
           </h2>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
             {[
-              {
-                label: "Transaksi",
-                value: data?.total?.keuntunganTransaksi,
-                color: "text-slate-700",
-                bg: "bg-slate-50",
-              },
-              {
-                label: "Voucher",
-                value: data?.total?.keuntunganVoucherHarian,
-                color: "text-indigo-700",
-                bg: "bg-indigo-50",
-              },
-              {
-                label: "Acc",
-                value: data?.total?.keuntunganAcc,
-                color: "text-violet-700",
-                bg: "bg-violet-50",
-              },
-              {
-                label: "Sparepart",
-                value: data?.total?.keuntunganSparepart,
-                color: "text-blue-700",
-                bg: "bg-blue-50",
-              },
-              {
-                label: "Service",
-                value: data?.total?.keuntunganService,
-                color: "text-purple-700",
-                bg: "bg-purple-50",
-              },
-              {
-                label: "Grosir",
-                value: data?.total?.keuntunganGrosirVoucher,
-                color: "text-amber-700",
-                bg: "bg-amber-50",
-              },
-              {
-                label: "GRAND TOTAL",
-                value: data?.total?.totalKeuntungan,
-                color: "text-emerald-700",
-                bg: "bg-emerald-50",
-                bold: true,
-              },
+              { label: "Transaksi", value: data?.total?.keuntunganTransaksi, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-50 dark:bg-slate-700/50" },
+              { label: "Voucher", value: data?.total?.keuntunganVoucherHarian, color: "text-indigo-700 dark:text-indigo-300", bg: "bg-indigo-50 dark:bg-indigo-900/20" },
+              { label: "Acc", value: data?.total?.keuntunganAcc, color: "text-violet-700 dark:text-violet-300", bg: "bg-violet-50 dark:bg-violet-900/20" },
+              { label: "Sparepart", value: data?.total?.keuntunganSparepart, color: "text-blue-700 dark:text-blue-300", bg: "bg-blue-50 dark:bg-blue-900/20" },
+              { label: "Service", value: data?.total?.keuntunganService, color: "text-purple-700 dark:text-purple-300", bg: "bg-purple-50 dark:bg-purple-900/20" },
+              { label: "Grosir", value: data?.total?.keuntunganGrosirVoucher, color: "text-amber-700 dark:text-amber-300", bg: "bg-amber-50 dark:bg-amber-900/20" },
+              { label: "GRAND TOTAL", value: data?.total?.totalKeuntungan, color: "text-emerald-700 dark:text-emerald-300", bg: "bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-emerald-200 dark:border-emerald-700 shadow-md shadow-emerald-100/50 dark:shadow-emerald-900/30", bold: true },
             ].map((item, idx) => (
-              <div
-                key={idx}
-                className={`p-3 rounded-xl border ${
-                  item.bold
-                    ? "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-md shadow-emerald-100"
-                    : `${item.bg} border-slate-200/60`
-                }`}
-              >
-                <p className="text-xs text-slate-500 mb-1 font-medium">
-                  {item.label}
-                </p>
-                <p
-                  className={`font-bold ${item.bold ? "text-xl" : "text-base"} ${item.color}`}
-                >
-                  {formatShort(item.value)}
-                </p>
+              <div key={idx} className={`p-3 rounded-xl border ${item.bold ? item.bg : `${item.bg} border-slate-200/60 dark:border-slate-700/60`}`}>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1 font-medium">{item.label}</p>
+                <p className={`font-bold ${item.bold ? "text-xl" : "text-base"} ${item.color}`}>{formatShort(item.value)}</p>
                 {item.bold && (
-                  <p className="text-xs text-emerald-600/80 mt-0.5 font-medium">
-                    {formatRupiah(item.value)}
-                  </p>
+                  <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-0.5 font-medium">{formatRupiah(item.value)}</p>
                 )}
               </div>
             ))}
@@ -578,7 +530,7 @@ export default function KeuntunganPage() {
 
         {/* FOOTER */}
         <div className="text-center mt-8 pb-4">
-          <p className="text-slate-400 text-xs">
+          <p className="text-slate-400 dark:text-slate-500 text-xs">
             Data diperbarui:{" "}
             {new Date().toLocaleDateString("id-ID", {
               weekday: "long",

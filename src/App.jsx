@@ -10,7 +10,6 @@ import LoginPage from "./pages/login";
 
 import SuperAdminDashboard from "./pages/super-admin";
 import LogPage from "./pages/log";
-import PrintTransaksiAksesoris from "./pages/print-trans-acc";
 import KeuntunganPage from "./pages/keuntungan";
 import TransaksiPageNew from "./pages/transaksi-new";
 import Penggabungan from "./pages/penggabungan";
@@ -33,9 +32,25 @@ import SettingUser from "./pages/setting-user";
 import MemberTransactionHistory from "./pages/member-trx";
 import DashboardKeuntungan from "./pages/overview";
 import LaporanUser from "./pages/user-record";
+import { setTheme } from "./utils/helperTheme";
+import PrintTransaksi from "./pages/print-trans-acc";
+import PrintService from "./pages/print-service-hp";
 
 function App() {
   const { user, isLoading, isCheckingAuth, fetchUser } = useAuthStore();
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      setTheme(prefersDark ? "dark" : "light");
+    }
+  }, []);
 
   useEffect(() => {
     // 🔁 Cek sesi login saat app pertama kali dimuat
@@ -48,10 +63,8 @@ function App() {
 
       <Route path="/super-admin" element={<SuperAdminDashboard />} />
 
-      <Route
-        path="print-transaksi-acc/:id"
-        element={<PrintTransaksiAksesoris />}
-      />
+      <Route path="/print-transaksi/:id" element={<PrintTransaksi />} />
+      <Route path="/print-service/:id" element={<PrintService />} />
 
       <Route path="/dashboard" element={<DashboardLayout />}>
         <Route path="new-transaksi" element={<TransaksiPageNew />} />

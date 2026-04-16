@@ -60,32 +60,13 @@ export default function Penggabungan() {
   const queryClient = useQueryClient();
 
   const [uangKeluarForm, setOpenModalUangKeluarForm] = useState(false);
-
-  const {
-    data: dashboardData,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["dashboard"],
-    queryFn: async () => {
-      const res = await api.get("/dashboard2", {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      });
-      return res.data.data;
-    },
-    enabled: !!user?.token,
-    keepPreviousData: true,
-  });
-
   const createMutation = useMutation({
     mutationFn: (formData) =>
       api.post("uang-modal", formData, {
         headers: { Authorization: `Bearer ${user.token}` },
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["uang-modal"] });
+      queryClient.invalidateQueries({ queryKey: ["history"] });
       Swal.fire("Berhasil!", "Data uang keluar ditambahkan", "success");
       setOpenModalUangKeluarForm(false);
     },
@@ -94,24 +75,61 @@ export default function Penggabungan() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="fixed bottom-16 left-0 right-0 z-50 px-3">
-        <div className="grid grid-cols-5  max-w-md mx-auto">
-          <ActionButton
+        <div className="grid grid-cols-5 max-w-md mx-auto gap-2 px-2">
+          {/* Penjualan */}
+          <button
             onClick={() => nav("/dashboard/new-transaksi")}
-            label="Penjualan"
-          />{" "}
-          <ActionButton
+            className="flex flex-col border-2 items-center justify-center gap-1.5 p-3 bg-white dark:bg-[#1e2130]  border-green-500 dark:border-[#2a2d42] rounded-xl hover:border-gray-300 dark:hover:bg-[#25283a] active:scale-95 transition-all"
+          >
+            <ShoppingCart className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
+            <span className="text-[11px] text-gray-600 dark:text-gray-400 text-center leading-tight">
+              Penjualan
+            </span>
+          </button>
+
+          {/* Transaksi */}
+          <button
             onClick={() => nav("/dashboard/new-transaksi2")}
-            label="Transaksi"
-          />{" "}
-          <ActionButton onClick={openPPOB} label="PPOB" />
-          <ActionButton
+            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white dark:bg-[#1e2130] border border-green-500 dark:border-[#2a2d42] rounded-xl hover:border-gray-300 dark:hover:bg-[#25283a] active:scale-95 transition-all"
+          >
+            <LayoutGrid className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+            <span className="text-[11px] text-gray-600 dark:text-gray-400 text-center leading-tight">
+              Transaksi
+            </span>
+          </button>
+
+          {/* PPOB */}
+          <button
+            onClick={openPPOB}
+            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white dark:bg-[#1e2130] border border-green-500 dark:border-[#2a2d42] rounded-xl hover:border-gray-300 dark:hover:bg-[#25283a] active:scale-95 transition-all"
+          >
+            <CreditCard className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+            <span className="text-[11px] text-gray-600 dark:text-gray-400 text-center leading-tight">
+              PPOB
+            </span>
+          </button>
+
+          {/* Service HP */}
+          <button
             onClick={() => nav("/dashboard/form-service")}
-            label="Service HP"
-          />
-          <ActionButton
+            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white dark:bg-[#1e2130] border border-green-500 dark:border-[#2a2d42] rounded-xl hover:border-gray-300 dark:hover:bg-[#25283a] active:scale-95 transition-all"
+          >
+            <Smartphone className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+            <span className="text-[11px] text-gray-600 dark:text-gray-400 text-center leading-tight">
+              Service HP
+            </span>
+          </button>
+
+          {/* Uang Keluar */}
+          <button
             onClick={() => setOpenModalUangKeluarForm(true)}
-            label="Uang Keluar"
-          />
+            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white dark:bg-[#1e2130] border border-green-500 dark:border-[#2a2d42] rounded-xl hover:border-gray-300 dark:hover:bg-[#25283a] active:scale-95 transition-all"
+          >
+            <Wallet className="w-5 h-5 text-amber-500 dark:text-amber-400" />
+            <span className="text-[11px] text-gray-600 dark:text-gray-400 text-center leading-tight">
+              Uang Keluar
+            </span>
+          </button>
         </div>
       </div>
 
@@ -196,11 +214,11 @@ function ActionButton({ label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-1.5 p-3 bg-[#1e2130] hover:bg-[#25283a] active:scale-95 transition-all"
+      className="flex flex-col items-center justify-center gap-1.5 p-3 bg-green-700 dark:bg-[#1e2130] hover:bg-[#25283a] active:scale-95 transition-all"
     >
       {ACTION_ICONS[label] || <LayoutGrid className="w-5 h-5 text-gray-400" />}
 
-      <span className="text-[9px] text-gray-400 text-center leading-tight">
+      <span className="text-[12px] text-white text-center leading-tight">
         {label}
       </span>
     </button>
@@ -227,6 +245,11 @@ function ToggleViewButton({ active, onClick, icon, label }) {
 }
 
 function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
+  const getTodayLocal = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().split("T")[0];
+  };
   const {
     register,
     control,
@@ -240,9 +263,13 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
     defaultValues: {
       keterangan: initial?.keterangan || "",
       jumlah: initial?.jumlah || "",
-      tanggal: initial?.tanggal
-        ? new Date(initial.tanggal).toISOString().split("T")[0]
-        : new Date().toISOString().split("T")[0],
+      defaultValues: {
+        keterangan: initial?.keterangan || "",
+        jumlah: initial?.jumlah || "",
+        tanggal: initial?.tanggal
+          ? new Date(initial.tanggal).toISOString().split("T")[0]
+          : getTodayLocal(),
+      },
     },
   });
 
@@ -254,7 +281,7 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
         "tanggal",
         initial?.tanggal
           ? new Date(initial.tanggal).toISOString().split("T")[0]
-          : today()
+          : getTodayLocal()
       );
     }
   }, [open, initial, setValue]);
@@ -304,125 +331,129 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,.75)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div
-        className="w-full max-w-sm rounded-2xl p-5"
-        style={{ background: "#181820", border: "1px solid #2A2A38" }}
-      >
+      <div className="w-full max-w-sm rounded-2xl p-5 bg-white dark:bg-[#181820] border border-gray-100 dark:border-[#2A2A38] shadow-xl">
+        {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p
-              className="text-[11px] uppercase tracking-widest mb-0.5"
-              style={{ color: "#5A5868" }}
-            >
+            <p className="text-[11px] uppercase tracking-widest mb-0.5 text-gray-400 dark:text-[#5A5868]">
               {initial ? "edit" : "tambah"}
             </p>
-            <p className="text-sm font-semibold" style={{ color: "#ECEAE3" }}>
+            <p className="text-sm font-semibold text-gray-800 dark:text-[#ECEAE3]">
               Uang Keluar
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
-            style={{ background: "#252530" }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer bg-gray-100 dark:bg-[#252530] hover:bg-gray-200 dark:hover:bg-[#2e2e3e] transition-colors"
           >
-            <X size={12} color="#6A6878" />
+            <X size={12} className="text-gray-500 dark:text-[#6A6878]" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3">
           {/* Keterangan */}
-          <div className="mb-3">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
-              Keterangan <span style={{ color: "#D07070" }}>*</span>
+          <div>
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
+              Keterangan <span className="text-red-400">*</span>
             </p>
             <input
               {...register("keterangan")}
               placeholder="Contoh: Beli perlengkapan toko..."
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={{
-                ...inp,
-                borderColor: errors.keterangan ? "#D07070" : "#2A2A38",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) =>
-                (e.target.style.borderColor = errors.keterangan
-                  ? "#D07070"
-                  : "#2A2A38")
-              }
+              className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+            border focus:border-indigo-400 dark:focus:border-[#4A4A68]
+            ${
+              errors.keterangan
+                ? "border-red-400 dark:border-red-500"
+                : "border-gray-200 dark:border-[#2A2A38]"
+            }`}
             />
             {errors.keterangan && (
-              <p className="text-[10px] mt-1" style={{ color: "#D07070" }}>
+              <p className="text-[10px] mt-1 text-red-400">
                 {errors.keterangan.message}
               </p>
             )}
           </div>
 
           {/* Jumlah */}
-          <Controller
-            name="jumlah"
-            control={control}
-            render={({ field }) => (
-              <NumericFormat
-                value={field.value}
-                onValueChange={(values) => {
-                  field.onChange(values.floatValue || 0);
-                }}
-                thousandSeparator="."
-                decimalSeparator=","
-                allowNegative={false}
-                prefix="Rp "
-                placeholder="Rp 0"
-                className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-                style={{
-                  ...inp,
-                  borderColor: errors.jumlah ? "#D07070" : "#2A2A38",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-                onBlur={(e) =>
-                  (e.target.style.borderColor = errors.jumlah
-                    ? "#D07070"
-                    : "#2A2A38")
-                }
-              />
+          <div>
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
+              Jumlah <span className="text-red-400">*</span>
+            </p>
+            <Controller
+              name="jumlah"
+              control={control}
+              render={({ field }) => (
+                <NumericFormat
+                  value={field.value}
+                  onValueChange={(values) =>
+                    field.onChange(values.floatValue || 0)
+                  }
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  allowNegative={false}
+                  prefix="Rp "
+                  placeholder="Rp 0"
+                  className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+                bg-gray-50 dark:bg-[#111118]
+                text-gray-800 dark:text-white
+                placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+                border focus:border-indigo-400 dark:focus:border-[#4A4A68]
+                ${
+                  errors.jumlah
+                    ? "border-red-400 dark:border-red-500"
+                    : "border-gray-200 dark:border-[#2A2A38]"
+                }`}
+                />
+              )}
+            />
+            {errors.jumlah && (
+              <p className="text-[10px] mt-1 text-red-400">
+                {errors.jumlah.message}
+              </p>
             )}
-          />
+          </div>
 
           {/* Tanggal */}
-          <div className="mb-5">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+          <div className="pb-2">
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
               Tanggal
             </p>
             <input
               {...register("tanggal")}
               type="date"
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={inp}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+              className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            border border-gray-200 dark:border-[#2A2A38]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]
+            [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
 
+          {/* Actions */}
           <div className="flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium"
-              style={{
-                background: "#1A1A28",
-                color: "#6A6878",
-                border: "1px solid #2A2A38",
-              }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium cursor-pointer transition-colors
+            bg-gray-100 dark:bg-[#1A1A28]
+            text-gray-500 dark:text-[#6A6878]
+            border border-gray-200 dark:border-[#2A2A38]
+            hover:bg-gray-200 dark:hover:bg-[#222232]"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white transition-opacity"
-              style={{ background: "#4f46e5" }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-opacity
+            bg-green-600 dark:bg-indigo-600
+            hover:bg-green-700 dark:hover:bg-indigo-700"
             >
               Simpan
             </button>

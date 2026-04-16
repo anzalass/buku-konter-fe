@@ -32,22 +32,44 @@ const KATEGORI_OPTIONS = [
   "Pengeluaran",
 ];
 
+const DEFAULT_ICON = <Receipt size={13} />;
 const DEFAULT_BADGE = {
-  bg: "#1e2130",
-  text: "#9ca3af",
-  dot: "#9ca3af",
+  bg: "bg-gray-100 dark:bg-[#1e2130]",
+  text: " dark:text-[#9ca3af]",
+  dot: " dark:text-[#9ca3af]",
 };
 
-const DEFAULT_ICON = <Receipt size={13} />;
-
 const BADGE = {
-  "Penjualan - eceran": { bg: "#0f2318", text: "#34d399", dot: "#34d399" },
-  "Penjualan - grosir": { bg: "#0f2318", text: "#34d399", dot: "#34d399" },
-  "Voucher Harian": { bg: "#0f2318", text: "#34d399", dot: "#34d399" },
-
-  Pembelian: { bg: "#0c1a2e", text: "#60a5fa", dot: "#60a5fa" },
-  Retur: { bg: "#1f1206", text: "#fb923c", dot: "#fb923c" },
-  Pengeluaran: { bg: "#1f0a14", text: "#f472b6", dot: "#f472b6" },
+  "Penjualan - eceran": {
+    bg: "bg-emerald-50 dark:bg-[#0f2318]",
+    text: "text-emerald-600 dark:text-emerald-400",
+    dot: "text-emerald-500 dark:text-emerald-400",
+  },
+  "Penjualan - grosir": {
+    bg: "bg-emerald-50 dark:bg-[#0f2318]",
+    text: "text-emerald-600 dark:text-emerald-400",
+    dot: "text-emerald-500 dark:text-emerald-400",
+  },
+  "Voucher Harian": {
+    bg: "bg-emerald-50 dark:bg-[#0f2318]",
+    text: "text-emerald-600 dark:text-emerald-400",
+    dot: "text-emerald-500 dark:text-emerald-400",
+  },
+  Pembelian: {
+    bg: "bg-blue-50 dark:bg-[#0c1a2e]",
+    text: "text-blue-600 dark:text-blue-400",
+    dot: "text-blue-500 dark:text-blue-400",
+  },
+  Retur: {
+    bg: "bg-orange-50 dark:bg-[#1f1206]",
+    text: "text-orange-500 dark:text-orange-400",
+    dot: "text-orange-400 dark:text-orange-400",
+  },
+  Pengeluaran: {
+    bg: "bg-pink-50 dark:bg-[#1f0a14]",
+    text: "text-pink-500 dark:text-pink-400",
+    dot: "text-pink-400 dark:text-pink-400",
+  },
 };
 
 const ICON_MAP = {
@@ -160,17 +182,20 @@ export default function HistoryTransaksiHome() {
     {
       label: "Pemasukan",
       nominal: summary.pemasukan,
-      color: "#60a5fa",
+      color: "text-blue-500",
+      bg: "bg-blue-500",
     },
     {
       label: "Pengeluaran",
       nominal: summary.pengeluaran,
-      color: "#f87171",
+      color: "text-red-500",
+      bg: "bg-red-500",
     },
     {
       label: "Keuntungan",
       nominal: summary.keuntungan,
-      color: "#34d399",
+      color: "text-green-500",
+      bg: "bg-green-500",
     },
   ];
   const filtered = useMemo(() => {
@@ -229,176 +254,182 @@ export default function HistoryTransaksiHome() {
   }
 
   return (
-    <div className="min-h-screen w-full pb-14 bg-[#0b0d14] text-[#c8cce0] px-0  font-[DM_Sans]">
+    <div className="min-h-screen w-full pb-14 dark:bg-[#0b0d14] dark:text-[#c8cce0]  px-0  font-[DM_Sans]">
       {/* Header */}
-
-      <div className="grid grid-cols-3 gap-2 mb-3 ">
-        {summaryCards?.map(({ label, nominal, color, trend }) => (
-          <div
-            onClick={() => nav("/dashboard/overview")}
-            key={label}
-            className="rounded-xl flex flex-col  gap-1.5"
-            style={{
-              background: "#13151f",
-              border: "1px solid #2a2d3e",
-              padding: "10px",
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-[9px] md:text-sm" style={{ color: "white" }}>
-                {label}
-              </p>
+      <div className="bg-green-600 dark:bg-indigo-800 rounded-b-2xl p-4">
+        <div className="rounded-xl relative bg-white dark:bg-[#13151f] border border-gray-600 dark:border-[#1e2130] p-4 mb-0 shadow-sm dark:shadow-none">
+          <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-[#1e2130] mb-3">
+            {summaryCards?.map(({ label, nominal, color, bg }) => (
               <div
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: color }}
-              />
-            </div>
-            <p
-              className="text-[10px] md:text-base font-semibold tracking-tight"
-              style={{ color }}
-            >
-              Rp {nominal.toLocaleString("id-ID")}
-            </p>
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => onDetail(label)}
-                className="flex items-center gap-1 text-[10px]  md:text-sm bg-transparent border-none cursor-pointer p-0"
-                style={{ color }}
+                key={label}
+                className="flex flex-col gap-1.5 px-4 first:pl-0 last:pr-0"
               >
-                Lihat <ArrowRight size={10} />
-              </button>
-            </div>
+                <div className="flex items-center gap-1.5">
+                  <div className={`${bg} w-1.5 h-1.5 rounded-full shrink-0`} />
+                  <p className="text-[12px] md:text-xs  dark:text-[#6b7280] truncate">
+                    {label}
+                  </p>
+                </div>
+                <p
+                  className={`${color} text-[14px] md:text-sm font-semibold tracking-tight`}
+                >
+                  Rp {nominal.toLocaleString("id-ID")}
+                </p>
+                {/* Light mode accent bar */}
+                <div className={`${bg} h-1 w-full rounded-full  dark:hidden`} />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-col w-full gap-2 mb-3">
-        {/* 🔹 Search (FULL) */}
-        <div className="flex items-center gap-2 w-full bg-[#13151f] border border-[#1e2130] rounded-lg px-3 py-2">
-          <Search size={14} className="text-[#3a3d52] shrink-0" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari nama / ID..."
-            className="flex-1 min-w-0 bg-transparent outline-none text-xs text-[#c8cce0] placeholder:text-[#3a3d52]"
-          />
+          <div className="absolute border-[#1e2130] pt-2.5 bottom-2 right-3">
+            <button
+              onClick={() => nav("/dashboard/overview")}
+              className="flex items-center gap-1 text-[10px] md:text-xs text-gray-600 dark:text-[#6b7280] hover:text-gray-700 dark:hover:text-[#c8cce0] transition-colors bg-transparent border-none cursor-pointer p-0"
+            >
+              Lihat Semua <ArrowRight size={9} />
+            </button>
+          </div>
         </div>
 
-        <div className="flex gap-2">
-          {/* Kategori */}
-          <div className="relative w-full">
-            <select
-              value={kategori}
-              onChange={(e) => setKategori(e.target.value)}
-              className="w-full appearance-none bg-[#13151f] border border-[#1e2130] rounded-lg px-3 pr-6 py-2 text-xs text-[#c8cce0]"
-            >
-              {KATEGORI_OPTIONS.map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
-              ))}
-            </select>
+        {/* Toolbar */}
+        <div className="p-3 rounded-xl w-full">
+          <div className="flex flex-col w-full gap-2  px-6">
+            {/* 🔹 Search (FULL) */}
+            <div className="flex items-center gap-2 w-full dark:bg-[#13151f] border bg-white dark:border-[#1e2130] rounded-lg px-3 py-2">
+              <Search size={14} className="text-[#3a3d52] shrink-0" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Cari nama / ID..."
+                className="flex-1 min-w-0 bg-transparent outline-none text-xs dark:text-[#c8cce0] placeholder:text-[#3a3d52]"
+              />
+            </div>
 
-            <ChevronDown
-              size={12}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#3a3d52]"
-            />
-          </div>
+            <div className="flex gap-2">
+              {/* Kategori */}
+              <div className="relative w-full">
+                <select
+                  value={kategori}
+                  onChange={(e) => setKategori(e.target.value)}
+                  className="w-full appearance-none dark:bg-[#13151f] border rounded-lg px-3 pr-6 py-2 text-xs dark:text-[#c8cce0]"
+                >
+                  {KATEGORI_OPTIONS.map((k) => (
+                    <option key={k} value={k}>
+                      {k}
+                    </option>
+                  ))}
+                </select>
 
-          {/* Tanggal */}
-          <div className="relative w-full" ref={tanggalRef}>
-            <button
-              onClick={() => setTanggalOpen((v) => !v)}
-              className="w-full flex items-center justify-between gap-2 bg-[#13151f] border border-[#1e2130] rounded-lg px-3 py-2 text-xs text-[#c8cce0]"
-            >
-              <div className="flex items-center gap-2">
-                <CalendarDays size={13} className="text-[#3a3d52]" />
-                <span className="truncate">
-                  {tanggalMode === "Custom" &&
-                  (customRange.from || customRange.to)
-                    ? `${customRange.from || "..."} – ${customRange.to || "..."}`
-                    : tanggalMode}
-                </span>
+                <ChevronDown
+                  size={12}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 dark:text-[#3a3d52]"
+                />
               </div>
 
-              <ChevronDown
-                size={12}
-                className={`text-[#3a3d52] transition-transform ${
-                  tanggalOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+              {/* Tanggal */}
+              <div className="relative w-full" ref={tanggalRef}>
+                <button
+                  onClick={() => setTanggalOpen((v) => !v)}
+                  className="w-full flex items-center justify-between gap-2 dark:bg-[#13151f] bg-white border  rounded-lg px-3 py-2 text-xs dark:text-[#c8cce0]"
+                >
+                  <div className="flex items-center gap-2">
+                    <CalendarDays size={13} className="dark:text-[#3a3d52]" />
+                    <span className="truncate">
+                      {tanggalMode === "Custom" &&
+                      (customRange.from || customRange.to)
+                        ? `${customRange.from || "..."} – ${customRange.to || "..."}`
+                        : tanggalMode}
+                    </span>
+                  </div>
 
-            {/* 🔥 DROPDOWN PINDAH KE SINI */}
-            {tanggalOpen && (
-              <div className="absolute left-0 top-full mt-2 w-full bg-[#13151f] border border-[#1e2130] rounded-lg shadow-lg p-2 z-50">
-                {TANGGAL_OPTIONS.map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => {
-                      setTanggalMode(opt);
-
-                      // ❌ jangan langsung close kalau custom
-                      if (opt !== "Custom") {
-                        setTanggalOpen(false);
-                      }
-                    }}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-md hover:bg-[#1e2130] ${
-                      tanggalMode === opt ? "text-indigo-400" : "text-[#c8cce0]"
+                  <ChevronDown
+                    size={12}
+                    className={`text-[#3a3d52] transition-transform ${
+                      tanggalOpen ? "rotate-180" : ""
                     }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
+                  />
+                </button>
 
-                {/* Custom Range */}
-                {tanggalMode === "Custom" && (
-                  <div className="mt-2 border-t border-[#1e2130] pt-2 flex flex-col gap-2">
-                    <input
-                      type="date"
-                      value={customRange.from}
-                      onChange={(e) =>
-                        setCustomRange((p) => ({ ...p, from: e.target.value }))
-                      }
-                      className="bg-[#0b0d14] border border-[#1e2130] rounded px-2 py-1 text-xs"
-                    />
-                    <input
-                      type="date"
-                      value={customRange.to}
-                      onChange={(e) =>
-                        setCustomRange((p) => ({ ...p, to: e.target.value }))
-                      }
-                      className="bg-[#0b0d14] border border-[#1e2130] rounded px-2 py-1 text-xs"
-                    />
+                {/* 🔥 DROPDOWN PINDAH KE SINI */}
+                {tanggalOpen && (
+                  <div className="absolute left-0 top-full mt-2 w-full dark:bg-[#13151f] bg-white border border-[#1e2130] rounded-lg shadow-lg p-2 z-50">
+                    {TANGGAL_OPTIONS.map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => {
+                          setTanggalMode(opt);
 
-                    {/* 🔥 BUTTON TERAPKAN */}
-                    <button
-                      onClick={() => {
-                        setTanggalOpen(false); // close dropdown
-                        // refetch otomatis karena queryKey berubah
-                      }}
-                      className="mt-1 py-1.5 rounded-md text-xs bg-indigo-500 text-white hover:opacity-90"
-                    >
-                      Terapkan
-                    </button>
+                          // ❌ jangan langsung close kalau custom
+                          if (opt !== "Custom") {
+                            setTanggalOpen(false);
+                          }
+                        }}
+                        className={`w-full text-left px-3 py-2 text-xs rounded-md dark:hover:bg-[#1e2130] hover:bg-zinc-500${
+                          tanggalMode === opt
+                            ? "dark:text-indigo-400"
+                            : "dark:text-[#c8cce0]"
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+
+                    {/* Custom Range */}
+                    {tanggalMode === "Custom" && (
+                      <div className="mt-2 border-t border-[#1e2130] pt-2 flex flex-col gap-2">
+                        <input
+                          type="date"
+                          value={customRange.from}
+                          onChange={(e) =>
+                            setCustomRange((p) => ({
+                              ...p,
+                              from: e.target.value,
+                            }))
+                          }
+                          className="dark:bg-[#0b0d14] bg-white border border-[#1e2130] rounded px-2 py-1 text-xs"
+                        />
+                        <input
+                          type="date"
+                          value={customRange.to}
+                          onChange={(e) =>
+                            setCustomRange((p) => ({
+                              ...p,
+                              to: e.target.value,
+                            }))
+                          }
+                          className="dark:bg-[#0b0d14] bg-white border border-[#1e2130] rounded px-2 py-1 text-xs"
+                        />
+
+                        {/* 🔥 BUTTON TERAPKAN */}
+                        <button
+                          onClick={() => {
+                            setTanggalOpen(false); // close dropdown
+                            // refetch otomatis karena queryKey berubah
+                          }}
+                          className="mt-1 py-1.5 rounded-md text-xs bg-indigo-500 text-white hover:opacity-90"
+                        >
+                          Terapkan
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
+            </div>
+            {/* 🔹 Select Kategori (FULL) */}
           </div>
         </div>
-        {/* 🔹 Select Kategori (FULL) */}
       </div>
+
       {/* Count */}
-      <p className="text-[11px] text-[#3a3d52] mb-2">
+      <p className="text-[13px] text-[#3a3d52] px-4 py-2 mb-2">
         {filtered.length} transaksi ditemukan
       </p>
 
       {/* List */}
-      <div className="flex flex-col md:grid md:grid-cols-3 gap-2">
+      <div className="flex flex-col px-2 md:grid md:grid-cols-3 gap-2">
         {filtered.length === 0 && (
-          <p className="text-center text-sm text-[#3a3d52] py-8">
+          <p className="text-center text-sm  dark:text-[#3a3d52] py-8">
             Tidak ada transaksi
           </p>
         )}
@@ -407,76 +438,49 @@ export default function HistoryTransaksiHome() {
           const s = BADGE[r.kategori] || DEFAULT_BADGE;
           const icon = ICON_MAP[r.kategori] || DEFAULT_ICON;
           const { tgl, jam } = formatTs(r.ts);
+          const isDebit =
+            r.kategori === "Pengeluaran" || r.kategori === "Pembelian";
 
           return (
             <div
               onClick={() => handleDetail(r)}
               key={r.id}
-              className="bg-[#13151f] border border-[#1e2130] rounded-xl p-3 hover:border-[#2a2d42] transition"
+              className="bg-white dark:bg-[#13151f] border border-gray-400 dark:border-[#1e2130] rounded-xl p-3 hover:border-gray-300 dark:hover:border-[#2a2d42] hover:shadow-sm dark:hover:shadow-none transition cursor-pointer"
             >
               {/* Row 1 */}
               <div className="flex justify-between items-center gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  {/* <span className="text-[11px] font-semibold text-[#4a4d62] font-mono truncate">
-                    {r.id}
-                  </span> */}
-
-                  <span
-                    className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full"
-                    style={{ background: s.bg, color: s.text }}
-                  >
-                    <span style={{ color: s.dot }}>{icon}</span> {r.kategori}
-                  </span>
-                </div>
+                <span
+                  className={`flex items-center gap-1.5 text-[12px] px-2 py-0.5 rounded-full font-medium ${s.bg} ${s.text}`}
+                >
+                  <span className={s.dot}>{icon}</span>
+                  {r.kategori}
+                </span>
 
                 <span
-                  className={`text-xs md:text-sm font-semibold ${
-                    r.kategori === "Pengeluaran" || r.kategori === "Pembelian"
-                      ? "text-pink-400"
-                      : "text-emerald-400"
+                  className={`text-sm md:text-sm font-semibold ${
+                    isDebit
+                      ? "text-pink-500 dark:text-pink-400"
+                      : "text-emerald-600 dark:text-emerald-400"
                   }`}
                 >
-                  {(r.kategori === "Pengeluaran" || r.kategori === "Pembelian"
-                    ? "−"
-                    : "+") + formatRp(r.nominal)}
+                  {isDebit ? "−" : "+"}
+                  {formatRp(r.nominal)}
                 </span>
               </div>
 
               {/* Row 2 */}
-              <div className="flex justify-between mt-1">
-                <span className="text-xs md:text-sm text-[#9095b0] font-medium truncate">
+              <div className="flex justify-between mt-1.5 gap-2">
+                <span className="text-sm md:text-sm text-gray-500 dark:text-[#9095b0] font-medium truncate">
                   {r.nama}
                 </span>
-                <span className="text-[11px] text-[#9095b0] whitespace-nowrap">
+                <span className="text-[12px]  dark:text-[#9095b0] whitespace-nowrap">
                   {tgl} · {jam}
                 </span>
               </div>
-
-              {/* Actions */}
-              {/* <div className="flex gap-2 mt-3 pt-2 border-t border-[#1a1c2a]">
-                <button className="flex-1 flex items-center justify-center gap-1.5 text-[11px] bg-[#15163a] text-indigo-400 py-1.5 rounded-md hover:opacity-80">
-                  <Eye size={12} />
-                  Detail
-                </button>
-
-                <button className="flex-1 flex items-center justify-center gap-1.5 text-[11px] bg-[#0b2018] text-emerald-400 py-1.5 rounded-md hover:opacity-80">
-                  <Printer size={12} />
-                  Print
-                </button>
-
-                <button
-                  onClick={() => confirmDelete(r.id)}
-                  className="flex-1 flex items-center justify-center gap-1.5 text-[11px] bg-[#2a0a12] text-red-400 py-1.5 rounded-md hover:opacity-80"
-                >
-                  <Trash2 size={12} />
-                  Hapus
-                </button>
-              </div> */}
             </div>
           );
         })}
       </div>
-
       {/* Modal */}
       {deleteId && (
         <div className="fixed inset-0 bg-black/70 flex items-end justify-center z-50 px-4 pb-6">

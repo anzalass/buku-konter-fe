@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import StoreSettingsPage from "./setting";
 import UserManagementPage from "./user";
 import api from "../api/client";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { Moon, Sun } from "lucide-react";
 
 export default function SettingUser() {
   const handleLogout = async () => {
@@ -42,6 +43,7 @@ export default function SettingUser() {
       });
     }
   };
+
   return (
     <div className="flex flex-col justify-between mx-auto max-w-7xl ">
       <StoreSettingsPage />
@@ -54,6 +56,7 @@ export default function SettingUser() {
           Logout / Keluar
         </button>
       </div>
+      {/* <ThemeToggle /> */}
     </div>
   );
 }

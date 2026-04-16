@@ -409,7 +409,7 @@ export default function JualanVoucher() {
   }
 
   return (
-    <div className="w-full mx-auto pb-20 ">
+    <div className="w-full mx-auto px-2 pb-20 ">
       <div className="grid-cols-1 gap-6">
         {/* === KIRI: BRAND & VOUCHER === */}
         <div className="lg:col-span-2 space-y-2">
@@ -574,11 +574,13 @@ export default function JualanVoucher() {
       </div>
 
       {selectedVoucher && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-md rounded-2xl p-2 shadow-xl relative">
-            <h2 className="text-lg font-bold mb-4">Jual Voucher</h2>
+        <div className="fixed inset-0 p-2 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-4 w-full max-w-md rounded-2xl  shadow-xl relative">
+            <h2 className="text-lg dark:text-white font-bold mb-4">
+              Jual Voucher
+            </h2>
 
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm dark:text-white text-gray-600 mb-4">
               {selectedVoucher.nama} - Rp{" "}
               {selectedVoucher.hargaEceran?.toLocaleString()}
             </p>
@@ -632,7 +634,7 @@ export default function JualanVoucher() {
                   setSelectedVoucher(null);
                   setMemberSearch("");
                 }}
-                className="flex-1 py-3 bg-blue-600 text-white rounded-lg"
+                className="flex-1 py-3 text-sm bg-blue-600 text-white rounded-lg"
               >
                 Simpan Tanpa Member
               </button>
@@ -645,7 +647,7 @@ export default function JualanVoucher() {
                 }}
                 className="flex-1 py-3 bg-gray-500 text-white rounded-lg"
               >
-                Cancel
+                Batal
               </button>
             </div>
           </div>

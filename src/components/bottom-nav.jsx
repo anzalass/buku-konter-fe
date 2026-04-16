@@ -16,7 +16,7 @@ export default function BottomNav() {
   return (
     <div
       className="fixed bottom-0 left-0 right-0 z-50 
-      bg-white dark:bg-gray-900 
+      bg-green-700 dark:bg-indigo-800 
       border-t border-gray-200 dark:border-gray-700 
       shadow-md "
     >
@@ -32,8 +32,8 @@ export default function BottomNav() {
               className={`flex flex-col items-center justify-center py-3 md:text-xs text-[8px] transition
                 ${
                   isActive
-                    ? "text-blue-600 dark:text-blue-400 font-semibold"
-                    : "text-gray-500 dark:text-gray-400"
+                    ? "text-white dark:text-blue-400 font-semibold"
+                    : "text-white dark:text-gray-400"
                 }
               `}
             >

@@ -781,7 +781,7 @@ export default function TransaksiPage() {
                     className={`flex items-center gap-3 p-2 rounded-xl text-xs font-medium transition-all duration-200 border
             ${
               isSelected
-                ? "bg-white text-gray-900 border-gray-300 shadow-sm"
+                ? "dark:bg-white  bg-green-700 text-white dark:text-gray-900 dark:border-gray-300 shadow-sm"
                 : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-600 hover:border-blue-400"
             }`}
                   >
@@ -818,7 +818,7 @@ export default function TransaksiPage() {
                     className={`py-2 rounded-xl text-sm font-medium transition-all duration-200 border
             ${
               isSelected
-                ? "bg-white text-gray-900 border-gray-300 shadow-sm"
+                ? "dark:bg-white  bg-green-700 text-white dark:text-gray-900 dark:border-gray-300 shadow-sm"
                 : "bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-blue-400"
             }`}
                   >

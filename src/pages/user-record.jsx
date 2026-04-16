@@ -109,12 +109,12 @@ export default function LaporanUser() {
   };
 
   return (
-    <div className="p-2 space-y-4 text-white">
+    <div className="w-full max-w-6xl mx-auto p-3 sm:p-4 dark:text-white text-gray-900 space-y-4">
       {/* 🔥 HEADER */}
-      <div className="flex flex-row gap-2 md:items-center md:justify-between">
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
         <button
           onClick={handleExportPDF}
-          className="bg-green-500 px-4 py-2 rounded-lg text-xs"
+          className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-medium transition active:scale-[0.98] shadow-md shadow-green-600/20"
         >
           Export PDF
         </button>
@@ -122,7 +122,7 @@ export default function LaporanUser() {
         <select
           value={kategori}
           onChange={(e) => setKategori(e.target.value)}
-          className="bg-[#181820] border border-[#2A2A38] text-xs p-2 rounded-lg"
+          className="w-full sm:w-auto px-3 py-2 text-xs rounded-lg bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors duration-300"
         >
           <option value="all">Semua</option>
           <option value="transaksi">Transaksi</option>
@@ -133,33 +133,39 @@ export default function LaporanUser() {
       </div>
 
       {/* 🔥 FILTER */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="bg-[#181820] border border-[#2A2A38] text-xs p-2 rounded-lg"
+          className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors duration-300"
         />
 
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="bg-[#181820] border border-[#2A2A38] text-xs p-2 rounded-lg"
+          className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors duration-300"
         />
       </div>
 
       {/* 🔥 SUMMARY */}
       {data?.summary && (
-        <div className="grid grid-cols-2 gap-2">
-          <div className="bg-[#181820] p-3 rounded-xl">
-            <p className="text-xs text-gray-400">Total Transaksi</p>
-            <p className="text-lg font-bold">{data.summary.totalTransaksi}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#232330] p-3 sm:p-4 rounded-xl shadow-sm transition-colors duration-300">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Total Transaksi
+            </p>
+            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mt-1">
+              {data.summary.totalTransaksi}
+            </p>
           </div>
 
-          <div className="bg-[#181820] p-3 rounded-xl">
-            <p className="text-xs text-gray-400">Total Keuntungan</p>
-            <p className="text-lg font-bold text-green-400">
+          <div className="bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#232330] p-3 sm:p-4 rounded-xl shadow-sm transition-colors duration-300">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Total Keuntungan
+            </p>
+            <p className="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400 mt-1">
               Rp {data.summary.totalKeuntungan.toLocaleString("id-ID")}
             </p>
           </div>
@@ -167,53 +173,80 @@ export default function LaporanUser() {
       )}
 
       {/* 🔥 TABLE */}
-      <div className="bg-[#181820] rounded-xl overflow-auto">
-        <table className="w-full text-xs">
-          <thead className="bg-[#111118]">
-            <tr>
-              <th className="p-2">Tanggal</th>
-              <th>Kategori</th>
-              <th>Nominal</th>
-              <th>Keuntungan</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
+      <div className="bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#232330] rounded-xl overflow-hidden shadow-sm transition-colors duration-300">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs min-w-[600px]">
+            <thead className="bg-gray-50 dark:bg-[#111118] border-b border-gray-200 dark:border-[#2A2A38]">
+              <tr>
+                <th className="p-3 text-left font-semibold text-gray-600 dark:text-gray-400">
+                  Tanggal
+                </th>
+                <th className="p-3 text-left font-semibold text-gray-600 dark:text-gray-400">
+                  Kategori
+                </th>
+                <th className="p-3 text-right font-semibold text-gray-600 dark:text-gray-400">
+                  Nominal
+                </th>
+                <th className="p-3 text-right font-semibold text-gray-600 dark:text-gray-400">
+                  Keuntungan
+                </th>
+                <th className="p-3 text-center font-semibold text-gray-600 dark:text-gray-400">
+                  Aksi
+                </th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan="4" className="text-center p-4">
-                  Loading...
-                </td>
-              </tr>
-            ) : mergedData.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="text-center p-4">
-                  Tidak ada data
-                </td>
-              </tr>
-            ) : (
-              mergedData.map((d, i) => (
-                <tr key={i} className="text-center border-t border-[#2A2A38]">
-                  <td className="p-2">
-                    {new Date(d.tanggal).toLocaleDateString("id-ID")}
-                  </td>
-                  <td>{d.kategori}</td>
-                  <td>Rp {Number(d.nominal || 0).toLocaleString("id-ID")}</td>
-                  <td className="text-green-400">
-                    Rp {Number(d.keuntungan || 0).toLocaleString("id-ID")}
-                  </td>
+            <tbody className="divide-y divide-gray-100 dark:divide-[#2A2A38]">
+              {isLoading ? (
+                <tr>
                   <td
-                    className="cursor-pointer"
-                    onClick={() => handleDetail(d)}
+                    colSpan="5"
+                    className="text-center p-6 text-gray-500 dark:text-gray-400"
                   >
-                    detail
+                    Loading...
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : mergedData.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="text-center p-6 text-gray-500 dark:text-gray-400"
+                  >
+                    Tidak ada data
+                  </td>
+                </tr>
+              ) : (
+                mergedData.map((d, i) => (
+                  <tr
+                    key={i}
+                    className="hover:bg-gray-50 dark:hover:bg-[#1a1a24] transition-colors"
+                  >
+                    <td className="p-3 text-gray-900 dark:text-gray-200 whitespace-nowrap">
+                      {new Date(d.tanggal).toLocaleDateString("id-ID")}
+                    </td>
+                    <td className="p-3 text-gray-900 dark:text-gray-200 capitalize">
+                      {d.kategori}
+                    </td>
+                    <td className="p-3 text-right text-gray-900 dark:text-gray-200 font-medium whitespace-nowrap">
+                      Rp {Number(d.nominal || 0).toLocaleString("id-ID")}
+                    </td>
+                    <td className="p-3 text-right text-green-600 dark:text-green-400 font-medium whitespace-nowrap">
+                      Rp {Number(d.keuntungan || 0).toLocaleString("id-ID")}
+                    </td>
+                    <td className="p-3 text-center">
+                      <button
+                        onClick={() => handleDetail(d)}
+                        className="px-3 py-1 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 text-[10px] font-medium transition active:scale-[0.98]"
+                      >
+                        Detail
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

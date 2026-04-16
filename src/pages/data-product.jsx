@@ -546,18 +546,16 @@ function ProdukItem({ item, onEdit, onDelete, onUpdateStok }) {
 
   return (
     <div
-      className="rounded-xl px-3 py-3 mb-1.5 flex items-center gap-2.5 transition-colors"
-      style={{ background: "#181820", border: "1px solid #232330" }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#383848")}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#232330")}
+      className="rounded-xl px-3 py-3 mb-1.5 flex items-center gap-2.5 transition-colors
+      bg-white dark:bg-[#181820]
+      border border-gray-100 dark:border-[#232330]
+      hover:border-gray-300 dark:hover:border-[#383848]"
     >
       <div className="flex-1 min-w-0">
-        <p
-          className="text-xs md:text-sm font-medium mb-1 truncate"
-          style={{ color: "#DBD9D2" }}
-        >
+        <p className="text-xs md:text-sm font-medium mb-1 truncate text-gray-800 dark:text-[#DBD9D2]">
           {item.nama}
         </p>
+
         <div className="flex items-center gap-1.5 flex-wrap mb-1">
           {dot && (
             <span
@@ -565,69 +563,87 @@ function ProdukItem({ item, onEdit, onDelete, onUpdateStok }) {
               style={{ background: dot }}
             />
           )}
+
           <span
             className="text-[9px] md:text-[11px] font-semibold uppercase tracking-wider"
             style={{ color: dot ?? "#7A7888" }}
           >
             {item.brand}
           </span>
+
           {item.stok != null && (
             <span
-              className="px-1.5 py-px rounded text-[9px]"
-              style={{
-                background: "#1E1E2A",
-                border: "1px solid #2E2E3E",
-                color: "#7A7888",
-              }}
+              className="px-1.5 py-px rounded text-[9px]
+              bg-gray-100 dark:bg-[#1E1E2A]
+              border border-gray-200 dark:border-[#2E2E3E]
+              text-gray-500 dark:text-[#7A7888]"
             >
               Stok {item.stok}
             </span>
           )}
+
           <Badge variant={badgeVariant}>{item.penempatan}</Badge>
           {item.sub_kategori && (
             <Badge variant="purple">{item.sub_kategori}</Badge>
           )}
         </div>
-        <p className="text-[10px] md:text-sm text-zinc-300">
+
+        <p className="text-[10px] md:text-sm text-gray-500 dark:text-zinc-300">
           Modal {fmt(item.hargaModal)}
           {item.hargaGrosir && (
             <>
               {" "}
               · Grosir{" "}
-              <span style={{ color: "#5A9ADE" }}>{fmt(item.hargaGrosir)}</span>
+              <span className="text-blue-500 dark:text-[#5A9ADE]">
+                {fmt(item.hargaGrosir)}
+              </span>
             </>
           )}
           {item.hargaEceran && (
             <>
               {" "}
               · Ecer{" "}
-              <span style={{ color: "#5AC47A" }}>{fmt(item.hargaEceran)}</span>
+              <span className="text-emerald-500 dark:text-[#5AC47A]">
+                {fmt(item.hargaEceran)}
+              </span>
             </>
           )}
         </p>
       </div>
+
       <div className="flex gap-1.5 flex-shrink-0">
-        <IconBtn
+        <button
           onClick={() => onEdit(item)}
-          className="bg-[#1A1204]"
-          style={{ border: "1px solid #3A2A08" }}
+          className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors
+            bg-amber-50 dark:bg-[#1A1204]
+            border border-amber-200 dark:border-[#3A2A08]
+            hover:bg-amber-100 dark:hover:bg-[#251A06]"
         >
-          <Pencil size={14} color="#CA8030" />
-        </IconBtn>
-        <IconBtn
+          <Pencil size={14} className="text-amber-500 dark:text-[#CA8030]" />
+        </button>
+
+        <button
           onClick={() => onDelete(item.id)}
-          className="bg-[#1C0808]"
-          style={{ border: "1px solid #3A1010" }}
+          className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors
+            bg-red-50 dark:bg-[#1C0808]
+            border border-red-200 dark:border-[#3A1010]
+            hover:bg-red-100 dark:hover:bg-[#2a1010]"
         >
-          <Trash2 size={14} color="#D07070" />
-        </IconBtn>
-        <IconBtn
+          <Trash2 size={14} className="text-red-400 dark:text-[#D07070]" />
+        </button>
+
+        <button
           onClick={() => onUpdateStok?.(item)}
-          className="bg-[#0A1828]"
-          style={{ border: "1px solid #1A2A48" }}
+          className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors
+            bg-blue-50 dark:bg-[#0A1828]
+            border border-blue-200 dark:border-[#1A2A48]
+            hover:bg-blue-100 dark:hover:bg-[#0e2038]"
         >
-          <PackagePlus size={14} color="#5A9ADE" />
-        </IconBtn>
+          <PackagePlus
+            size={14}
+            className="text-blue-500 dark:text-[#5A9ADE]"
+          />
+        </button>
       </div>
     </div>
   );
@@ -757,75 +773,67 @@ export default function Product() {
 
   return (
     <div>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl p-2 mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-0 py-2">
           <div>
-            <p
-              className="text-[11px] md:text-sm font-medium tracking-wider"
-              style={{ color: "#7A7888" }}
-            >
+            <p className="text-[11px] md:text-sm font-medium tracking-wider text-gray-500 dark:text-[#7A7888]">
               Produk
             </p>
-            <p
-              className="text-[10px] md:text-sm mt-0.5"
-              style={{ color: "#4A4858" }}
-            >
+            <p className="text-[10px] md:text-sm mt-0.5 text-gray-400 dark:text-[#4A4858]">
               {data.length} dari {total}{" "}
               {activeFilters > 0 && (
                 <span
-                  className="ml-1.5 px-1.5 py-px rounded text-[9px]"
-                  style={{
-                    background: "#1A1A28",
-                    color: "#8A8AAE",
-                    border: "1px solid #2A2A38",
-                  }}
+                  className="ml-1.5 px-1.5 py-px rounded text-[9px]
+          bg-gray-100 dark:bg-[#1A1A28]
+          text-gray-500 dark:text-[#8A8AAE]
+          border border-gray-200 dark:border-[#2A2A38]"
                 >
                   {activeFilters} filter aktif
                 </span>
               )}
             </p>
           </div>
+
           <div className="flex gap-1.5">
             <button
               onClick={() => navigate("/dashboard/barang-keluar")}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] md:text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
-              style={{
-                background: "#0A1828",
-                color: "#5A9ADE",
-                border: "1px solid #1A2A48",
-              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] md:text-sm font-medium cursor-pointer transition-colors
+        bg-blue-50 dark:bg-[#0A1828]
+        text-blue-500 dark:text-[#5A9ADE]
+        border border-blue-200 dark:border-[#1A2A48]
+        hover:bg-blue-100 dark:hover:bg-[#0e2038]"
             >
               <FileText size={11} /> Barang Keluar
             </button>
+
             <button
               onClick={() => setModalFilter(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-sm cursor-pointer transition-colors"
-              style={{
-                background: "#1A1A28",
-                color: "#9A9AAE",
-                border: "1px solid #2E2E42",
-              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-sm cursor-pointer transition-colors
+        bg-gray-100 dark:bg-[#1A1A28]
+        text-gray-500 dark:text-[#9A9AAE]
+        border border-gray-200 dark:border-[#2E2E42]
+        hover:bg-gray-200 dark:hover:bg-[#222232]"
             >
               <SlidersHorizontal size={12} />
               Filter
               {activeFilters > 0 && (
                 <span
-                  className="w-4 h-4 rounded-full text-[9px] flex items-center justify-center"
-                  style={{ background: "#4A4A68", color: "#ECEAE3" }}
+                  className="w-4 h-4 rounded-full text-[9px] flex items-center justify-center
+          bg-indigo-200 dark:bg-[#4A4A68]
+          text-indigo-700 dark:text-[#ECEAE3]"
                 >
                   {activeFilters}
                 </span>
               )}
             </button>
+
             <button
               onClick={openAdd}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-sm font-semibold cursor-pointer"
-              style={{
-                background: "#ECEAE3",
-                color: "#0D0D10",
-                border: "none",
-              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-sm font-semibold cursor-pointer transition-colors
+        bg-green-700 dark:bg-[#ECEAE3]
+        text-white dark:text-[#0D0D10]
+        hover:bg-gray-700 dark:hover:bg-white"
             >
               <Plus size={12} strokeWidth={2.5} />
               Tambah

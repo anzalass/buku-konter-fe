@@ -18,6 +18,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../api/client";
 import { useAuthStore } from "../store/useAuthStore";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 
 const DUMMY = [
   {
@@ -120,6 +121,7 @@ const openWhatsApp = (phone, message) => {
 };
 export default function HistoryTransaksiService() {
   const { user } = useAuthStore();
+  const [openExport, setOpenExport] = useState(false);
 
   const [search, setSearch] = useState("");
   const [start, setStart] = useState("");
@@ -219,6 +221,50 @@ export default function HistoryTransaksiService() {
     });
   };
 
+  const exportToExcel = (data) => {
+    if (!data || data.length === 0) {
+      alert("Tidak ada data untuk di-export");
+      return;
+    }
+
+    const formatted = data.map((d) => ({
+      ID: d.id,
+      Nama: d.namaPelangan || "Umum",
+      HP: d.brandHP,
+      Kerusakan: d.keterangan,
+      Tanggal: new Date(d.tanggal).toLocaleString("id-ID"),
+      BiayaJasa: d.biayaJasa || 0,
+      SparePart: d.hargaSparePart || 0,
+      Total: (d.biayaJasa || 0) + (d.hargaSparePart || 0),
+      Keuntungan: d.keuntungan || 0,
+      Status: d.deletedAt ? "VOID" : d.status,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(formatted);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Service");
+
+    XLSX.writeFile(workbook, "service.xlsx");
+  };
+
+  const exportAllData = async () => {
+    try {
+      const res = await api.get("history/service", {
+        params: {
+          isExport: true,
+        },
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      exportToExcel(res.data.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const services = serviceData?.data || [];
   const summary = serviceData?.summary || {};
   const totalPage = Math.ceil((serviceData?.total || 0) / 10);
@@ -256,31 +302,25 @@ export default function HistoryTransaksiService() {
 
   return (
     <div
-      className="min-h-screen pb-20 max-w-7xl mx-auto"
+      className="min-h-screen p-2 pb-20 max-w-7xl mx-auto"
       style={{
         fontFamily: "'Sora', sans-serif",
       }}
     >
-      <div
-        className="flex gap-1.5 mb-2 overflow-x-auto pb-0.5"
-        style={{ scrollbarWidth: "none" }}
-      >
-        <div className="flex gap-1.5  overflow-x-auto pb-0.5">
+      <div className="flex gap-1.5 mb-2 overflow-x-auto pb-0.5 [scrollbar-width:none]">
+        <div className="flex gap-1.5 overflow-x-auto pb-0.5">
           {TABS.map((t) => {
             const active = location.pathname === t.path;
-
             return (
               <button
                 key={t.path}
                 onClick={() => navigate(t.path)}
-                className="flex-shrink-0 px-3.5 py-1.5 rounded-full text-[11px] md:text-[12px] font-medium transition-all"
-                style={{
-                  background: active ? "#ECEAE3" : "#181820",
-                  color: active ? "#0D0D10" : "#fff",
-                  border: active
-                    ? "1px solid transparent"
-                    : "1px solid #252530",
-                }}
+                className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[11px] md:text-[12px] font-medium transition-all border
+              ${
+                active
+                  ? "bg-green-700 dark:bg-[#ECEAE3] text-white dark:text-[#0D0D10] border-transparent"
+                  : "bg-white dark:bg-[#181820] text-gray-600 dark:text-white border-gray-200 dark:border-[#252530] hover:bg-gray-400 dark:hover:bg-[#222232]"
+              }`}
               >
                 {t.label}
               </button>
@@ -295,51 +335,61 @@ export default function HistoryTransaksiService() {
         {/* Period tabs */}
 
         {/* Stats scroll */}
-        <div className="grid grid-cols-3 gap-1 mb-4">
-          {[
-            {
-              label: "Total Trx",
-              value: stats.totalTransaksi,
-              color: "#9A8ACE",
-            },
-            {
-              label: "Total Omset",
-              value: fmt(stats.totalOmset),
-              color: "#5A9ADE",
-            },
-            {
-              label: "Keuntungan",
-              value: fmt(stats.totalKeuntungan),
-              color: "#5AC47A",
-            },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="rounded-xl px-2 py-2"
-              style={{
-                background: "#181820",
-                border: "1px solid #232330",
-              }}
-            >
-              <p
-                className="text-[10px] md:text-[11px] mb-1"
-                style={{ color: "#5A5868" }}
-              >
-                {s.label}
-              </p>
+        <div className="w-full mx-auto">
+          <div className="rounded-xl relative bg-white dark:bg-[#13151f] border border-gray-200 dark:border-[#1e2130] p-4 shadow-sm">
+            <div className="grid grid-cols-3 divide-x divide-gray-200 dark:divide-[#1e2130]">
+              {[
+                {
+                  label: "Total Trx",
+                  value: stats.totalTransaksi,
+                  color: "text-violet-500 dark:text-[#9A8ACE]",
+                  bg: "bg-violet-500",
+                },
+                {
+                  label: "Total Omset",
+                  value: stats.totalOmset,
+                  color: "text-blue-500 dark:text-[#5A9ADE]",
+                  bg: "bg-blue-500",
+                },
+                {
+                  label: "Keuntungan",
+                  value: stats.totalKeuntungan,
+                  color: "text-emerald-500 dark:text-[#5AC47A]",
+                  bg: "bg-emerald-500",
+                },
+              ].map(({ label, value, color, bg }) => (
+                <div
+                  key={label}
+                  className="flex flex-col gap-1.5 px-4 first:pl-0 last:pr-0"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <div className={`${bg} w-1.5 h-1.5 rounded-full`} />
+                    <p className="text-[11px] text-gray-500 dark:text-[#6b7280] truncate">
+                      {label}
+                    </p>
+                  </div>
 
-              <p
-                className="text-xs md:text-sm font-semibold tracking-tight"
-                style={{ color: s.color }}
-              >
-                {s.value}
-              </p>
+                  <p
+                    className={`${color} text-sm font-semibold tracking-tight`}
+                  >
+                    {typeof value === "number"
+                      ? `Rp ${value.toLocaleString("id-ID")}`
+                      : value}
+                  </p>
+
+                  {/* accent bar (light only) */}
+                  <div
+                    className={`${bg} h-1 w-full rounded-full dark:hidden`}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
+            {/* CTA */}
+          </div>
+        </div>
         {/* Toolbar: count + buttons */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex mt-2 items-center justify-between mb-3">
           <span className="text-[10px]" style={{ color: "#5A5868" }}>
             {summary.totalTransaksi} transaksi
           </span>
@@ -356,12 +406,12 @@ export default function HistoryTransaksiService() {
               <FileText size={11} /> Barang Keluar
             </button> */}
             <button
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium cursor-pointer hover:opacity-80 transition-opacity"
-              style={{
-                background: "#0A2012",
-                color: "#5AC47A",
-                border: "1px solid #1E3A28",
-              }}
+              onClick={() => setOpenExport(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium cursor-pointer transition-colors
+  bg-emerald-50 dark:bg-[#0A2012]
+  text-emerald-600 dark:text-[#5AC47A]
+  border border-emerald-200 dark:border-[#1E3A28]
+  hover:bg-emerald-100 dark:hover:bg-[#0e2a18]"
             >
               <TrendingUp size={11} /> Export
             </button>
@@ -372,28 +422,32 @@ export default function HistoryTransaksiService() {
 
         {/* Search + date filter */}
         <div
-          className="rounded-xl px-3 py-2.5 mb-4 flex items-center gap-2"
-          style={{ background: "#181820", border: "1px solid #232330" }}
+          className="rounded-xl mt-2 px-3 py-2.5 mb-4 flex items-center gap-2
+      bg-white dark:bg-[#181820]
+      border border-gray-400 dark:border-[#232330]"
         >
-          <Search size={14} color="#4A4858" />
+          <Search
+            size={14}
+            className="text-gray-400 dark:text-[#4A4858] shrink-0"
+          />
 
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari nama pembeli..."
-            className={`${inp} flex-1 placeholder:text-white`}
-            style={{ color: "#ECEAE3" }}
+            className="flex-1 bg-transparent outline-none text-sm
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400 dark:placeholder:text-[#4A4858]"
           />
 
           {/* 🔥 BUTTON FILTER */}
           <button
             onClick={() => setOpenFilter(true)}
-            className="px-3 py-2 rounded-lg text-xs font-medium"
-            style={{
-              background: "#252530",
-              color: "#ECEAE3",
-              border: "1px solid #2A2A38",
-            }}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors
+          bg-green-800 dark:bg-[#252530]
+          text-white hover:bg-green-500 dark:text-[#ECEAE3]
+          border border-gray-200 dark:border-[#2A2A38]
+           dark:hover:bg-[#2e2e3e]"
           >
             Filter
           </button>
@@ -403,10 +457,13 @@ export default function HistoryTransaksiService() {
         <div className="flex flex-col gap-2 md:grid md:grid-cols-3">
           {services.length === 0 ? (
             <div
-              className="rounded-xl py-10 text-center"
-              style={{ background: "#181820", border: "1px dashed #232330" }}
+              className="rounded-xl py-10 text-center
+          bg-white dark:bg-[#181820]
+          border border-dashed border-gray-200 dark:border-[#232330]"
             >
-              <p className="text-xs text-[#4A4858]">Tidak ada data service</p>
+              <p className="text-xs text-gray-400 dark:text-[#4A4858]">
+                Tidak ada data
+              </p>
             </div>
           ) : (
             services.map((s) => {
@@ -419,18 +476,17 @@ export default function HistoryTransaksiService() {
               return (
                 <div
                   key={s.id}
-                  className="rounded-2xl px-4 py-3.5"
-                  style={{ background: "#181820", border: "1px solid #232330" }}
+                  className="rounded-2xl px-4 py-3.5 bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#232330] shadow-sm hover:shadow-md transition-all duration-300"
                 >
                   <div className="flex justify-between gap-3">
-                    <div>
-                      <p className="text-xs md:text-sm text-white">{nama}</p>
-
-                      <p className="text-[10px] md:text-sm text-gray-400 mt-1">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {nama}
+                      </p>
+                      <p className="text-[10px] md:text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">
                         {hp} • {ket}
                       </p>
-
-                      <p className="text-[10px] md:text-sm text-gray-500 mt-1">
+                      <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-500 mt-1">
                         {new Date(s.tanggal).toLocaleString("id-ID", {
                           day: "2-digit",
                           month: "short",
@@ -441,69 +497,86 @@ export default function HistoryTransaksiService() {
                       </p>
                     </div>
 
-                    <div className="text-right">
-                      <p className="text-xs md:text-sm text-blue-400 font-semibold">
+                    <div className="text-right shrink-0">
+                      <p className="text-[13px] md:text-sm text-blue-600 dark:text-blue-400 font-semibold">
                         Rp {s.biayaJasa.toLocaleString("id-ID")}
                       </p>
-
-                      <p className="text-[10px] md:text-[11px] text-green-400 mt-1">
+                      <p className="text-[12px] md:text-[11px] text-green-600 dark:text-green-400 mt-1 font-medium">
                         +Rp {(s.keuntungan || 0).toLocaleString("id-ID")}
                       </p>
                     </div>
                   </div>
-                  {/* 🔥 STATUS */}
-                  <div className="mt-2">
-                    <span
-                      className="text-[10px] md:text-sm px-2 py-1 rounded-full"
-                      style={{
-                        background:
-                          s.status === "Selesai"
-                            ? "#0A2012"
-                            : s.status === "Prosesi"
-                              ? "#1E1204"
-                              : "#200808",
-                        color:
-                          s.status === "Selesai"
-                            ? "#5AC47A"
-                            : s.status === "Proses"
-                              ? "#CA8030"
-                              : "#D07070",
-                      }}
-                    >
-                      {s.deletedAt !== null ? "VOID" : s.status}
-                    </span>
+
+                  {/* STATUS */}
+                  <div className="mt-3">
+                    {(() => {
+                      const isVoid = s.deletedAt !== null;
+                      const badgeClass = isVoid
+                        ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                        : s.status === "Selesai"
+                          ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400"
+                          : s.status === "Proses"
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
+                            : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400";
+
+                      return (
+                        <span
+                          className={`text-[10px] md:text-xs px-2.5 py-1 rounded-full font-medium transition-colors ${badgeClass}`}
+                        >
+                          {isVoid ? "VOID" : s.status}
+                        </span>
+                      );
+                    })()}
                   </div>
-                  {/* 🔥 ACTION */}
-                  <div className="flex justify-between mt-3 pt-2 border-t border-[#232330]">
-                    <Eye
+
+                  {/* ACTION */}
+                  <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 dark:border-[#232330]">
+                    <button
                       onClick={() =>
                         navigate(`/dashboard/detail/service-hp/${s.id}`)
                       }
-                      size={16}
-                      className="text-indigo-400"
-                    />
-                    <Pencil
+                      className="p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 transition-colors"
+                      title="Detail"
+                    >
+                      <Eye size={16} />
+                    </button>
+
+                    <button
                       onClick={() => {
                         setSelectedTrx(s);
                         setOpenStatus(true);
                       }}
-                      size={16}
-                      className="text-yellow-400"
-                    />
-                    <Printer size={16} className="text-gray-400" />
-                    <Trash2
+                      className="p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-950/30 text-yellow-600 dark:text-yellow-400 transition-colors"
+                      title="Edit"
+                    >
+                      <Pencil size={16} />
+                    </button>
+
+                    <button
+                      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                      title="Print"
+                    >
+                      <Printer size={16} />
+                    </button>
+
+                    <button
                       onClick={() => handleDelete(s.id)}
-                      size={16}
-                      className="text-red-400"
-                    />
-                    <MessageCircle
+                      className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-colors"
+                      title="Hapus"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+
+                    <button
                       onClick={() => {
                         const message = getMessageByStatus(s, s.status);
                         openWhatsApp(s.noHP, message);
                       }}
-                      size={16}
-                      className="text-green-400"
-                    />
+                      className="p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 transition-colors"
+                      title="WhatsApp"
+                    >
+                      <MessageCircle size={16} />
+                    </button>
                   </div>
                 </div>
               );
@@ -557,6 +630,13 @@ export default function HistoryTransaksiService() {
         trx={selectedTrx}
         token={user.token}
         refetch={refetch}
+      />
+
+      <ModalExport
+        open={openExport}
+        onClose={() => setOpenExport(false)}
+        onExportFiltered={() => exportToExcel(services)}
+        onExportAll={exportAllData}
       />
     </div>
   );
@@ -806,6 +886,64 @@ function ModalEditStatus({ open, onClose, trx, token, refetch }) {
             }}
           >
             {loading ? "Menyimpan..." : "Simpan"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ModalExport({ open, onClose, onExportFiltered, onExportAll }) {
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,.7)" }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="w-full max-w-sm rounded-xl p-5 bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38]">
+        <h2 className="text-sm font-semibold mb-4 text-gray-800 dark:text-white">
+          Export Data
+        </h2>
+
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+          Pilih jenis data yang ingin di-export
+        </p>
+
+        <div className="flex flex-col gap-2">
+          {/* FILTER */}
+          <button
+            onClick={() => {
+              onExportFiltered();
+              onClose();
+            }}
+            className="w-full py-2 rounded-lg text-xs font-medium
+            bg-emerald-500 text-white hover:bg-emerald-600 transition"
+          >
+            Export Sesuai Filter
+          </button>
+
+          {/* ALL */}
+          <button
+            onClick={() => {
+              onExportAll();
+              onClose();
+            }}
+            className="w-full py-2 rounded-lg text-xs font-medium
+            bg-blue-500 text-white hover:bg-blue-600 transition"
+          >
+            Export Semua Data
+          </button>
+
+          {/* CANCEL */}
+          <button
+            onClick={onClose}
+            className="w-full py-2 rounded-lg text-xs font-medium
+            bg-gray-200 dark:bg-[#252530]
+            text-gray-700 dark:text-gray-300"
+          >
+            Batal
           </button>
         </div>
       </div>

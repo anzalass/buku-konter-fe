@@ -480,58 +480,40 @@ export default function TransaksiPage() {
   };
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen px-2 mt-2">
       <div className="max-w-7xl mx-auto">
-        {/* ... (header & input pencarian tetap sama) */}
-
-        {/* Input Pencarian */}
+        {/* Search + Cart */}
         <div className="flex items-center gap-2 mb-4">
-          {/* 🔍 SEARCH */}
-          <div
-            className="flex relative items-center gap-2 px-3.5 py-2.5 rounded-xl flex-1"
-            style={{ background: "#1a1c29", border: "1px solid #2a2d3e" }}
-          >
-            <Search size={15} color="#4a4d62" />
-
+          <div className="flex relative items-center gap-2 px-3.5 py-2.5 rounded-xl flex-1 bg-gray-100 dark:bg-[#1a1c29] border border-gray-200 dark:border-[#2a2d3e]">
+            <Search
+              size={15}
+              className="text-gray-400 dark:text-[#4a4d62] shrink-0"
+            />
             <input
               ref={searchRef}
               value={search}
               onChange={(e) => handleInputChange(e.target.value)}
               placeholder="Cari produk / scan barcode..."
-              className="flex-1 bg-transparent border-none outline-none text-sm"
-              style={{ color: "#e2e4ef" }}
+              className="flex-1 bg-transparent border-none outline-none text-sm text-gray-800 dark:text-[#e2e4ef] placeholder:text-gray-400 dark:placeholder:text-[#4a4d62]"
             />
-
             {search && (
               <button
                 onClick={() => setSearch("")}
                 className="absolute right-3 p-0 bg-transparent border-none cursor-pointer"
               >
-                <X size={13} color="#4a4d62" />
+                <X size={13} className="text-gray-400 dark:text-[#4a4d62]" />
               </button>
             )}
           </div>
 
-          {/* 🛒 CART */}
           <div className="relative">
-            <div
-              className="flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer"
-              style={{ background: "#1a1c29", border: "1px solid #2a2d3e" }}
-            >
-              <span
-                className="text-sm font-medium whitespace-nowrap"
-                style={{ color: "#e2e4ef" }}
-              >
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer bg-gray-100 dark:bg-[#1a1c29] border border-gray-200 dark:border-[#2a2d3e]">
+              <span className="text-sm font-medium whitespace-nowrap text-gray-700 dark:text-[#e2e4ef]">
                 {totalItem} item
               </span>
             </div>
-
-            {/* Badge */}
             {totalItem > 0 && (
-              <div
-                className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-semibold text-white"
-                style={{ background: "#818cf8" }}
-              >
+              <div className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-semibold text-white bg-indigo-500">
                 {totalItem}
               </div>
             )}
@@ -540,15 +522,15 @@ export default function TransaksiPage() {
 
         {/* Filter Kategori */}
         <div className="mb-4">
-          <div className="flex w-full overflow-x-auto gap-2">
+          <div className="flex w-full overflow-x-auto gap-2 pb-1">
             {["Semua", "Voucher", "Sparepart", "Aksesoris", "Handphone"].map(
               (kat) => (
                 <label
                   key={kat}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer ${
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer whitespace-nowrap transition-colors ${
                     selectedKategori === kat
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                      ? "bg-green-600 dark:bg-indigo-600 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
                   <input
@@ -573,10 +555,10 @@ export default function TransaksiPage() {
                 <button
                   key={opt}
                   onClick={() => setSelectedFilter(opt)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     selectedFilter === opt
-                      ? "bg-emerald-600 text-white"
-                      : "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                      ? "bg-green-600 dark:bg-emerald-600 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
                   {opt}
@@ -589,37 +571,38 @@ export default function TransaksiPage() {
         {/* Filter Harga */}
         <div className="mb-5">
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-xs">
+            <label className="flex items-center gap-2 text-xs cursor-pointer">
               <input
                 type="radio"
                 name="harga"
                 checked={selectedHarga === "grosir"}
                 onChange={() => setSelectedHarga("grosir")}
-                className="form-radio text-emerald-500"
+                className="accent-emerald-500"
               />
-              <span style={{ color: "#e2e4ef" }}>Harga Grosir</span>
+              <span className="text-gray-700 dark:text-[#e2e4ef]">
+                Harga Grosir
+              </span>
             </label>
-            <label className="flex items-center gap-2 text-xs">
+            <label className="flex items-center gap-2 text-xs cursor-pointer">
               <input
                 type="radio"
                 name="harga"
                 checked={selectedHarga === "eceran"}
                 onChange={() => setSelectedHarga("eceran")}
-                className="form-radio text-blue-500"
+                className="accent-blue-500"
               />
-              <span style={{ color: "#e2e4ef" }}>Harga Eceran</span>
+              <span className="text-gray-700 dark:text-[#e2e4ef]">
+                Harga Eceran
+              </span>
             </label>
           </div>
         </div>
 
-        {/* Produk Terlaris - DIPERBARUI */}
+        {/* Produk */}
         <div className="mb-5">
           <div className="flex items-center gap-1.5 mb-3">
-            <TrendingUp size={13} color="#34d399" />
-            <p
-              className="text-[11px] tracking-widest uppercase"
-              style={{ color: "#4a4d62" }}
-            >
+            <TrendingUp size={13} className="text-emerald-400" />
+            <p className="text-[11px] tracking-widest uppercase text-gray-400 dark:text-[#4a4d62]">
               {search
                 ? `hasil pencarian (${produkFiltered.length})`
                 : "produk terlaris"}
@@ -627,11 +610,8 @@ export default function TransaksiPage() {
           </div>
 
           {produkFiltered.length === 0 ? (
-            <div
-              className="rounded-xl py-8 text-center"
-              style={{ background: "#1a1c29", border: "1px dashed #2a2d3e" }}
-            >
-              <p className="text-sm" style={{ color: "#4a4d62" }}>
+            <div className="rounded-xl py-8 text-center bg-gray-50 dark:bg-[#1a1c29] border border-dashed border-gray-200 dark:border-[#2a2d3e]">
+              <p className="text-sm text-gray-400 dark:text-[#4a4d62]">
                 Produk tidak ditemukan
               </p>
             </div>
@@ -641,28 +621,21 @@ export default function TransaksiPage() {
                 <button
                   key={p.id}
                   onClick={() => tambahKeKeranjang(p)}
-                  className="flex flex-col gap-1 px-3 py-3 rounded-2xl text-left w-full transition-all duration-150 cursor-pointer"
-                  style={{
-                    background: flash === p.id ? "#1e2540" : "#1a1c29",
-                    border: `1px solid ${flash === p.id ? "#818cf8" : "#2a2d3e"}`,
-                  }}
+                  className={`flex flex-col gap-1 px-3 py-3 rounded-2xl text-left w-full transition-all duration-150 cursor-pointer border
+                ${
+                  flash === p.id
+                    ? "bg-indigo-50 dark:bg-[#1e2540] border-indigo-300 dark:border-[#818cf8]"
+                    : "bg-gray-50 dark:bg-[#1a1c29] border-gray-200 dark:border-[#2a2d3e] hover:border-gray-300 dark:hover:border-[#3a3d52]"
+                }`}
                 >
-                  {/* Nama Produk */}
-                  <p
-                    className="text-[11px] font-medium truncate"
-                    style={{ color: "#e2e4ef" }}
-                  >
+                  <p className="text-[14px] font-medium truncate text-gray-800 dark:text-[#e2e4ef]">
                     {p.nama}
                   </p>
-
-                  {/* Harga */}
-                  <p className="text-[11px] font-bold text-green-500">
+                  <p className="text-[15px] font-bold text-emerald-600 dark:text-emerald-400">
                     {fmt(getHarga(p))}
                   </p>
-
-                  {/* Stok */}
                   {p.stok !== undefined && (
-                    <p className="text-[10px] dark:text-zinc-400 text-gray-900">
+                    <p className="text-[12px] text-gray-700 dark:text-zinc-400">
                       Stok: {p.stok}
                     </p>
                   )}
@@ -672,23 +645,16 @@ export default function TransaksiPage() {
           )}
         </div>
 
-        {/* ... (input nama pembeli & keranjang tetap sama) */}
-
+        {/* Nama Pembeli */}
         <div className="mb-5">
           <div className="flex items-center gap-1.5 mb-2.5">
-            <User size={13} color="#a78bfa" />
-            <p
-              className="text-[11px] tracking-widest uppercase"
-              style={{ color: "#4a4d62" }}
-            >
+            <User size={13} className="text-violet-400" />
+            <p className="text-[11px] tracking-widest uppercase text-gray-400 dark:text-[#4a4d62]">
               nama pembeli
             </p>
           </div>
-          <div
-            className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl"
-            style={{ background: "#1a1c29", border: "1px solid #2a2d3e" }}
-          >
-            <User size={14} color="#4a4d62" />
+          <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-gray-100 dark:bg-[#1a1c29] border border-gray-200 dark:border-[#2a2d3e]">
+            <User size={14} className="text-gray-400 dark:text-[#4a4d62]" />
             <input
               value={memberSearch}
               onChange={(e) => {
@@ -696,13 +662,13 @@ export default function TransaksiPage() {
                 setSelectedMember(null);
               }}
               placeholder="Nama pembeli (opsional)..."
-              className="flex-1 bg-transparent border-none outline-none text-sm"
-              style={{ color: "#e2e4ef" }}
+              className="flex-1 bg-transparent border-none outline-none text-sm text-gray-800 dark:text-[#e2e4ef] placeholder:text-gray-400 dark:placeholder:text-[#4a4d62]"
               onFocus={() =>
                 membersList.length > 0 && setShowMemberDropdown(true)
               }
             />
           </div>
+
           {showMemberDropdown && (
             <div className="absolute z-50 w-[90%] mt-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg max-h-52 overflow-y-auto">
               {membersList
@@ -715,9 +681,7 @@ export default function TransaksiPage() {
                   <button
                     key={m.id}
                     onClick={() => selectMember(m)}
-                    className="w-full text-left px-3 py-2 flex items-center justify-between 
-                     hover:bg-gray-100 dark:hover:bg-gray-800 
-                     transition-colors duration-150"
+                    className="w-full text-left px-3 py-2 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
                       {m.nama}
@@ -742,7 +706,6 @@ export default function TransaksiPage() {
                   </span>
                 )}
               </div>
-
               <button
                 onClick={() => {
                   setSelectedMember(null);
@@ -755,64 +718,54 @@ export default function TransaksiPage() {
             </div>
           )}
         </div>
+
+        {/* Potongan Harga */}
         <div className="mb-5">
           <div className="flex items-center gap-1.5 mb-2.5">
-            <User size={13} color="#a78bfa" />
-            <p
-              className="text-[11px] tracking-widest uppercase"
-              style={{ color: "#4a4d62" }}
-            >
+            <DollarSign size={13} className="text-violet-400" />
+            <p className="text-[11px] tracking-widest uppercase text-gray-400 dark:text-[#4a4d62]">
               Potongan Harga
             </p>
           </div>
-          <div
-            className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl"
-            style={{ background: "#1a1c29", border: "1px solid #2a2d3e" }}
-          >
-            <DollarSign size={14} color="#4a4d62" />
-
+          <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-gray-100 dark:bg-[#1a1c29] border border-gray-200 dark:border-[#2a2d3e]">
+            <DollarSign
+              size={14}
+              className="text-gray-400 dark:text-[#4a4d62]"
+            />
             <NumericFormat
               value={potonganHarga}
-              onValueChange={(values) => {
-                setPotonganHarga(values.floatValue || 0);
-              }}
+              onValueChange={(values) =>
+                setPotonganHarga(values.floatValue || 0)
+              }
               thousandSeparator="."
               decimalSeparator=","
               allowNegative={false}
               prefix="Rp "
               placeholder="Rp 0"
-              className="flex-1 bg-transparent border-none outline-none text-sm"
-              style={{ color: "#e2e4ef" }}
+              className="flex-1 bg-transparent border-none outline-none text-sm text-gray-800 dark:text-[#e2e4ef] placeholder:text-gray-400"
             />
           </div>
         </div>
 
-        {/* Keranjang - TAMPILKAN STOK JUGA */}
+        {/* Keranjang */}
         <div className={`pb-32 ${selectedMember ? "mt-5" : "mt-0"}`}>
           <div className="flex items-center gap-1.5 mb-2.5">
-            <ShoppingCart size={13} color="#fb923c" />
-            <p
-              className="text-[11px] tracking-widest uppercase"
-              style={{ color: "#4a4d62" }}
-            >
+            <ShoppingCart size={13} className="text-orange-400" />
+            <p className="text-[11px] tracking-widest uppercase text-gray-400 dark:text-[#4a4d62]">
               keranjang
             </p>
           </div>
 
           {keranjang.length === 0 ? (
-            <div
-              className="rounded-xl py-7 text-center"
-              style={{ background: "#1a1c29", border: "1px dashed #2a2d3e" }}
-            >
+            <div className="rounded-xl py-7 text-center bg-gray-50 dark:bg-[#1a1c29] border border-dashed border-gray-200 dark:border-[#2a2d3e]">
               <ShoppingCart
                 size={26}
-                color="#2a2d3e"
-                className="mx-auto mb-2"
+                className="mx-auto mb-2 text-gray-300 dark:text-[#2a2d3e]"
               />
-              <p className="text-xs" style={{ color: "#4a4d62" }}>
+              <p className="text-xs text-gray-400 dark:text-[#4a4d62]">
                 Keranjang masih kosong
               </p>
-              <p className="text-xs mt-1" style={{ color: "#333647" }}>
+              <p className="text-xs mt-1 text-gray-300 dark:text-[#333647]">
                 Pilih kategori dan produk untuk menambahkan
               </p>
             </div>
@@ -821,21 +774,17 @@ export default function TransaksiPage() {
               {keranjang.map((k) => (
                 <div
                   key={k.id}
-                  className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl"
-                  style={{ background: "#1a1c29", border: "1px solid #2a2d3e" }}
+                  className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1c29] border border-gray-200 dark:border-[#2a2d3e]"
                 >
                   <div className="flex-1 min-w-0">
-                    <p
-                      className="text-xs font-medium truncate mb-0.5"
-                      style={{ color: "#c8cce0" }}
-                    >
+                    <p className="text-sm font-medium truncate mb-0.5 text-gray-800 dark:text-[#c8cce0]">
                       {k.nama}
                     </p>
-                    <p className="text-xs text-green-500">
-                      {fmt(getHarga(k) * k.qty)}{" "}
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                      {fmt(getHarga(k) * k.qty)}
                     </p>
                     {k.stok !== undefined && (
-                      <p className="text-[10px]  dark:text-zinc-400 text-gray-900">
+                      <p className="text-[10px] text-gray-700 dark:text-zinc-400">
                         Stok:{" "}
                         {k.stok -
                           (keranjang.find((item) => item.id === k.id)?.qty ||
@@ -846,39 +795,30 @@ export default function TransaksiPage() {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => ubahQty(k.id, -1)}
-                      className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer"
-                      style={{
-                        background: "#252838",
-                        border: "1px solid #2a2d3e",
-                      }}
+                      className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer bg-gray-100 dark:bg-[#252838] border border-gray-200 dark:border-[#2a2d3e] hover:bg-gray-200 dark:hover:bg-[#2a2d3e] transition-colors"
                     >
-                      <Minus size={10} color="#6b7080" />
+                      <Minus
+                        size={10}
+                        className="text-gray-500 dark:text-[#6b7080]"
+                      />
                     </button>
-                    <span
-                      className="text-sm font-semibold w-5 text-center"
-                      style={{ color: "#e2e4ef" }}
-                    >
+                    <span className="text-sm font-semibold w-5 text-center text-gray-800 dark:text-[#e2e4ef]">
                       {k.qty}
                     </span>
                     <button
                       onClick={() => ubahQty(k.id, 1)}
-                      className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer"
-                      style={{
-                        background: "#252838",
-                        border: "1px solid #2a2d3e",
-                      }}
+                      className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer bg-gray-100 dark:bg-[#252838] border border-gray-200 dark:border-[#2a2d3e] hover:bg-gray-200 dark:hover:bg-[#2a2d3e] transition-colors"
                     >
-                      <Plus size={10} color="#6b7080" />
+                      <Plus
+                        size={10}
+                        className="text-gray-500 dark:text-[#6b7080]"
+                      />
                     </button>
                     <button
                       onClick={() => hapus(k.id)}
-                      className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer ml-1"
-                      style={{
-                        background: "#2a1515",
-                        border: "1px solid #3b1515",
-                      }}
+                      className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer ml-1 bg-red-50 dark:bg-[#2a1515] border border-red-100 dark:border-[#3b1515] hover:bg-red-100 dark:hover:bg-[#3b1515] transition-colors"
                     >
-                      <Trash2 size={10} color="#f87171" />
+                      <Trash2 size={10} className="text-red-400" />
                     </button>
                   </div>
                 </div>
@@ -887,46 +827,37 @@ export default function TransaksiPage() {
           )}
         </div>
 
-        {/* ... (total & bayar tetap sama) */}
         {/* Total + Bayar */}
         {keranjang.length > 0 && (
           <div className="fixed bottom-10 left-0 right-0 p-4 z-10">
             <div className="max-w-lg mx-auto">
-              <div
-                className="rounded-2xl p-4"
-                style={{ background: "#1a1c29", border: "1px solid #2a2d3e" }}
-              >
+              <div className="rounded-2xl p-4 bg-white dark:bg-[#1a1c29] border border-gray-200 dark:border-[#2a2d3e] shadow-lg dark:shadow-none">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs" style={{ color: "#4a4d62" }}>
+                  <span className="text-sm text-gray-700 dark:text-[#4a4d62]">
                     {totalItem} item
                   </span>
                   {member && (
-                    <span
-                      className="text-xs px-2.5 py-0.5 rounded-full"
-                      style={{ background: "#2d1657", color: "#a78bfa" }}
-                    >
+                    <span className="text-sm px-2.5 py-0.5 rounded-full bg-violet-100 dark:bg-[#2d1657] text-violet-600 dark:text-violet-300">
                       {member}
                     </span>
                   )}
                 </div>
                 <div className="flex items-baseline justify-between mb-4">
-                  <span className="text-sm" style={{ color: "#6b7080" }}>
+                  <span className="text-sm text-gray-700 dark:text-[#6b7080]">
                     Total
                   </span>
-                  <span
-                    className="text-2xl font-bold tracking-tight"
-                    style={{ color: "#e2e4ef" }}
-                  >
+                  <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-[#e2e4ef]">
                     {fmt(total - potonganHarga)}
                   </span>
                 </div>
                 <button
                   onClick={bayar}
-                  className="w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer border-none"
-                  style={{
-                    background: sukses ? "#052e16" : "#4f46e5",
-                    color: sukses ? "#34d399" : "#fff",
-                  }}
+                  className={`w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer border-none
+                ${
+                  sukses
+                    ? "bg-emerald-950 dark:bg-[#052e16] text-emerald-400"
+                    : "bg-green-700 dark:bg-[#4f46e5] text-white hover:bg-indigo-600 dark:hover:bg-indigo-700"
+                }`}
                 >
                   {sukses ? (
                     <>

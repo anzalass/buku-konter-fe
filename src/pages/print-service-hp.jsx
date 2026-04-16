@@ -1,80 +1,53 @@
-import { useEffect, useState } from "react";
-import { useParams, Navigate } from "react-router-dom";
-import api from "../api/client";
+"use client";
+
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../store/useAuthStore";
+import api from "../api/client";
+import { useEffect } from "react";
 
-export default function PrintServiceHP() {
+export default function PrintService() {
   const { id } = useParams();
-  const [data, setData] = useState(null);
-  const { user, isLoading, isCheckingAuth, fetchUser } = useAuthStore();
+  const { user } = useAuthStore();
 
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+  const { data, isLoading } = useQuery({
+    queryKey: ["print-service", id],
+    queryFn: async () => {
+      const res = await api.get(`detail/service/${id}`, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      return res.data.data;
+    },
+    enabled: !!id && !!user?.token,
+  });
 
-  useEffect(() => {
-    if (!user?.token || !id) return;
-
-    const fetchData = async () => {
-      try {
-        const res = await api.get(`/service-hp-print/${id}`, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        setData(res.data.data); // Ambil data dari res.data.data
-      } catch (err) {
-        console.error("Gagal load transaksi:", err);
-        alert("Gagal memuat data transaksi");
-      }
-    };
-
-    fetchData();
-  }, [id, user?.token]);
-
+  // 🔥 AUTO PRINT
   useEffect(() => {
     if (data) {
-      setTimeout(() => window.print(), 500);
+      setTimeout(() => {
+        window.print();
+      }, 500);
     }
   }, [data]);
 
-  // Loading state
-  if (isCheckingAuth || isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Memeriksa sesi...</p>
-        </div>
-      </div>
-    );
+  if (isLoading || !data) {
+    return <div className="p-5 text-center">Loading...</div>;
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (!data || !data.transaksi) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center text-red-500 p-6">
-          Data transaksi tidak ditemukan
-        </div>
-      </div>
-    );
-  }
-
-  const trx = data.transaksi;
-  const tanggal = new Date(trx.tanggal || trx.createdAt);
-  const member = trx.Member || null;
-
-  // Hitung total sparepart dari array Sparepart
+  // 🔥 HITUNG TOTAL
   const totalSparepart =
-    trx.Sparepart?.reduce(
-      (sum, sp) => sum + (sp.Sparepart?.hargaJual || 0) * sp.quantity,
-      0
-    ) || 0;
+    data.Sparepart?.reduce((sum, sp) => {
+      const harga = Number(sp.Produk?.hargaEceran) || 0;
+      const qty = Number(sp.quantity) || 0;
+      return sum + harga * qty;
+    }, 0) || 0;
 
-  // Total bayar = total sparepart + biaya jasa
-  const totalBayar = totalSparepart + (trx.biayaJasa || 0);
+  const jasa = data.biayaJasa || 0;
+  const total = totalSparepart + jasa;
+
+  const format = (n) => "Rp " + Number(n || 0).toLocaleString("id-ID");
 
   return (
     <>
@@ -86,309 +59,137 @@ export default function PrintServiceHP() {
           }
           .print-container {
             width: 80mm;
-            margin: 0 auto;
+            margin: auto;
             background: white;
             padding: 15px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
           }
         }
 
         @media print {
           @page {
-            size: 80mm 350mm;
+            size: 80mm auto;
             margin: 0;
           }
-          html, body {
-            width: 80mm;
+          body {
             margin: 0;
-            padding: 0;
-            background: white !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-          .print-container {
-            width: 100% !important;
-            padding: 8px !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            font-size: 14px !important;
-          }
-          .divider {
-            border-top: 1px dashed #000 !important;
           }
         }
 
         body {
-          margin: 0;
-          padding: 0;
-          font-family: 'Courier New', monospace;
-          background: white;
-          color: black;
-          font-size: 14px;
-          line-height: 1.4;
+          font-family: monospace;
+          font-size: 13px;
         }
 
-        .center {
-          text-align: center;
-        }
-
-        .bold {
-          font-weight: bold;
-        }
+        .center { text-align: center; }
+        .bold { font-weight: bold; }
 
         .divider {
           border-top: 1px dashed #000;
-          margin: 6px 0;
+          margin: 8px 0;
         }
 
         .row {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 3px;
-        }
-
-        .item-row {
-          display: flex;
-          justify-content: space-between;
-          font-size: 13px;
-          margin-bottom: 2px;
-        }
-
-        .item-name {
-          flex: 2;
-          word-break: break-all;
-        }
-
-        .item-qty {
-          flex: 0.8;
-          text-align: center;
-          font-size: 12px;
-        }
-
-        .item-price {
-          flex: 1.2;
-          text-align: right;
-          font-size: 12px;
-        }
-
-        .footer {
-          margin-top: 10px;
-          text-align: center;
-          font-size: 11px;
-          color: #666;
-        }
-
-        .text-xs {
-          font-size: 11px;
-        }
-
-        .text-sm {
-          font-size: 13px;
-        }
-
-        .status-badge {
-          display: inline-block;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: bold;
-        }
-
-        .status-selesai {
-          background-color: #dcfce7;
-          color: #166534;
-        }
-
-        .status-proses {
-          background-color: #fef3c7;
-          color: #92400e;
-        }
-
-        .status-ditolak {
-          background-color: #fee2e2;
-          color: #b91c1c;
+          margin-bottom: 4px;
         }
       `}</style>
 
       <div className="print-container">
-        {data.logoToko !== "" && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginBottom: "8px",
-            }}
-          >
-            <img
-              src={data.logoToko}
-              alt="Logo Toko"
-              style={{
-                height: "100px",
-                width: "100px",
-                objectFit: "cover",
-                borderRadius: "50%",
-              }}
-            />
-          </div>
-        )}
-        {/* HEADER TOKO */}
-        <div
-          className="center bold"
-          style={{ fontSize: "18px", marginBottom: "4px" }}
-        >
-          {data.namaToko}
+        {/* HEADER */}
+        <div className="center bold" style={{ fontSize: 16 }}>
+          {user.namaToko}
         </div>
-        {data.alamat && (
-          <div className="center text-xs" style={{ marginBottom: "2px" }}>
-            {data.alamat}
-          </div>
-        )}
-        {data.noTelp && (
-          <div className="center text-xs" style={{ marginBottom: "6px" }}>
-            Telp: {data.noTelp}
-          </div>
-        )}
+
+        <div className="center" style={{ marginBottom: 6 }}>
+          Service HP
+        </div>
 
         <div className="divider" />
 
-        {/* JUDUL TRANSAKSI */}
-        <div
-          className="center bold"
-          style={{ fontSize: "16px", marginBottom: "6px" }}
-        >
-          BUKTI SERVICE HANDPHONE
+        {/* INFO */}
+        <div className="row">
+          <span>ID</span>
+          <span>{data.id.slice(0, 8)}</span>
         </div>
 
-        {/* INFO PELANGGAN */}
-        <div className="row bold" style={{ marginBottom: "2px" }}>
+        <div className="row">
+          <span>Tanggal</span>
+          <span>{new Date(data.tanggal).toLocaleString("id-ID")}</span>
+        </div>
+
+        <div className="row">
           <span>Nama</span>
-          <span>{member?.nama || trx.namaPelangan || "—"}</span>{" "}
-          {/* Perbaiki typo: namaPelangan */}
+          <span>{data.namaMember}</span>
         </div>
-        <div className="row" style={{ marginBottom: "2px" }}>
+
+        <div className="row">
           <span>No HP</span>
-          <span>{member?.noTelp || trx.noHP || "—"}</span>
+          <span>{data.noHP}</span>
         </div>
-        <div className="row" style={{ marginBottom: "4px" }}>
-          <span>Brand HP</span>
-          <span>{trx.brandHP || "—"}</span>
+
+        <div className="row">
+          <span>HP</span>
+          <span>{data.brandHP}</span>
         </div>
 
         <div className="divider" />
 
-        {/* STATUS & TANGGAL */}
-        <div className="row" style={{ marginBottom: "4px" }}>
-          <span>Status</span>
-          <span
-            className={`status-badge ${
-              trx.status?.toLowerCase() === "selesai"
-                ? "status-selesai"
-                : trx.status?.toLowerCase() === "proses"
-                  ? "status-proses"
-                  : "status-ditolak"
-            }`}
-          >
-            {trx.status?.toUpperCase() || "—"}
-          </span>
-        </div>
-        <div className="center text-sm" style={{ marginBottom: "6px" }}>
-          {tanggal.toLocaleDateString("id-ID", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}{" "}
-          {tanggal.toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </div>
-
-        <div className="divider" />
-
-        {/* KETERANGAN KERUSAKAN */}
-        <div className="bold" style={{ marginBottom: "4px" }}>
-          Keluhan/Kerusakan:
-        </div>
-        <div
-          style={{
-            whiteSpace: "pre-wrap",
-            lineHeight: "1.5",
-            marginBottom: "6px",
-          }}
-        >
-          {trx.keterangan || "Tidak ada keterangan"}
+        {/* KETERANGAN */}
+        <div style={{ marginBottom: 6 }}>
+          <span className="bold">Kerusakan:</span>
+          <div>{data.keterangan}</div>
         </div>
 
         <div className="divider" />
 
         {/* SPAREPART */}
-        <div className="bold" style={{ marginBottom: "4px" }}>
-          Sparepart yang Digunakan:
-        </div>
-        {trx.Sparepart && trx.Sparepart.length > 0 ? (
-          trx.Sparepart.map((sp, i) => {
-            const harga = sp.Sparepart?.hargaJual || 0;
-            const subtotal = harga * sp.quantity;
-            return (
-              <div key={i} className="item-row">
-                <div className="item-name">
-                  {sp.Sparepart?.nama || "—"} x{sp.quantity}
-                </div>
-                <div className="item-price">
-                  {subtotal.toLocaleString("id-ID")}
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div
-            className="text-xs text-gray-500"
-            style={{ marginBottom: "4px" }}
-          >
-            Tidak ada sparepart digunakan
-          </div>
-        )}
+        {data.Sparepart?.map((sp) => {
+          const harga = Number(sp.Produk?.hargaEceran) || 0;
+          const qty = Number(sp.quantity) || 0;
 
-        <div className="divider" />
+          return (
+            <div key={sp.id} className="row">
+              <span>
+                {sp.Produk?.nama} x{qty}
+              </span>
+              <span>{format(harga * qty)}</span>
+            </div>
+          );
+        })}
 
-        {/* RINCIAN BIAYA */}
+        {/* JASA */}
         <div className="row">
-          <span>Biaya Jasa</span>
-          <span>Rp{(trx.biayaJasa || 0).toLocaleString("id-ID")}</span>
-        </div>
-        <div className="row">
-          <span>Total Sparepart</span>
-          <span>Rp{totalSparepart.toLocaleString("id-ID")}</span>
+          <span>Jasa</span>
+          <span>{format(jasa)}</span>
         </div>
 
         <div className="divider" />
 
         {/* TOTAL */}
-        <div
-          className="row bold"
-          style={{ fontSize: "16px", marginTop: "4px" }}
-        >
-          <span>TOTAL BAYAR</span>
-          <span>Rp{totalBayar.toLocaleString("id-ID")}</span>
+        <div className="row bold">
+          <span>TOTAL</span>
+          <span>{format(total)}</span>
         </div>
 
         <div className="divider" />
 
-        {/* FOOTER */}
-        <div className="center" style={{ marginTop: "10px", fontSize: "13px" }}>
-          Terima kasih telah menggunakan jasa kami 🙏
-        </div>
-        <div className="center text-xs" style={{ marginTop: "4px" }}>
-          Simpan struk ini sebagai bukti garansi
-        </div>
-        <div className="center text-xs" style={{ marginTop: "2px" }}>
-          Masa garansi: 7 hari untuk sparepart yang diganti
+        {/* STATUS */}
+        <div className="center">
+          Status: <b>{data.status}</b>
         </div>
 
-        <div className="footer no-print" style={{ marginTop: "15px" }}>
-          Struk ini akan otomatis tercetak. Tutup tab setelah selesai.
+        {/* FOOTER */}
+        <div className="center" style={{ marginTop: 10 }}>
+          Terima kasih 🙏
+        </div>
+
+        <div className="center" style={{ fontSize: 11 }}>
+          {user.alamat}
+        </div>
+
+        <div className="center" style={{ fontSize: 11 }}>
+          Telp: {user.noTelp}
         </div>
       </div>
     </>

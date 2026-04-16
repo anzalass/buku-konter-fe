@@ -164,11 +164,11 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="w-full mx-auto p-3 text-white">
+    <div className="w-full max-w-4xl mx-auto p-3 sm:p-4 dark:text-white text-gray-900">
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-sm font-semibold flex items-center gap-2">
-          <User size={16} className="text-blue-400" />
+      <div className="flex flex-row justify-between items-start sm:items-center gap-3 mb-4">
+        <h1 className="text-sm sm:text-base font-semibold flex items-center gap-2 dark:text-white text-gray-900">
+          <User size={16} className="text-blue-500" />
           Manajemen User
         </h1>
 
@@ -178,26 +178,27 @@ export default function UserManagementPage() {
               setEditUser(null);
               setOpenModal(true);
             }}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] rounded-lg bg-blue-600 hover:bg-blue-700"
+            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition active:scale-[0.98] shadow-md shadow-blue-600/20"
           >
-            <Plus size={12} />
+            <Plus size={14} />
             User
           </button>
         )}
       </div>
+
       {/* FILTER */}
-      <div className="bg-[#181820] border border-[#232330] rounded-xl p-3 mb-3 space-y-2">
+      <div className="dark:bg-[#181820] bg-white dark:border-[#232330] border-gray-200 border rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 space-y-3 transition-colors duration-300 shadow-sm">
         <input
           value={searchQ}
           onChange={(e) => setSearchQ(e.target.value)}
           placeholder="Cari nama / email..."
-          className="w-full px-3 py-2 text-xs rounded-lg bg-[#111118] border border-[#2A2A38]"
+          className="w-full px-3 py-2 text-xs rounded-lg dark:bg-[#111118] bg-gray-50 dark:border-[#2A2A38] border-gray-200 border dark:placeholder-gray-500 placeholder-gray-400 dark:text-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors duration-300"
         />
 
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="w-full px-3 py-2 text-xs rounded-lg bg-[#111118] border border-[#2A2A38]"
+          className="w-full px-3 py-2 text-xs rounded-lg dark:bg-[#111118] bg-gray-50 dark:border-[#2A2A38] border-gray-200 border dark:text-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors duration-300"
         >
           <option value="">Semua Role</option>
           <option value="Owner">Owner</option>
@@ -207,45 +208,50 @@ export default function UserManagementPage() {
         <div className="flex gap-2">
           <button
             onClick={handleSearch}
-            className="flex-1 py-2 text-xs rounded-lg bg-blue-600"
+            className="flex-1 py-2 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition active:scale-[0.98]"
           >
             Cari
           </button>
           <button
             onClick={handleReset}
-            className="flex-1 py-2 text-xs rounded-lg bg-[#252530]"
+            className="flex-1 py-2 text-xs font-medium rounded-lg dark:bg-[#252530] bg-gray-100 dark:text-gray-300 text-gray-600 hover:dark:bg-[#2f3245] hover:bg-gray-200 transition active:scale-[0.98]"
           >
             Reset
           </button>
         </div>
       </div>
+
       {/* LIST CARD */}
       {users.data?.length === 0 ? (
-        <p className="text-xs text-center text-gray-500 mt-6">
-          Tidak ada data user
-        </p>
+        <div className="flex flex-col items-center justify-center py-8">
+          <p className="text-xs text-center dark:text-gray-500 text-gray-400">
+            Tidak ada data user
+          </p>
+        </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 sm:gap-3">
           {users.data.map((u) => (
             <div
               key={u.id}
-              className="bg-[#181820] border border-[#232330] rounded-xl p-3 hover:border-[#2f3245] transition"
+              className="dark:bg-[#181820] bg-white dark:border-[#232330] border-gray-200 border rounded-xl p-3 dark:hover:border-[#2f3245] hover:border-gray-300 transition-all duration-300 shadow-sm"
             >
-              {/* HEADER */}
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-xs font-semibold text-gray-200">
+              {/* HEADER CARD */}
+              <div className="flex flex-wrap justify-between items-start gap-2">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold truncate dark:text-gray-100 text-gray-800">
                     {u.nama}
                   </p>
-                  <p className="text-[10px] text-blue-400">{u.email}</p>
+                  <p className="text-[10px] truncate text-blue-500 dark:text-blue-400">
+                    {u.email}
+                  </p>
                 </div>
 
                 {/* ROLE BADGE */}
                 <span
-                  className={`px-2 py-0.5 text-[10px] rounded ${
+                  className={`shrink-0 px-2 py-0.5 text-[10px] rounded-full font-medium transition-colors duration-300 ${
                     u.role === "Owner"
-                      ? "bg-purple-900 text-purple-300"
-                      : "bg-blue-900 text-blue-300"
+                      ? "dark:bg-purple-900/40 bg-purple-100 dark:text-purple-300 text-purple-700"
+                      : "dark:bg-blue-900/40 bg-blue-100 dark:text-blue-300 text-blue-700"
                   }`}
                 >
                   {u.role}
@@ -253,21 +259,22 @@ export default function UserManagementPage() {
               </div>
 
               {/* ACTION */}
-              <div className="flex gap-2 mt-3">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {/* DETAIL */}
                 <button
                   onClick={() => navigate(`/dashboard/user/${u.id}`)}
-                  className="flex-1 py-1.5 text-[10px] rounded bg-[#252530] text-gray-300"
+                  className="flex-1 sm:flex-none sm:px-3 py-1.5 text-[10px] rounded-lg dark:bg-[#252530] bg-gray-100 dark:text-gray-300 text-gray-600 hover:dark:bg-[#2f3245] hover:bg-gray-200 transition active:scale-[0.98]"
                 >
                   Detail
                 </button>
 
-                {/* EDIT */}
+                {/* EDIT / PASSWORD / DELETE */}
                 {user.role === "Owner" && (
-                  <>
+                  <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(u)}
-                      className="p-2 rounded bg-yellow-600"
+                      className="px-2.5 py-1.5 rounded-lg bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 transition active:scale-[0.98]"
+                      title="Edit"
                     >
                       <Edit3 size={12} />
                     </button>
@@ -278,48 +285,52 @@ export default function UserManagementPage() {
                         setIsUpdatePasswordModalOpen(true);
                         setUserData(user);
                       }}
-                      className="p-2 rounded bg-blue-600"
+                      className="px-2.5 py-1.5 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition active:scale-[0.98]"
+                      title="Reset Password"
                     >
                       <Lock size={12} />
                     </button>
 
                     <button
                       onClick={() => handleDelete(u.id)}
-                      className="p-2 rounded bg-red-600"
+                      className="px-2.5 py-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition active:scale-[0.98]"
+                      title="Hapus"
                     >
                       <Trash2 size={12} />
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
           ))}
         </div>
       )}
+
       {/* PAGINATION */}
       {users.meta && users.meta.totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4 text-[10px]">
+        <div className="flex justify-between items-center mt-4 text-[10px] dark:text-gray-400 text-gray-500">
           <button
             disabled={page <= 1}
             onClick={() => setPage(page - 1)}
-            className="px-2 py-1 rounded bg-[#252530] disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg dark:bg-[#252530] bg-gray-100 dark:text-gray-300 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-[0.98]"
           >
             Prev
           </button>
 
-          <span className="text-gray-400">
+          <span className="font-medium">
             {page} / {users.meta.totalPages}
           </span>
 
           <button
             disabled={page >= users.meta.totalPages}
             onClick={() => setPage(page + 1)}
-            className="px-2 py-1 rounded bg-[#252530] disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg dark:bg-[#252530] bg-gray-100 dark:text-gray-300 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-[0.98]"
           >
             Next
           </button>
         </div>
       )}
+
       {openModal && (
         <UserModal
           isOpen={openModal}
@@ -328,7 +339,7 @@ export default function UserManagementPage() {
           user={editUser}
           token={user?.token}
         />
-      )}{" "}
+      )}
       <UpdatePasswordModal
         isOpen={isUpdatePasswordModalOpen}
         onClose={() => {
@@ -456,31 +467,33 @@ function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-      <div className="bg-[#13151f] border border-[#1e2130] rounded-2xl w-full max-w-md p-5 relative shadow-xl">
+    <div className="fixed inset-0 bg-black/60 dark:bg-black/70 flex items-center justify-center p-4 z-50 backdrop-blur-sm transition-colors duration-300">
+      <div className="dark:bg-[#13151f] bg-white dark:border-[#1e2130] border-gray-200 rounded-2xl w-full max-w-md p-4 sm:p-5 relative shadow-xl transition-colors duration-300">
         {/* CLOSE */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-red-400 transition"
+          className="absolute top-3 right-3 dark:text-gray-400 text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/10"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* HEADER */}
-        <h2 className="text-base font-semibold text-white mb-4">
+        <h2 className="text-base sm:text-lg font-semibold dark:text-white text-gray-900 mb-4 pr-8">
           {user ? "Edit User" : "Tambah User"}
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           {/* NAMA */}
           <div>
-            <label className="text-[11px] text-gray-400">Nama Lengkap</label>
-            <div className="relative mt-1">
-              <User className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
+            <label className="text-xs dark:text-gray-400 text-gray-600 font-medium">
+              Nama Lengkap
+            </label>
+            <div className="relative mt-1.5">
+              <User className="absolute left-3 top-2.5 w-4 h-4 dark:text-gray-500 text-gray-400" />
               <input
                 type="text"
                 {...register("nama", { required: "Nama wajib diisi" })}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-[#0f111a] border border-[#23263a] text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg dark:bg-[#0f111a] bg-gray-50 dark:border-[#23263a] border-gray-200 border dark:text-white text-gray-900 dark:placeholder-gray-500 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-colors duration-300"
                 placeholder="John Doe"
               />
             </div>
@@ -493,9 +506,11 @@ function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
 
           {/* EMAIL */}
           <div>
-            <label className="text-[11px] text-gray-400">Email</label>
-            <div className="relative mt-1">
-              <Mail className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
+            <label className="text-xs dark:text-gray-400 text-gray-600 font-medium">
+              Email
+            </label>
+            <div className="relative mt-1.5">
+              <Mail className="absolute left-3 top-2.5 w-4 h-4 dark:text-gray-500 text-gray-400" />
               <input
                 type="email"
                 {...register("email", {
@@ -505,7 +520,7 @@ function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
                     message: "Format email tidak valid",
                   },
                 })}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-[#0f111a] border border-[#23263a] text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg dark:bg-[#0f111a] bg-gray-50 dark:border-[#23263a] border-gray-200 border dark:text-white text-gray-900 dark:placeholder-gray-500 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-colors duration-300"
                 placeholder="john@email.com"
               />
             </div>
@@ -519,16 +534,18 @@ function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
           {/* PASSWORD */}
           {!user && (
             <div>
-              <label className="text-[11px] text-gray-400">Password</label>
-              <div className="relative mt-1">
-                <Key className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
+              <label className="text-xs dark:text-gray-400 text-gray-600 font-medium">
+                Password
+              </label>
+              <div className="relative mt-1.5">
+                <Key className="absolute left-3 top-2.5 w-4 h-4 dark:text-gray-500 text-gray-400" />
                 <input
                   type="password"
                   {...register("password", {
                     required: "Password wajib",
                     minLength: { value: 6, message: "Min 6 karakter" },
                   })}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-[#0f111a] border border-[#23263a] text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg dark:bg-[#0f111a] bg-gray-50 dark:border-[#23263a] border-gray-200 border dark:text-white text-gray-900 dark:placeholder-gray-500 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-colors duration-300"
                   placeholder="••••••"
                 />
               </div>
@@ -542,10 +559,12 @@ function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
 
           {/* ROLE */}
           <div>
-            <label className="text-[11px] text-gray-400">Role</label>
+            <label className="text-xs dark:text-gray-400 text-gray-600 font-medium">
+              Role
+            </label>
             <select
               {...register("role", { required: "Role wajib dipilih" })}
-              className="w-full mt-1 px-3 py-2 text-xs rounded-lg bg-[#0f111a] border border-[#23263a] text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              className="w-full mt-1.5 px-3 py-2 text-xs rounded-lg dark:bg-[#0f111a] bg-gray-50 dark:border-[#23263a] border-gray-200 border dark:text-white text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-colors duration-300 appearance-none cursor-pointer"
             >
               <option value="">Pilih Role</option>
               <option value="Crew">Crew</option>
@@ -559,11 +578,11 @@ function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
           </div>
 
           {/* ACTION */}
-          <div className="flex gap-2 pt-3">
+          <div className="flex gap-2 pt-3 sm:pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2 rounded-lg text-xs bg-[#1e2130] text-gray-400 hover:bg-[#2a2d42]"
+              className="flex-1 py-2 rounded-lg text-xs font-medium dark:bg-[#1e2130] bg-gray-100 dark:text-gray-400 text-gray-600 hover:dark:bg-[#2a2d42] hover:bg-gray-200 transition-colors active:scale-[0.98]"
             >
               Batal
             </button>
@@ -571,7 +590,7 @@ function UserModal({ isOpen, onClose, onSubmitSuccess, user, token }) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-2 rounded-lg text-xs bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-500"
+              className="flex-1 py-2 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-md shadow-blue-600/20"
             >
               {isSubmitting ? "Loading..." : user ? "Update" : "Simpan"}
             </button>
@@ -651,32 +670,37 @@ const UpdatePasswordModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl bg-[#13151f] border border-[#1e2130] shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/70 backdrop-blur-sm p-4 transition-colors duration-300">
+      <div className="w-full max-w-md rounded-2xl dark:bg-[#13151f] bg-white dark:border-[#1e2130] border-gray-200 shadow-xl transition-colors duration-300">
         {/* HEADER */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e2130]">
-          <h3 className="text-sm font-semibold text-white">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-4 dark:border-[#1e2130] border-gray-200 border-b transition-colors duration-300">
+          <h3 className="text-sm sm:text-base font-semibold dark:text-white text-gray-900">
             Update Password
-            <span className="block text-[11px] text-gray-400 font-normal">
+            <span className="block text-[10px] sm:text-xs dark:text-gray-400 text-gray-500 font-normal mt-0.5">
               {user.nama}
             </span>
           </h3>
 
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-red-400 transition"
+            className="dark:text-gray-400 text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/10"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* FORM */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="p-4 sm:p-5 space-y-4"
+        >
           {/* PASSWORD */}
           <div>
-            <label className="text-[11px] text-gray-400">Password Baru</label>
+            <label className="text-xs dark:text-gray-400 text-gray-600 font-medium">
+              Password Baru
+            </label>
 
-            <div className="relative mt-1">
+            <div className="relative mt-1.5">
               <input
                 {...register("password", {
                   required: "Password wajib diisi",
@@ -686,16 +710,16 @@ const UpdatePasswordModal = ({
                   },
                 })}
                 type={showPassword ? "text" : "password"}
-                className={`w-full pl-3 pr-9 py-2 text-xs rounded-lg bg-[#0f111a] border text-white outline-none
-              ${errors.password ? "border-red-500" : "border-[#23263a]"}
-              focus:border-blue-500 focus:ring-1 focus:ring-blue-500`}
+                className={`w-full pl-3 pr-9 py-2 text-xs rounded-lg dark:bg-[#0f111a] bg-gray-50 border dark:text-white text-gray-900 dark:placeholder-gray-500 placeholder-gray-400 outline-none transition-colors duration-300
+              ${errors.password ? "border-red-500" : "dark:border-[#23263a] border-gray-200"}
+              focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50`}
                 placeholder="Minimal 8 karakter"
               />
 
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                className="absolute right-2 top-1/2 -translate-y-1/2 dark:text-gray-500 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -710,11 +734,11 @@ const UpdatePasswordModal = ({
 
           {/* CONFIRM PASSWORD */}
           <div>
-            <label className="text-[11px] text-gray-400">
+            <label className="text-xs dark:text-gray-400 text-gray-600 font-medium">
               Konfirmasi Password
             </label>
 
-            <div className="relative mt-1">
+            <div className="relative mt-1.5">
               <input
                 {...register("confirmPassword", {
                   required: "Konfirmasi wajib",
@@ -722,16 +746,16 @@ const UpdatePasswordModal = ({
                     value === watch("password") || "Password tidak sama",
                 })}
                 type={showConfirmPassword ? "text" : "password"}
-                className={`w-full pl-3 pr-9 py-2 text-xs rounded-lg bg-[#0f111a] border text-white outline-none
-              ${errors.confirmPassword ? "border-red-500" : "border-[#23263a]"}
-              focus:border-blue-500 focus:ring-1 focus:ring-blue-500`}
+                className={`w-full pl-3 pr-9 py-2 text-xs rounded-lg dark:bg-[#0f111a] bg-gray-50 border dark:text-white text-gray-900 dark:placeholder-gray-500 placeholder-gray-400 outline-none transition-colors duration-300
+              ${errors.confirmPassword ? "border-red-500" : "dark:border-[#23263a] border-gray-200"}
+              focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50`}
                 placeholder="Ulangi password"
               />
 
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                className="absolute right-2 top-1/2 -translate-y-1/2 dark:text-gray-500 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -745,12 +769,12 @@ const UpdatePasswordModal = ({
           </div>
 
           {/* ACTION */}
-          <div className="flex gap-2 pt-3">
+          <div className="flex gap-2 pt-2 sm:pt-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 py-2 rounded-lg text-xs bg-[#1e2130] text-gray-400 hover:bg-[#2a2d42]"
+              className="flex-1 py-2 rounded-lg text-xs font-medium dark:bg-[#1e2130] bg-gray-100 dark:text-gray-400 text-gray-600 hover:dark:bg-[#2a2d42] hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:scale-[0.98]"
             >
               Batal
             </button>
@@ -758,7 +782,7 @@ const UpdatePasswordModal = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-2 rounded-lg text-xs bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-500 flex items-center justify-center"
+              className="flex-1 py-2 rounded-lg text-xs font-semibold bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center transition-all active:scale-[0.98] shadow-md shadow-purple-600/20"
             >
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

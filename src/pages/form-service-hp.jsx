@@ -296,9 +296,8 @@ export default function ServiceHPPage() {
 
   return (
     <div
-      className="min-h-screen py-5 pb-10"
+      className="min-h-screen py-5 px-4 pb-10 dark:bg-[#0D0D10]"
       style={{
-        background: "#0D0D10",
         fontFamily: "'Sora', sans-serif",
         color: "#ECEAE3",
       }}
@@ -307,18 +306,15 @@ export default function ServiceHPPage() {
         {/* Header */}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* ── Member ─────────────────────────────────────────── */}
-          <div
-            className="rounded-2xl p-4"
-            style={{ background: BG, border: BDR }}
-          >
+          {/* Member */}
+          <div className="rounded-2xl p-4 bg-white dark:bg-[#13151f] border border-gray-100 dark:border-[#1e2130]">
             <SectionTitle icon={User} label="Member (opsional)" />
             <div className="relative">
-              <div
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
-                style={{ background: "#111118", border: "1px solid #2A2A38" }}
-              >
-                <Search size={13} color="#4A4858" />
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-[#111118] border-2 border-gray-200 dark:border-[#2A2A38]">
+                <Search
+                  size={13}
+                  className="text-gray-400 dark:text-[#4A4858] shrink-0"
+                />
                 <input
                   value={memberSearch}
                   onChange={(e) => {
@@ -328,39 +324,32 @@ export default function ServiceHPPage() {
                   }}
                   onFocus={() => setShowMemberDrop(true)}
                   placeholder="Cari nama atau nomor HP..."
-                  className="flex-1 bg-transparent border-none outline-none text-[12px]"
-                  style={{ color: "#ECEAE3", fontFamily: "inherit" }}
+                  className="flex-1 bg-transparent border-none outline-none text-[12px] text-gray-800 dark:text-[#ECEAE3] placeholder:text-gray-400 dark:placeholder:text-[#4A4858]"
                 />
                 <QrCode
-                  onClick={() => setIsScanning(true)} // ✅ BENAR
+                  onClick={() => setIsScanning(true)}
                   size={13}
-                  color="#5A5868"
-                  className="cursor-pointer"
+                  className="text-gray-400 dark:text-[#5A5868] cursor-pointer"
                 />
               </div>
 
-              {/* Area Scanner — selalu ada di DOM, tapi hidden jika tidak scan */}
               <div
                 id="reader"
-                className={`w-full mx-auto transition-opacity duration-300 ${
-                  isScanning ? "block opacity-100" : "hidden opacity-0"
-                }`}
-              ></div>
+                className={`w-full mx-auto transition-opacity duration-300 ${isScanning ? "block opacity-100" : "hidden opacity-0"}`}
+              />
 
               {isScanning && (
                 <button
                   type="button"
                   onClick={() => setIsScanning(false)}
-                  className="w-full mt-3 py-2 bg-red-500 text-white rounded-lg"
+                  className="w-full mt-3 py-2 bg-red-500 text-white rounded-lg text-sm"
                 >
                   Batal Scan
                 </button>
               )}
+
               {showMemberDrop && memberSearch && (
-                <div
-                  className="absolute z-20 w-full mt-1 rounded-xl overflow-hidden"
-                  style={{ background: "#181820", border: "1px solid #2A2A38" }}
-                >
+                <div className="absolute z-20 w-full mt-1 rounded-xl overflow-hidden bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] shadow-lg">
                   {membersList
                     .filter(
                       (m) =>
@@ -378,19 +367,12 @@ export default function ServiceHPPage() {
                           setMemberSearch("");
                           setShowMemberDrop(false);
                         }}
-                        className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:opacity-80 transition-opacity"
-                        style={{ borderBottom: "1px solid #1E1E2C" }}
+                        className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1E1E2C] transition-colors border-b border-gray-100 dark:border-[#1E1E2C] last:border-0"
                       >
-                        <span
-                          className="text-[12px]"
-                          style={{ color: "#DBD9D2" }}
-                        >
+                        <span className="text-[12px] text-gray-700 dark:text-[#DBD9D2]">
                           {m.nama}
                         </span>
-                        <span
-                          className="text-[10px]"
-                          style={{ color: "#5A5868" }}
-                        >
+                        <span className="text-[10px] text-gray-400 dark:text-[#5A5868]">
                           {m.noTelp}
                         </span>
                       </div>
@@ -398,10 +380,7 @@ export default function ServiceHPPage() {
                   {membersList.filter((m) =>
                     m.nama.toLowerCase().includes(memberSearch.toLowerCase())
                   ).length === 0 && (
-                    <p
-                      className="text-[11px] text-center py-3"
-                      style={{ color: "#5A5868" }}
-                    >
+                    <p className="text-[11px] text-center py-3 text-gray-400 dark:text-[#5A5868]">
                       Tidak ditemukan
                     </p>
                   )}
@@ -409,37 +388,28 @@ export default function ServiceHPPage() {
               )}
 
               {selectedMember && (
-                <div
-                  className="flex items-center justify-between mt-2 px-3 py-2 rounded-xl"
-                  style={{ background: "#052e16", border: "1px solid #1a3a20" }}
-                >
+                <div className="flex items-center justify-between mt-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-[#052e16] border border-emerald-200 dark:border-[#1a3a20]">
                   <div className="flex items-center gap-2">
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold"
-                      style={{ background: "#0a2012", color: "#34d399" }}
-                    >
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold bg-emerald-100 dark:bg-[#0a2012] text-emerald-600 dark:text-emerald-400">
                       {selectedMember.nama.charAt(0)}
                     </div>
-                    <span
-                      className="text-[12px] font-medium"
-                      style={{ color: "#34d399" }}
-                    >
+                    <span className="text-[12px] font-medium text-emerald-600 dark:text-emerald-400">
                       {selectedMember.nama}
                     </span>
                   </div>
                   <button type="button" onClick={() => setSelectedMember(null)}>
-                    <X size={12} color="#34d399" />
+                    <X
+                      size={12}
+                      className="text-emerald-500 dark:text-emerald-400"
+                    />
                   </button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* ── Info Pelanggan ──────────────────────────────────── */}
-          <div
-            className="rounded-2xl p-4 space-y-4"
-            style={{ background: BG, border: BDR }}
-          >
+          {/* Info Pelanggan */}
+          <div className="rounded-2xl p-4 space-y-4 bg-white dark:bg-[#13151f] border border-gray-100 dark:border-[#1e2130]">
             <SectionTitle icon={User} label="Info Pelanggan" />
 
             <Field
@@ -449,10 +419,7 @@ export default function ServiceHPPage() {
               <input
                 {...register("namaPelanggan", { required: "Nama wajib diisi" })}
                 placeholder="Masukkan nama pelanggan"
-                className={inp}
-                style={inpStyle}
-                onFocus={(e) => Object.assign(e.target.style, inpFocus)}
-                onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+                className="w-full px-3 py-2.5 rounded-xl text-[12px] bg-gray-50 dark:bg-[#111118] border border-gray-200 dark:border-[#2A2A38] text-gray-800 dark:text-[#ECEAE3] placeholder:text-gray-400 dark:placeholder:text-[#4A4858] outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
               />
             </Field>
 
@@ -460,10 +427,7 @@ export default function ServiceHPPage() {
               <input
                 {...register("noHP", { required: "No HP wajib diisi" })}
                 placeholder="08xxxxxxxxxx"
-                className={inp}
-                style={inpStyle}
-                onFocus={(e) => Object.assign(e.target.style, inpFocus)}
-                onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+                className="w-full px-3 py-2.5 rounded-xl text-[12px] bg-gray-50 dark:bg-[#111118] border border-gray-200 dark:border-[#2A2A38] text-gray-800 dark:text-[#ECEAE3] placeholder:text-gray-400 dark:placeholder:text-[#4A4858] outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
               />
             </Field>
 
@@ -471,19 +435,13 @@ export default function ServiceHPPage() {
               <input
                 {...register("brandHP", { required: "Brand wajib diisi" })}
                 placeholder="Contoh: iPhone 13, Samsung A54"
-                className={inp}
-                style={inpStyle}
-                onFocus={(e) => Object.assign(e.target.style, inpFocus)}
-                onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+                className="w-full px-3 py-2.5 rounded-xl text-[12px] bg-gray-50 dark:bg-[#111118] border border-gray-200 dark:border-[#2A2A38] text-gray-800 dark:text-[#ECEAE3] placeholder:text-gray-400 dark:placeholder:text-[#4A4858] outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
               />
             </Field>
           </div>
 
-          {/* ── Keterangan & Status ─────────────────────────────── */}
-          <div
-            className="rounded-2xl p-4 space-y-4"
-            style={{ background: BG, border: BDR }}
-          >
+          {/* Detail Kerusakan */}
+          <div className="rounded-2xl p-4 space-y-4 bg-white dark:bg-[#13151f] border border-gray-100 dark:border-[#1e2130]">
             <SectionTitle icon={FileText} label="Detail Kerusakan" />
 
             <Field label="Keterangan *" error={errors.keterangan?.message}>
@@ -493,18 +451,14 @@ export default function ServiceHPPage() {
                 })}
                 placeholder="Jelaskan kerusakan atau keluhan..."
                 rows={3}
-                className={`${inp} resize-none`}
-                style={inpStyle}
-                onFocus={(e) => Object.assign(e.target.style, inpFocus)}
-                onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+                className="w-full px-3 py-2.5 rounded-xl text-[12px] bg-gray-50 dark:bg-[#111118] border border-gray-200 dark:border-[#2A2A38] text-gray-800 dark:text-[#ECEAE3] placeholder:text-gray-400 dark:placeholder:text-[#4A4858] outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors resize-none"
               />
             </Field>
 
             <Field label="Status *" error={errors.status?.message}>
               <select
                 {...register("status", { required: true })}
-                className={`${inp} appearance-none cursor-pointer`}
-                style={inpStyle}
+                className="w-full px-3 py-2.5 rounded-xl text-[12px] appearance-none cursor-pointer bg-gray-50 dark:bg-[#111118] border border-gray-200 dark:border-[#2A2A38] text-gray-800 dark:text-[#ECEAE3] outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
               >
                 {STATUS_OPTS.map((s) => (
                   <option key={s} value={s}>
@@ -515,20 +469,16 @@ export default function ServiceHPPage() {
             </Field>
           </div>
 
-          {/* ── Sparepart ───────────────────────────────────────── */}
-          <div
-            className="rounded-2xl p-4"
-            style={{ background: BG, border: BDR }}
-          >
+          {/* Sparepart */}
+          <div className="rounded-2xl p-4 bg-white dark:bg-[#13151f] border border-gray-100 dark:border-[#1e2130]">
             <SectionTitle icon={Wrench} label="Sparepart" />
 
-            {/* Search sparepart */}
             <div className="relative mb-3">
-              <div
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
-                style={{ background: "#111118", border: "1px solid #2A2A38" }}
-              >
-                <Search size={13} color="#4A4858" />
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-[#111118] border border-gray-200 dark:border-[#2A2A38]">
+                <Search
+                  size={13}
+                  className="text-gray-400 dark:text-[#4A4858] shrink-0"
+                />
                 <input
                   value={searchSp}
                   onChange={(e) => {
@@ -538,16 +488,12 @@ export default function ServiceHPPage() {
                   }}
                   onFocus={() => setShowSpDrop(true)}
                   placeholder="Ketik nama sparepart..."
-                  className="flex-1 bg-transparent border-none outline-none text-[12px]"
-                  style={{ color: "#ECEAE3", fontFamily: "inherit" }}
+                  className="flex-1 bg-transparent border-none outline-none text-[12px] text-gray-800 dark:text-[#ECEAE3] placeholder:text-gray-400 dark:placeholder:text-[#4A4858]"
                 />
               </div>
 
               {showSpDrop && searchSp && (
-                <div
-                  className="absolute z-20 w-full mt-1 rounded-xl overflow-hidden"
-                  style={{ background: "#181820", border: "1px solid #2A2A38" }}
-                >
+                <div className="absolute z-20 w-full mt-1 rounded-xl overflow-hidden bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] shadow-lg">
                   {filteredSp.slice(0, 6).map((sp) => (
                     <div
                       key={sp.id}
@@ -556,28 +502,18 @@ export default function ServiceHPPage() {
                         setSearchSp(sp.nama);
                         setShowSpDrop(false);
                       }}
-                      className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:opacity-80 transition-opacity"
-                      style={{ borderBottom: "1px solid #1E1E2C" }}
+                      className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1E1E2C] transition-colors border-b border-gray-100 dark:border-[#1E1E2C] last:border-0"
                     >
-                      <span
-                        className="text-[12px]"
-                        style={{ color: "#DBD9D2" }}
-                      >
+                      <span className="text-[12px] text-gray-700 dark:text-[#DBD9D2]">
                         {sp.nama}
                       </span>
-                      <span
-                        className="text-[10px]"
-                        style={{ color: "#5AC47A" }}
-                      >
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400">
                         Rp {sp.hargaEceran?.toLocaleString("id-ID")}
                       </span>
                     </div>
                   ))}
                   {filteredSp.length === 0 && (
-                    <p
-                      className="text-[11px] text-center py-3"
-                      style={{ color: "#5A5868" }}
-                    >
+                    <p className="text-[11px] text-center py-3 text-gray-400 dark:text-[#5A5868]">
                       Tidak ditemukan
                     </p>
                   )}
@@ -589,36 +525,28 @@ export default function ServiceHPPage() {
               type="button"
               onClick={addSparepart}
               disabled={!selectedSp}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-medium mb-3 transition-opacity disabled:opacity-40 cursor-pointer"
-              style={{
-                background: selectedSp ? "#1e1b4b" : "#1a1a28",
-                color: selectedSp ? "#818cf8" : "#4A4858",
-                border: "1px solid #2a2a38",
-              }}
+              className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-medium mb-3 transition-all border cursor-pointer disabled:opacity-40
+        ${
+          selectedSp
+            ? "bg-indigo-50 dark:bg-[#1e1b4b] text-indigo-500 dark:text-indigo-400 border-indigo-200 dark:border-[#2a2a38]"
+            : "bg-gray-50 dark:bg-[#1a1a28] text-gray-400 dark:text-[#4A4858] border-gray-200 dark:border-[#2A2A38]"
+        }`}
             >
               <Plus size={13} /> Tambah Sparepart
             </button>
 
-            {/* List sparepart terpilih */}
             {spareparts.length > 0 && (
               <div className="flex flex-col gap-2">
                 {spareparts.map((sp) => (
                   <div
                     key={sp.id}
-                    className="flex items-center justify-between px-3 py-2.5 rounded-xl gap-3"
-                    style={{
-                      background: "#111118",
-                      border: "1px solid #1E1E2C",
-                    }}
+                    className="flex items-center justify-between px-3 py-2.5 rounded-xl gap-3 bg-gray-50 dark:bg-[#111118] border border-gray-100 dark:border-[#1E1E2C]"
                   >
                     <div className="flex-1 min-w-0">
-                      <p
-                        className="text-[12px] font-medium truncate"
-                        style={{ color: "#DBD9D2" }}
-                      >
+                      <p className="text-[12px] font-medium truncate text-gray-800 dark:text-[#DBD9D2]">
                         {sp.nama}
                       </p>
-                      <p className="text-[10px]" style={{ color: "#5A5868" }}>
+                      <p className="text-[10px] text-gray-400 dark:text-[#5A5868]">
                         Rp {sp.hargaEceran?.toLocaleString("id-ID")} × {sp.qty}
                       </p>
                     </div>
@@ -626,41 +554,32 @@ export default function ServiceHPPage() {
                       <button
                         type="button"
                         onClick={() => updateQty(sp.id, -1)}
-                        className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer"
-                        style={{
-                          background: "#252838",
-                          border: "1px solid #2a2d3e",
-                        }}
+                        className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer bg-gray-100 dark:bg-[#252838] border border-gray-200 dark:border-[#2a2d3e] hover:bg-gray-200 dark:hover:bg-[#2a2d3e] transition-colors"
                       >
-                        <Minus size={10} color="#6b7080" />
+                        <Minus
+                          size={10}
+                          className="text-gray-500 dark:text-[#6b7080]"
+                        />
                       </button>
-                      <span
-                        className="text-[13px] font-semibold w-5 text-center"
-                        style={{ color: "#ECEAE3" }}
-                      >
+                      <span className="text-[13px] font-semibold w-5 text-center text-gray-800 dark:text-[#ECEAE3]">
                         {sp.qty}
                       </span>
                       <button
                         type="button"
                         onClick={() => updateQty(sp.id, 1)}
-                        className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer"
-                        style={{
-                          background: "#252838",
-                          border: "1px solid #2a2d3e",
-                        }}
+                        className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer bg-gray-100 dark:bg-[#252838] border border-gray-200 dark:border-[#2a2d3e] hover:bg-gray-200 dark:hover:bg-[#2a2d3e] transition-colors"
                       >
-                        <Plus size={10} color="#6b7080" />
+                        <Plus
+                          size={10}
+                          className="text-gray-500 dark:text-[#6b7080]"
+                        />
                       </button>
                       <button
                         type="button"
                         onClick={() => removeSparepart(sp.id)}
-                        className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer ml-1"
-                        style={{
-                          background: "#2a1515",
-                          border: "1px solid #3b1515",
-                        }}
+                        className="w-6 h-6 rounded-lg flex items-center justify-center cursor-pointer ml-1 bg-red-50 dark:bg-[#2a1515] border border-red-100 dark:border-[#3b1515] hover:bg-red-100 transition-colors"
                       >
-                        <Trash2 size={10} color="#f87171" />
+                        <Trash2 size={10} className="text-red-400" />
                       </button>
                     </div>
                   </div>
@@ -669,11 +588,8 @@ export default function ServiceHPPage() {
             )}
           </div>
 
-          {/* ── Biaya Jasa ──────────────────────────────────────── */}
-          <div
-            className="rounded-2xl p-4"
-            style={{ background: BG, border: BDR }}
-          >
+          {/* Biaya Jasa */}
+          <div className="rounded-2xl p-4 bg-white dark:bg-[#13151f] border border-gray-100 dark:border-[#1e2130]">
             <SectionTitle icon={DollarSign} label="Biaya Jasa" />
             <NumericFormat
               thousandSeparator="."
@@ -681,49 +597,40 @@ export default function ServiceHPPage() {
               allowNegative={false}
               prefix="Rp "
               placeholder="Rp 0"
-              className={inp}
-              style={inpStyle}
+              className="w-full px-3 py-2.5 rounded-xl text-[12px] bg-gray-50 dark:bg-[#111118] border border-gray-200 dark:border-[#2A2A38] text-gray-800 dark:text-[#ECEAE3] placeholder:text-gray-400 dark:placeholder:text-[#4A4858] outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
               onValueChange={(v) => setValue("biayaJasa", v.floatValue ?? 0)}
-              onFocus={(e) => Object.assign(e.target.style, inpFocus)}
-              onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
             />
           </div>
 
-          {/* ── Estimasi Keuntungan ─────────────────────────────── */}
-          <div
-            className="rounded-2xl px-4 py-3.5 flex items-center justify-between"
-            style={{ background: "#052e16", border: "1px solid #1a3a20" }}
-          >
+          {/* Estimasi Keuntungan */}
+          <div className="rounded-2xl px-4 py-3.5 flex items-center justify-between bg-emerald-50 dark:bg-[#052e16] border border-emerald-200 dark:border-[#1a3a20]">
             <div className="flex items-center gap-2">
-              <TrendingUp size={14} color="#34d399" />
-              <p className="text-[11px]" style={{ color: "#34d399" }}>
+              <TrendingUp
+                size={14}
+                className="text-emerald-500 dark:text-emerald-400"
+              />
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
                 Estimasi Keuntungan
               </p>
             </div>
-            <p className="text-lg font-semibold" style={{ color: "#34d399" }}>
+            <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
               Rp {keuntungan.toLocaleString("id-ID")}
             </p>
           </div>
 
-          {/* ── Submit ──────────────────────────────────────────── */}
+          {/* Submit */}
           <div className="flex gap-2 pt-1">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="flex-1 py-3 rounded-xl text-[13px] font-medium cursor-pointer"
-              style={{
-                background: "#1a1a28",
-                color: "#6A6878",
-                border: "1px solid #2A2A38",
-              }}
+              className="flex-1 py-3 rounded-xl text-[13px] font-medium cursor-pointer bg-gray-100 dark:bg-[#1a1a28] text-gray-500 dark:text-[#6A6878] border border-gray-200 dark:border-[#2A2A38] hover:bg-gray-200 dark:hover:bg-[#222232] transition-colors"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-white cursor-pointer transition-opacity disabled:opacity-60"
-              style={{ background: "#4f46e5" }}
+              className="flex-1 py-3 rounded-xl text-[13px] font-semibold text-white cursor-pointer transition-opacity disabled:opacity-60 bg-green-600 dark:bg-indigo-600 hover:bg-green-700 dark:hover:bg-indigo-700"
             >
               {submitting ? "Menyimpan..." : "Simpan Service"}
             </button>
