@@ -20,56 +20,6 @@ import { useAuthStore } from "../store/useAuthStore";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 
-const DUMMY = [
-  {
-    id: 1,
-    nama: "Budi",
-    tanggal: "2026-03-20",
-    total: 120000,
-    keuntungan: 15000,
-    items: 3,
-    status: "Sukses",
-  },
-  {
-    id: 2,
-    nama: "Siti",
-    tanggal: "2026-03-21",
-    total: 85000,
-    keuntungan: 10000,
-    items: 2,
-    status: "Pending",
-  },
-  {
-    id: 3,
-    nama: "Andi",
-    tanggal: "2026-03-22",
-    total: 200000,
-    keuntungan: 30000,
-    items: 5,
-    status: "Sukses",
-  },
-];
-
-const PERIODS = [
-  { key: "hari", label: "Hari Ini" },
-  { key: "minggu", label: "Minggu Ini" },
-  { key: "bulan", label: "Bulan Ini" },
-];
-
-const fmt = (n) => "Rp " + n.toLocaleString("id-ID");
-
-const STATUS_STYLE = {
-  Sukses: { background: "#0A2012", color: "#5AC47A" },
-  Pending: { background: "#1E1204", color: "#CA8030" },
-  Gagal: { background: "#200808", color: "#D07070" },
-};
-
-const TABS = [
-  { id: "member", label: "Member" },
-  { id: "data-member", label: "No Trx Member" },
-  { id: "uang-keluar", label: "Uang Keluar" },
-];
-
 const getMessageByStatus = (trx, status) => {
   const nama = trx.namaPelangan || "Customer";
   const brand = trx.brandHP || "-";
@@ -285,15 +235,44 @@ export default function HistoryTransaksiService() {
     { path: "/dashboard/history/voucher-harian", label: "Voucher Harian" },
   ];
 
-  const filtered = useMemo(() => {
-    return DUMMY.filter((d) => {
-      const matchNama = d.nama.toLowerCase().includes(search.toLowerCase());
-      const tgl = new Date(d.tanggal);
-      const s = start ? new Date(start) : null;
-      const e = end ? new Date(end) : null;
-      return matchNama && (!s || tgl >= s) && (!e || tgl <= e);
+  const statusStats = useMemo(() => {
+    const result = {
+      pending: 0,
+      proses: 0,
+      selesai: 0,
+    };
+
+    services.forEach((s) => {
+      if (s.deletedAt) return; // skip VOID
+
+      if (s.status === "Pending") result.pending++;
+      else if (s.status === "Proses") result.proses++;
+      else if (s.status === "Selesai") result.selesai++;
     });
-  }, [search, start, end]);
+
+    return result;
+  }, [services]);
+
+  const ITEMS = [
+    {
+      label: "Pending",
+      value: statusStats.pending,
+      color: "text-amber-500 dark:text-amber-400",
+      bg: "bg-amber-500",
+    },
+    {
+      label: "Proses",
+      value: statusStats.proses,
+      color: "text-blue-500 dark:text-blue-400",
+      bg: "bg-blue-500",
+    },
+    {
+      label: "Selesai",
+      value: statusStats.selesai,
+      color: "text-green-500 dark:text-green-400",
+      bg: "bg-green-500",
+    },
+  ];
 
   const inp =
     "bg-transparent border-none outline-none text-[11px] w-full placeholder:text-[#333240]";
@@ -328,7 +307,6 @@ export default function HistoryTransaksiService() {
           })}
         </div>
       </div>
-
       <div className="w-full mx-auto">
         {/* Topbar */}
 
@@ -623,7 +601,6 @@ export default function HistoryTransaksiService() {
         namaFilter={namaFilter}
         setNamaFilter={setNamaFilter}
       />
-
       <ModalEditStatus
         open={openStatus}
         onClose={() => setOpenStatus(false)}
@@ -631,13 +608,30 @@ export default function HistoryTransaksiService() {
         token={user.token}
         refetch={refetch}
       />
-
       <ModalExport
         open={openExport}
         onClose={() => setOpenExport(false)}
         onExportFiltered={() => exportToExcel(services)}
         onExportAll={exportAllData}
       />
+      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-md px-3 z-50">
+        <div className="rounded-xl bg-white dark:bg-[#13151f] border border-gray-200 dark:border-[#1e2130] p-3 shadow-lg backdrop-blur">
+          <div className="grid grid-cols-3 divide-x divide-gray-200 dark:divide-[#1e2130]">
+            {ITEMS.map(({ label, value, color, bg }) => (
+              <div key={label} className="flex flex-col items-center gap-1">
+                <div className="flex items-center gap-1">
+                  <div className={`${bg} w-1.5 h-1.5 rounded-full`} />
+                  <p className="text-[10px] text-gray-500 dark:text-[#6b7280]">
+                    {label}
+                  </p>
+                </div>
+
+                <p className={`${color} text-sm font-semibold`}>{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -661,121 +655,117 @@ function ModalFilter({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,.7)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-md rounded-xl p-5"
-        style={{
-          background: "#181820",
-          border: "1px solid #2A2A38",
-        }}
+        className="w-full max-w-md rounded-2xl p-5 
+    bg-white dark:bg-[#181820] 
+    border border-gray-200 dark:border-[#2A2A38] 
+    shadow-xl"
       >
-        <h2 className="text-sm font-semibold mb-4 text-white">
+        {/* HEADER */}
+        <h2 className="text-sm font-semibold mb-4 text-gray-800 dark:text-white">
           Filter Transaksi
         </h2>
 
-        {/* 🔥 STATUS */}
-        <p className="text-xs mb-2 text-gray-400">Status</p>
+        {/* STATUS */}
+        <p className="text-xs mb-2 text-gray-500 dark:text-gray-400">Status</p>
         <div className="flex gap-2 mb-4">
           {["active", "void"].map((s) => (
             <button
               key={s}
               onClick={() => setStatus(s)}
-              className={`flex-1 py-2 rounded-lg text-xs font-medium`}
-              style={{
-                background: status === s ? "#4f46e5" : "#252530",
-                color: status === s ? "#fff" : "#6A6870",
-              }}
+              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all
+            ${
+              status === s
+                ? "bg-indigo-500 text-white"
+                : "bg-gray-100 dark:bg-[#252530] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
+            }`}
             >
               {s.toUpperCase()}
             </button>
           ))}
         </div>
 
-        {/* 🔥 NAMA */}
-        <p className="text-xs mb-2 text-gray-400">Nama Pembeli</p>
+        {/* NAMA */}
+        <p className="text-xs mb-2 text-gray-500 dark:text-gray-400">
+          Nama Pembeli
+        </p>
         <input
           value={namaFilter}
           onChange={(e) => setNamaFilter(e.target.value)}
           placeholder="Cari nama..."
-          className="w-full px-3 py-2 rounded-lg text-xs mb-4"
-          style={{
-            background: "#111118",
-            border: "1px solid #2A2A38",
-            color: "#ECEAE3",
-          }}
+          className="w-full px-3 py-2 rounded-lg text-xs mb-4 outline-none transition
+        bg-gray-50 dark:bg-[#111118]
+        border border-gray-200 dark:border-[#2A2A38]
+        text-gray-800 dark:text-white
+        placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+        focus:ring-2 focus:ring-indigo-500"
         />
 
-        {/* 🔥 PERIODE */}
-        <p className="text-xs mb-2 text-gray-400">Periode</p>
+        {/* PERIODE */}
+        <p className="text-xs mb-2 text-gray-500 dark:text-gray-400">Periode</p>
         <div className="grid grid-cols-2 gap-2 mb-4">
           {["harian", "mingguan", "bulanan", "custom"].map((p) => (
             <button
               key={p}
               onClick={() => setPeriode(p)}
-              className="py-2 rounded-lg text-xs"
-              style={{
-                background: periode === p ? "#4f46e5" : "#252530",
-                color: periode === p ? "#fff" : "#6A6870",
-              }}
+              className={`py-2 rounded-lg text-xs font-medium transition
+            ${
+              periode === p
+                ? "bg-indigo-500 text-white"
+                : "bg-gray-100 dark:bg-[#252530] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
+            }`}
             >
               {p.toUpperCase()}
             </button>
           ))}
         </div>
 
-        {/* 🔥 CUSTOM DATE */}
+        {/* CUSTOM DATE */}
         {periode === "custom" && (
           <div className="flex gap-2 mb-4">
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-2 py-2 rounded-lg text-xs"
-              style={{
-                background: "#111118",
-                border: "1px solid #2A2A38",
-                color: "#ECEAE3",
-              }}
+              className="w-full px-2 py-2 rounded-lg text-xs outline-none
+            bg-gray-50 dark:bg-[#111118]
+            border border-gray-200 dark:border-[#2A2A38]
+            text-gray-800 dark:text-white"
             />
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-2 py-2 rounded-lg text-xs"
-              style={{
-                background: "#111118",
-                border: "1px solid #2A2A38",
-                color: "#ECEAE3",
-              }}
+              className="w-full px-2 py-2 rounded-lg text-xs outline-none
+            bg-gray-50 dark:bg-[#111118]
+            border border-gray-200 dark:border-[#2A2A38]
+            text-gray-800 dark:text-white"
             />
           </div>
         )}
 
-        {/* 🔥 ACTION */}
-        <div className="flex gap-2">
+        {/* ACTION */}
+        <div className="flex gap-2 mt-2">
           <button
             onClick={onClose}
-            className="flex-1 py-2 rounded-lg text-xs"
-            style={{
-              background: "#252530",
-              color: "#6A6870",
-            }}
+            className="flex-1 py-2 rounded-lg text-xs font-medium transition
+          bg-gray-100 dark:bg-[#252530]
+          text-gray-600 dark:text-gray-400
+          hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
           >
             Batal
           </button>
+
           <button
             onClick={() => {
               onApply();
               onClose();
             }}
-            className="flex-1 py-2 rounded-lg text-xs"
-            style={{
-              background: "#ECEAE3",
-              color: "#0D0D10",
-            }}
+            className="flex-1 py-2 rounded-lg text-xs font-semibold transition
+          bg-indigo-500 text-white hover:bg-indigo-600"
           >
             Terapkan
           </button>
@@ -828,38 +818,45 @@ function ModalEditStatus({ open, onClose, trx, token, refetch }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,.7)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-sm rounded-2xl p-5"
-        style={{
-          background: "#181820",
-          border: "1px solid #2A2A38",
-        }}
+        className="w-full max-w-sm rounded-2xl p-5 shadow-xl
+    bg-white dark:bg-[#181820]
+    border border-gray-200 dark:border-[#2A2A38]
+    transition-all"
       >
         {/* Header */}
-        <h2 className="text-sm font-semibold text-white mb-1">Edit Status</h2>
-        <p className="text-xs text-[#6A6870] mb-4">
+        <h2 className="text-sm font-semibold mb-1 text-gray-800 dark:text-white">
+          Edit Status
+        </h2>
+        <p className="text-xs mb-4 text-gray-500 dark:text-[#6A6870]">
           {trx.namaPembeli || trx.Member?.nama || "Transaksi"}
         </p>
 
         {/* Options */}
         <div className="flex flex-col gap-2 mb-4">
-          {["Selesai", "Proses", "Pending", "Gagal", "Batal"].map((s) => (
-            <button
-              key={s}
-              onClick={() => setStatus(s)}
-              className="w-full py-2 rounded-lg text-xs font-medium transition"
-              style={{
-                background: status === s ? "#4f46e5" : "#252530",
-                color: status === s ? "#fff" : "#6A6870",
-              }}
-            >
-              {s}
-            </button>
-          ))}
+          {["Selesai", "Proses", "Pending", "Gagal", "Batal"].map((s) => {
+            const active = status === s;
+
+            return (
+              <button
+                key={s}
+                onClick={() => setStatus(s)}
+                className={`w-full py-2 rounded-lg text-xs font-medium transition-all
+              
+              ${
+                active
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#252530] dark:text-[#6A6870] dark:hover:bg-[#2e2e3e]"
+              }
+            `}
+              >
+                {s}
+              </button>
+            );
+          })}
         </div>
 
         {/* Actions */}
@@ -867,11 +864,9 @@ function ModalEditStatus({ open, onClose, trx, token, refetch }) {
           <button
             onClick={onClose}
             disabled={loading}
-            className="flex-1 py-2 rounded-lg text-xs"
-            style={{
-              background: "#252530",
-              color: "#6A6870",
-            }}
+            className="flex-1 py-2 rounded-lg text-xs font-medium transition
+        bg-gray-100 text-gray-600 hover:bg-gray-200
+        dark:bg-[#252530] dark:text-[#6A6870] dark:hover:bg-[#2e2e3e]"
           >
             Batal
           </button>
@@ -879,11 +874,13 @@ function ModalEditStatus({ open, onClose, trx, token, refetch }) {
           <button
             onClick={handleSave}
             disabled={loading}
-            className="flex-1 py-2 rounded-lg text-xs font-semibold"
-            style={{
-              background: loading ? "#555" : "#ECEAE3",
-              color: "#0D0D10",
-            }}
+            className={`flex-1 py-2 rounded-lg text-xs font-semibold transition
+          ${
+            loading
+              ? "bg-gray-400 text-white cursor-not-allowed"
+              : "bg-indigo-600 text-white hover:bg-indigo-700"
+          }
+        `}
           >
             {loading ? "Menyimpan..." : "Simpan"}
           </button>

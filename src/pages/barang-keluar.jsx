@@ -6,21 +6,32 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../store/useAuthStore";
 import api from "../api/client";
 
-const DUMMY_BARANG_KELUAR = [
-  {
-    nama: "5 GB 1 Hari · Axis",
-    modal: 9000,
-    jual: 11000,
-    qty: 2,
-  },
-  {
-    nama: "3 GB 3 Hari · XL",
-    modal: 9000,
-    jual: 12000,
-    qty: 1,
-  },
-];
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
+const exportToExcel = (data, filename = "export.xlsx") => {
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // auto width
+  const colWidths = Object.keys(data[0]).map((key) => ({
+    wch: key.length + 10,
+  }));
+  worksheet["!cols"] = colWidths;
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan");
+
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const blob = new Blob([excelBuffer], {
+    type: "application/octet-stream",
+  });
+
+  saveAs(blob, filename);
+};
 // const fmt = (n) => "Rp " + n.toLocaleString("id-ID");
 
 export default function HistoryBarangKeluar() {
@@ -36,6 +47,14 @@ export default function HistoryBarangKeluar() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [sortQty, setSortQty] = useState("desc"); // desc = terbanyak
+
+  const formatExportData = (data) => {
+    return data.map((d) => ({
+      Nama: `${d.brand} - ${d.nama}`,
+      Kategori: d.kategori || "-",
+      Qty: d.totalKeluar,
+    }));
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedNama(namaFilter), 500);
@@ -209,8 +228,42 @@ export default function HistoryBarangKeluar() {
       <ModalExport
         open={openExport}
         onClose={() => setOpenExport(false)}
-        onExport={(type) => {
-          console.log("EXPORT:", type);
+        onExport={async (type) => {
+          let exportData = [];
+
+          if (type === "filtered") {
+            exportData = dataBarang;
+          } else {
+            // 🔥 ambil semua data tanpa filter
+            const res = await api.get("barang-keluar", {
+              headers: {
+                Authorization: `Bearer ${user.token}`,
+              },
+              params: {
+                // kosongin filter
+                search: "",
+                qtyMin: "",
+                periode: "",
+                startDate: "",
+                endDate: "",
+                sort: "desc",
+                kategori: "all",
+              },
+            });
+
+            exportData = res.data.data.map((d) => ({
+              ...d,
+              untung: (d.jual - d.modal) * d.qty,
+            }));
+          }
+
+          const formatted = formatExportData(exportData);
+
+          exportToExcel(
+            formatted,
+            `barang-keluar-${new Date().toISOString().slice(0, 10)}.xlsx`
+          );
+
           setOpenExport(false);
         }}
       />

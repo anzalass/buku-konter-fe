@@ -276,6 +276,25 @@ export default function ServiceHPPage() {
     }
   };
 
+  useEffect(() => {
+    if (!memberSearch) return;
+
+    const cleaned = memberSearch.trim().toLowerCase();
+
+    const matched = membersList.find(
+      (m) =>
+        m.nama?.toLowerCase() === cleaned ||
+        m.noTelp === cleaned ||
+        m.kodeMember?.toLowerCase() === cleaned
+    );
+
+    if (matched) {
+      setSelectedMember(matched);
+      setMemberSearch("");
+      setShowMemberDrop(false);
+    }
+  }, [memberSearch, membersList]);
+
   if (loadingMaster)
     return (
       <div
@@ -356,7 +375,10 @@ export default function ServiceHPPage() {
                         m.nama
                           .toLowerCase()
                           .includes(memberSearch.toLowerCase()) ||
-                        m.noTelp?.includes(memberSearch)
+                        m.noTelp?.includes(memberSearch) ||
+                        m.kodeMember
+                          ?.toLowerCase()
+                          .includes(memberSearch.toLowerCase())
                     )
                     .slice(0, 6)
                     .map((m) => (
@@ -370,7 +392,7 @@ export default function ServiceHPPage() {
                         className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1E1E2C] transition-colors border-b border-gray-100 dark:border-[#1E1E2C] last:border-0"
                       >
                         <span className="text-[12px] text-gray-700 dark:text-[#DBD9D2]">
-                          {m.nama}
+                          {m.nama} - {m.kodeMember}
                         </span>
                         <span className="text-[10px] text-gray-400 dark:text-[#5A5868]">
                           {m.noTelp}
@@ -397,7 +419,13 @@ export default function ServiceHPPage() {
                       {selectedMember.nama}
                     </span>
                   </div>
-                  <button type="button" onClick={() => setSelectedMember(null)}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedMember(null);
+                      setMemberSearch("");
+                    }}
+                  >
                     <X
                       size={12}
                       className="text-emerald-500 dark:text-emerald-400"

@@ -119,6 +119,13 @@ export default function HistoryTransaksiHome() {
     return "harian";
   };
 
+  const [debounce, setDebounce] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebounce(query), 400);
+    return () => clearTimeout(t);
+  }, [query]);
+
   const mapKategori = (k) => {
     switch (k) {
       case "Semua":
@@ -136,6 +143,34 @@ export default function HistoryTransaksiHome() {
         return "all";
     }
   };
+
+  const { data: produkSearch = [], isFetching: loadingProduk } = useQuery({
+    queryKey: ["search-produk", debounce],
+    queryFn: async () => {
+      const res = await api.get("/produk-search", {
+        params: { q: debounce },
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      return res.data.data;
+    },
+    enabled: !!debounce && debounce.length >= 2, // 🔥 minimal 2 huruf
+  });
+
+  const { data: memberSearch = [], isFetching: loadingMember } = useQuery({
+    queryKey: ["search-member", debounce],
+    queryFn: async () => {
+      const res = await api.get("search-member", {
+        params: { q: debounce },
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      return res.data.data;
+    },
+    enabled: !!debounce && debounce.length >= 2,
+  });
 
   const { data, isLoading, isError } = useQuery({
     queryKey: [
@@ -199,16 +234,36 @@ export default function HistoryTransaksiHome() {
     },
   ];
   const filtered = useMemo(() => {
-    return rows.filter((r) => {
-      const matchQ =
-        !query.trim() ||
-        r.nama.toLowerCase().includes(query.toLowerCase()) ||
-        r.id.toLowerCase().includes(query.toLowerCase());
+    const q = query.toLowerCase();
 
-      return matchQ;
+    const transaksi = rows.filter((r) => {
+      return (
+        !q || r.nama.toLowerCase().includes(q) || r.id.toLowerCase().includes(q)
+      );
     });
-  }, [rows, query]);
 
+    const produk = (produkSearch || []).map((p) => ({
+      id: p.id,
+      nama: p.nama,
+      kategori: "Produk",
+      nominal: p.hargaEceran || 0,
+      ts: new Date(),
+      type: "produk",
+      stok: p.stok,
+    }));
+
+    const member = (memberSearch || []).map((m) => ({
+      id: m.id,
+      nama: m.nama,
+      kategori: "Member",
+      nominal: 0,
+      ts: new Date(),
+      type: "member",
+      nomor: m.nomor,
+    }));
+
+    return [...transaksi, ...produk, ...member];
+  }, [rows, produkSearch, memberSearch, query]);
   function doDelete() {
     setRows((p) => p.filter((r) => r.id !== deleteId));
     setDeleteId(null);
@@ -300,7 +355,7 @@ export default function HistoryTransaksiHome() {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari nama / ID..."
+                placeholder="Cari nama / produk / data member..."
                 className="flex-1 min-w-0 bg-transparent outline-none text-xs dark:text-[#c8cce0] placeholder:text-[#3a3d52]"
               />
             </div>
@@ -421,26 +476,28 @@ export default function HistoryTransaksiHome() {
         </div>
       </div>
 
-      {/* Count */}
-      <p className="text-[13px] text-[#3a3d52] px-4 py-2 mb-2">
-        {filtered.length} transaksi ditemukan
-      </p>
+      {filtered.length === 0 && (
+        <p className="text-center text-sm  dark:text-[#3a3d52] py-8">
+          Tidak ada transaksi
+        </p>
+      )}
+
+      {loadingProduk && query.length >= 2 && (
+        <p className="text-center text-xs text-gray-400 py-2">
+          Mencari produk...
+        </p>
+      )}
 
       {/* List */}
-      <div className="flex flex-col px-2 md:grid md:grid-cols-3 gap-2">
-        {filtered.length === 0 && (
-          <p className="text-center text-sm  dark:text-[#3a3d52] py-8">
-            Tidak ada transaksi
-          </p>
-        )}
-
+      <div className="flex flex-col px-2 sm:grid sm:grid-cols-2 md:grid-cols-3 mt-3 gap-2">
         {filtered?.map((r) => {
           const s = BADGE[r.kategori] || DEFAULT_BADGE;
           const icon = ICON_MAP[r.kategori] || DEFAULT_ICON;
           const { tgl, jam } = formatTs(r.ts);
           const isDebit =
             r.kategori === "Pengeluaran" || r.kategori === "Pembelian";
-
+          const isProduk = r.type === "produk";
+          const isMember = r.type === "member";
           return (
             <div
               onClick={() => handleDetail(r)}
@@ -456,6 +513,20 @@ export default function HistoryTransaksiHome() {
                   {r.kategori}
                 </span>
 
+                {/* {isProduk ? (
+                  ""
+                ) : (
+                  <>
+                    <span className={s.dot}>{icon}</span>
+                    {r.kategori}
+                  </>
+                )} */}
+
+                {r.type === "produk" && (
+                  <span className="text-[11px] text-gray-400">
+                    Stok: {r.stok}
+                  </span>
+                )}
                 <span
                   className={`text-sm md:text-sm font-semibold ${
                     isDebit
@@ -463,10 +534,26 @@ export default function HistoryTransaksiHome() {
                       : "text-emerald-600 dark:text-emerald-400"
                   }`}
                 >
-                  {isDebit ? "−" : "+"}
+                  {r.type === "produk" ? "" : isDebit ? "−" : "+"}{" "}
                   {formatRp(r.nominal)}
                 </span>
               </div>
+
+              {isMember && (
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-[11px] text-gray-400">{r.nomor}</span>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(r.nomor);
+                    }}
+                    className="text-[10px] px-2 py-0.5 rounded bg-indigo-500 text-white hover:opacity-90"
+                  >
+                    Copy
+                  </button>
+                </div>
+              )}
 
               {/* Row 2 */}
               <div className="flex justify-between mt-1.5 gap-2">

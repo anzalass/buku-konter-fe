@@ -75,7 +75,7 @@ export default function Penggabungan() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="fixed bottom-16 left-0 right-0 z-50 px-3">
-        <div className="grid grid-cols-5 max-w-md mx-auto gap-2 px-2">
+        <div className="grid grid-cols-4 max-w-md mx-auto gap-2 px-2">
           {/* Penjualan */}
           <button
             onClick={() => nav("/dashboard/new-transaksi")}
@@ -99,7 +99,7 @@ export default function Penggabungan() {
           </button>
 
           {/* PPOB */}
-          <button
+          {/* <button
             onClick={openPPOB}
             className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white dark:bg-[#1e2130] border border-green-500 dark:border-[#2a2d42] rounded-xl hover:border-gray-300 dark:hover:bg-[#25283a] active:scale-95 transition-all"
           >
@@ -107,7 +107,7 @@ export default function Penggabungan() {
             <span className="text-[11px] text-gray-600 dark:text-gray-400 text-center leading-tight">
               PPOB
             </span>
-          </button>
+          </button> */}
 
           {/* Service HP */}
           <button
@@ -190,10 +190,9 @@ export default function Penggabungan() {
 
       <ModalFormUangKeluar
         open={uangKeluarForm}
-        onClose={() => {
-          setOpenModalUangKeluarForm(false);
-        }}
+        onClose={() => setOpenModalUangKeluarForm(false)}
         initial={null}
+        isLoading={createMutation.isPending} // 🔥 ini
         onSubmit={(data) => {
           createMutation.mutate(data);
         }}
@@ -244,7 +243,7 @@ function ToggleViewButton({ active, onClick, icon, label }) {
   );
 }
 
-function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
+function ModalFormUangKeluar({ open, onClose, onSubmit, initial, isLoading }) {
   const getTodayLocal = () => {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -361,6 +360,7 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
             </p>
             <input
               {...register("keterangan")}
+              disabled={isLoading}
               placeholder="Contoh: Beli perlengkapan toko..."
               className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
             bg-gray-50 dark:bg-[#111118]
@@ -391,6 +391,7 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
               render={({ field }) => (
                 <NumericFormat
                   value={field.value}
+                  disabled={isLoading}
                   onValueChange={(values) =>
                     field.onChange(values.floatValue || 0)
                   }
@@ -425,6 +426,7 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
               Tanggal
             </p>
             <input
+              disabled={isLoading}
               {...register("tanggal")}
               type="date"
               className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
@@ -451,11 +453,16 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-opacity
-            bg-green-600 dark:bg-indigo-600
-            hover:bg-green-700 dark:hover:bg-indigo-700"
+              disabled={isLoading}
+              className={`flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white transition
+    ${
+      isLoading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-700"
+    }
+  `}
             >
-              Simpan
+              {isLoading ? "Menyimpan..." : "Simpan"}
             </button>
           </div>
         </form>

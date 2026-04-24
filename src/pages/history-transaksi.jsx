@@ -427,121 +427,134 @@ function ModalFilter({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,.7)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-md rounded-xl p-5"
-        style={{
-          background: "#181820",
-          border: "1px solid #2A2A38",
-        }}
+        className="w-full max-w-md rounded-2xl p-5 shadow-xl
+    bg-white dark:bg-[#181820]
+    border border-gray-200 dark:border-[#2A2A38]
+    transition-all"
       >
-        <h2 className="text-sm font-semibold mb-4 text-white">
+        {/* Header */}
+        <h2 className="text-sm font-semibold mb-4 text-gray-800 dark:text-white">
           Filter Transaksi
         </h2>
 
-        {/* 🔥 STATUS */}
-        <p className="text-xs mb-2 text-gray-400">Status</p>
-        <div className="flex gap-2 mb-4">
-          {["active", "void"].map((s) => (
-            <button
-              key={s}
-              onClick={() => setStatus(s)}
-              className={`flex-1 py-2 rounded-lg text-xs font-medium`}
-              style={{
-                background: status === s ? "#4f46e5" : "#252530",
-                color: status === s ? "#fff" : "#6A6870",
-              }}
-            >
-              {s.toUpperCase()}
-            </button>
-          ))}
+        {/* STATUS */}
+        <div className="mb-4">
+          <p className="text-xs mb-2 text-gray-500 dark:text-[#6A6870]">
+            Status
+          </p>
+          <div className="flex gap-2">
+            {["active", "void"].map((s) => {
+              const active = status === s;
+
+              return (
+                <button
+                  key={s}
+                  onClick={() => setStatus(s)}
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all
+                ${
+                  active
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#252530] dark:text-[#6A6870] dark:hover:bg-[#2e2e3e]"
+                }
+              `}
+                >
+                  {s.toUpperCase()}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* 🔥 NAMA */}
-        <p className="text-xs mb-2 text-gray-400">Nama Pembeli</p>
-        <input
-          value={namaFilter}
-          onChange={(e) => setNamaFilter(e.target.value)}
-          placeholder="Cari nama..."
-          className="w-full px-3 py-2 rounded-lg text-xs mb-4"
-          style={{
-            background: "#111118",
-            border: "1px solid #2A2A38",
-            color: "#ECEAE3",
-          }}
-        />
-
-        {/* 🔥 PERIODE */}
-        <p className="text-xs mb-2 text-gray-400">Periode</p>
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          {["harian", "mingguan", "bulanan", "custom"].map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriode(p)}
-              className="py-2 rounded-lg text-xs"
-              style={{
-                background: periode === p ? "#4f46e5" : "#252530",
-                color: periode === p ? "#fff" : "#6A6870",
-              }}
-            >
-              {p.toUpperCase()}
-            </button>
-          ))}
+        {/* NAMA */}
+        <div className="mb-4">
+          <p className="text-xs mb-2 text-gray-500 dark:text-[#6A6870]">
+            Nama Pembeli
+          </p>
+          <input
+            value={namaFilter}
+            onChange={(e) => setNamaFilter(e.target.value)}
+            placeholder="Cari nama..."
+            className="w-full px-3 py-2 rounded-lg text-xs outline-none transition
+        bg-gray-50 text-gray-800 placeholder:text-gray-400
+        border border-gray-200 focus:ring-2 focus:ring-indigo-500
+        dark:bg-[#111118] dark:text-[#ECEAE3] dark:border-[#2A2A38] dark:placeholder:text-[#6A6870]"
+          />
         </div>
 
-        {/* 🔥 CUSTOM DATE */}
+        {/* PERIODE */}
+        <div className="mb-4">
+          <p className="text-xs mb-2 text-gray-500 dark:text-[#6A6870]">
+            Periode
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {["harian", "mingguan", "bulanan", "custom"].map((p) => {
+              const active = periode === p;
+
+              return (
+                <button
+                  key={p}
+                  onClick={() => setPeriode(p)}
+                  className={`py-2 rounded-lg text-xs font-medium transition-all
+                ${
+                  active
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#252530] dark:text-[#6A6870] dark:hover:bg-[#2e2e3e]"
+                }
+              `}
+                >
+                  {p.toUpperCase()}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* CUSTOM DATE */}
         {periode === "custom" && (
-          <div className="flex gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-2 py-2 rounded-lg text-xs"
-              style={{
-                background: "#111118",
-                border: "1px solid #2A2A38",
-                color: "#ECEAE3",
-              }}
+              className="w-full px-3 py-2 rounded-lg text-xs outline-none
+          bg-gray-50 border border-gray-200 text-gray-800
+          focus:ring-2 focus:ring-indigo-500
+          dark:bg-[#111118] dark:border-[#2A2A38] dark:text-[#ECEAE3]"
             />
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-2 py-2 rounded-lg text-xs"
-              style={{
-                background: "#111118",
-                border: "1px solid #2A2A38",
-                color: "#ECEAE3",
-              }}
+              className="w-full px-3 py-2 rounded-lg text-xs outline-none
+          bg-gray-50 border border-gray-200 text-gray-800
+          focus:ring-2 focus:ring-indigo-500
+          dark:bg-[#111118] dark:border-[#2A2A38] dark:text-[#ECEAE3]"
             />
           </div>
         )}
 
-        {/* 🔥 ACTION */}
+        {/* ACTION */}
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 py-2 rounded-lg text-xs"
-            style={{
-              background: "#252530",
-              color: "#6A6870",
-            }}
+            className="flex-1 py-2 rounded-lg text-xs font-medium transition
+        bg-gray-100 text-gray-600 hover:bg-gray-200
+        dark:bg-[#252530] dark:text-[#6A6870] dark:hover:bg-[#2e2e3e]"
           >
             Batal
           </button>
+
           <button
             onClick={() => {
               onApply();
               onClose();
             }}
-            className="flex-1 py-2 rounded-lg text-xs"
-            style={{
-              background: "#ECEAE3",
-              color: "#0D0D10",
-            }}
+            className="flex-1 py-2 rounded-lg text-xs font-semibold transition
+        bg-indigo-600 text-white hover:bg-indigo-700"
           >
             Terapkan
           </button>

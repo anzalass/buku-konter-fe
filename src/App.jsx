@@ -35,6 +35,7 @@ import LaporanUser from "./pages/user-record";
 import { setTheme } from "./utils/helperTheme";
 import PrintTransaksi from "./pages/print-trans-acc";
 import PrintService from "./pages/print-service-hp";
+import LandingPage from "./pages/landing-page";
 
 function App() {
   const { user, isLoading, isCheckingAuth, fetchUser } = useAuthStore();
@@ -60,6 +61,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<LandingPage />} />
 
       <Route path="/super-admin" element={<SuperAdminDashboard />} />
 
