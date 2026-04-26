@@ -24,6 +24,8 @@ import api from "../api/client";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 // ===== MODAL COMPONENTS (Extracted to prevent re-render/focus loss) =====
 
@@ -741,6 +743,8 @@ const UserCard = ({ user, formatDate, onEditUser, onEditPassword }) => {
 
 // ===== MAIN DASHBOARD COMPONENT =====
 export default function SuperAdminDashboard() {
+  const { user } = useAuthStore();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [isCreateTokoModalOpen, setIsCreateTokoModalOpen] = useState(false);
@@ -756,8 +760,43 @@ export default function SuperAdminDashboard() {
     useState(false);
   const [isEditToko, setIsEditToko] = useState(false);
   const [dataToko, setDataToko] = useState(null);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(false);
+  const nav = useNavigate();
 
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (user && user.role !== "Super Admin") {
+      nav("/dashboard/penggabungan");
+    }
+  }, [user]);
+
+  const handleVerifyAdmin = async () => {
+    try {
+      setLoadingAuth(true);
+
+      await api.post(
+        "super-admin-auth",
+        {
+          password: adminPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            "x-admin-password": adminPassword,
+          },
+        }
+      );
+
+      setIsVerified(true);
+    } catch (err) {
+      toast.error("Password salah / tidak punya akses");
+    } finally {
+      setLoadingAuth(false);
+    }
+  };
 
   // Fetch Tokos with filters
   const { data: tokos = [], isLoading: loadingTokos } = useQuery({
@@ -769,6 +808,9 @@ export default function SuperAdminDashboard() {
           isActive:
             activeFilter === "all" ? undefined : activeFilter === "active",
         },
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
       });
       return res.data.data;
     },
@@ -777,7 +819,15 @@ export default function SuperAdminDashboard() {
   // Mutations
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, isActive }) =>
-      api.put(`super-admin/toko/${id}`, { isActive: !isActive }),
+      api.put(
+        `super-admin/toko/${id}`,
+        { isActive: !isActive },
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      ),
     onSuccess: (_, { isActive }) => {
       toast.success(
         `Toko berhasil ${isActive ? "dinonaktifkan" : "diaktifkan"}!`
@@ -792,7 +842,12 @@ export default function SuperAdminDashboard() {
   });
 
   const deleteTokoMutation = useMutation({
-    mutationFn: (id) => api.delete(`super-admin/toko/${id}`),
+    mutationFn: (id) =>
+      api.delete(`super-admin/toko/${id}`, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      }),
     onSuccess: () => {
       toast.success("Toko berhasil dinonaktifkan!");
       queryClient.invalidateQueries({ queryKey: ["tokos"] });
@@ -850,6 +905,77 @@ export default function SuperAdminDashboard() {
         "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
     };
   };
+
+  if (!isVerified && user?.role === "Super Admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0d0f18] px-4">
+        <div className="w-full max-w-sm">
+          {/* Card */}
+          <div className="bg-white dark:bg-[#13151f] rounded-2xl border border-gray-100 dark:border-[#1e2130] shadow-xl shadow-gray-100/50 dark:shadow-none p-8">
+            {/* Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 flex items-center justify-center">
+                <span className="text-2xl">🔐</span>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="text-center mb-6">
+              <h2 className="text-base font-bold text-gray-900 dark:text-[#ECEAE3] mb-1">
+                Verifikasi Super Admin
+              </h2>
+              <p className="text-xs text-gray-400 dark:text-[#5A5868]">
+                Masukkan password untuk melanjutkan
+              </p>
+            </div>
+
+            {/* Input */}
+            <div className="mb-3">
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-[#5A5868] mb-1.5 block">
+                Password
+              </label>
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-[#111118] border border-gray-200 dark:border-[#2A2A38] focus-within:border-blue-400 dark:focus-within:border-blue-600 transition-colors">
+                <span className="text-gray-300 dark:text-[#3A3848] text-sm shrink-0">
+                  🔑
+                </span>
+                <input
+                  type="password"
+                  placeholder="Masukkan password..."
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && !loadingAuth && handleVerifyAdmin()
+                  }
+                  className="flex-1 bg-transparent border-none outline-none text-[13px] text-gray-800 dark:text-[#ECEAE3] placeholder:text-gray-300 dark:placeholder:text-[#3A3848]"
+                />
+              </div>
+            </div>
+
+            {/* Button */}
+            <button
+              onClick={handleVerifyAdmin}
+              disabled={loadingAuth || !adminPassword}
+              className="w-full mt-2 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loadingAuth ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Memverifikasi...
+                </>
+              ) : (
+                <>🔓 Masuk</>
+              )}
+            </button>
+          </div>
+
+          {/* Footer note */}
+          <p className="text-center text-[11px] text-gray-300 dark:text-[#3A3848] mt-4">
+            Akses terbatas untuk Super Admin
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   if (loadingTokos) {

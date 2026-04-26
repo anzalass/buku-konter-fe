@@ -32,7 +32,7 @@ export default function SettingUser() {
         showConfirmButton: false,
       });
 
-      window.location.href = "/login";
+      window.location.href = "/";
     } catch (error) {
       console.log(error);
 
@@ -45,7 +45,7 @@ export default function SettingUser() {
   };
 
   return (
-    <div className="flex flex-col justify-between mx-auto max-w-7xl ">
+    <div className="flex flex-col pb-20 justify-between mx-auto max-w-7xl ">
       <StoreSettingsPage />
       <UserManagementPage />
       <div className="px-4">
