@@ -175,8 +175,19 @@ export default function PrintService() {
         <div className="divider" />
 
         {/* STATUS */}
-        <div className="center">
+        {/* <div className="center">
           Status: <b>{data.status}</b>
+        </div> */}
+
+        <div className="center">
+          Garansi Berakhir:{" "}
+          <b>
+            {new Date(data?.garansiBerakhir)?.toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
+          </b>
         </div>
 
         {/* FOOTER */}

@@ -46,128 +46,6 @@ const KATEGORI_BADGE = {
 const fmt = (n) => (n ? "Rp " + Number(n).toLocaleString("id-ID") : "-");
 
 // ─── seed data ────────────────────────────────────────────────────────────────
-const SEED = [
-  {
-    id: 1,
-    nama: "5 GB 1 Hari",
-    kategori: "Voucher",
-    sub_kategori: "Data",
-    brand: "Axis",
-    stok: 88,
-    hargaModal: 9000,
-    hargaGrosir: 10000,
-    hargaEceran: 11000,
-    penempatan: "Etalase 22",
-  },
-  {
-    id: 2,
-    nama: "3 GB 1 Hari",
-    kategori: "Voucher",
-    sub_kategori: "Data",
-    brand: "Axis",
-    stok: 88,
-    hargaModal: 1000,
-    hargaGrosir: 2000,
-    hargaEceran: 3000,
-    penempatan: "Etalase 22",
-  },
-  {
-    id: 3,
-    nama: "5 GB 2 Hari",
-    kategori: "Voucher",
-    sub_kategori: "Data",
-    brand: "Indosat",
-    stok: 89,
-    hargaModal: 9000,
-    hargaGrosir: 10000,
-    hargaEceran: 11000,
-    penempatan: "Etalase 2",
-  },
-  {
-    id: 4,
-    nama: "2.5 GB 5 Hari",
-    kategori: "Voucher",
-    sub_kategori: "Data",
-    brand: "Telkomsel",
-    stok: 88,
-    hargaModal: 10000,
-    hargaGrosir: 11000,
-    hargaEceran: 14000,
-    penempatan: "Etalase 2",
-  },
-  {
-    id: 5,
-    nama: "Papan Cas Infinix Smart 6",
-    kategori: "Sparepart",
-    sub_kategori: "PCB",
-    brand: "MacPlus",
-    stok: 49,
-    hargaModal: 5000,
-    hargaGrosir: null,
-    hargaEceran: 10000,
-    penempatan: "Etalase 22",
-  },
-  {
-    id: 6,
-    nama: "BLP 809 Baterai Oppo A5s",
-    kategori: "Sparepart",
-    sub_kategori: "Baterai",
-    brand: "Braderpart",
-    stok: 49,
-    hargaModal: 70000,
-    hargaGrosir: null,
-    hargaEceran: 90000,
-    penempatan: "Etalase 2",
-  },
-  {
-    id: 7,
-    nama: "LCD Vivo Y12S Y15S Y20",
-    kategori: "Sparepart",
-    sub_kategori: "LCD",
-    brand: "Meetoo",
-    stok: 49,
-    hargaModal: 90000,
-    hargaGrosir: null,
-    hargaEceran: 100000,
-    penempatan: "Java 1",
-  },
-  {
-    id: 8,
-    nama: "Kabel Data C to C Daf",
-    kategori: "Aksesoris",
-    sub_kategori: "Kabel",
-    brand: "DAF",
-    stok: 99,
-    hargaModal: 20000,
-    hargaGrosir: null,
-    hargaEceran: 30000,
-    penempatan: "Etalase 2",
-  },
-  {
-    id: 9,
-    nama: "Robot Set Micro",
-    kategori: "Aksesoris",
-    sub_kategori: "Charger",
-    brand: "Robot",
-    stok: 100,
-    hargaModal: 20000,
-    hargaGrosir: null,
-    hargaEceran: 50000,
-    penempatan: "Etalase 22",
-  },
-  {
-    id: 10,
-    nama: "Extra Bass Headset Coop",
-    kategori: "Aksesoris",
-    sub_kategori: "Audio",
-    brand: "Vgen",
-    stok: 99,
-    hargaModal: 70000,
-    hargaGrosir: null,
-    hargaEceran: 100000,
-    penempatan: "Etalase 22",
-  },
-];
 
 // ─── small reusable pieces ────────────────────────────────────────────────────
 function Badge({ variant = "blue", children }) {
@@ -289,6 +167,8 @@ function ModalForm({ open, onClose, onSave, initial, user }) {
       });
     },
   });
+
+  const isLoading = mutation.isPending;
   const onSubmit = (data) => {
     const payload = {
       ...data,
@@ -310,9 +190,9 @@ function ModalForm({ open, onClose, onSave, initial, user }) {
 
   const CurrencyField = ({ label, name, required }) => (
     <div className="mb-3">
-      <label className="block text-[10px] mb-1 text-[#6A6870]">
+      <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">
         {label}
-        {required && <span className="text-[#D07070] ml-0.5">*</span>}
+        {required && <span className="text-red-400 ml-1">*</span>}
       </label>
 
       <Controller
@@ -323,39 +203,42 @@ function ModalForm({ open, onClose, onSave, initial, user }) {
         }}
         render={({ field }) => (
           <NumericFormat
-            value={field.value ?? ""} // 🔥 penting
+            value={field.value ?? ""}
             thousandSeparator="."
             decimalSeparator=","
             prefix="Rp "
             allowNegative={false}
             placeholder="Rp 0"
-            className="w-full rounded-lg px-3 py-2 text-[11px] outline-none"
-            style={{
-              background: "#111118",
-              border: "1px solid #2A2A38",
-              color: "#ECEAE3",
-            }}
-            onValueChange={(values) => {
-              field.onChange(values.floatValue ?? null); // 🔥 WAJIB floatValue
-            }}
+            onValueChange={(values) =>
+              field.onChange(values.floatValue ?? null)
+            }
+            className={`w-full rounded-xl px-3 py-2 text-sm outline-none transition-colors
+          bg-gray-50 dark:bg-[#111118]
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400 dark:placeholder:text-gray-500
+          border ${
+            errors[name]
+              ? "border-red-400"
+              : "border-gray-200 dark:border-[#2A2A38]"
+          }
+          focus:border-indigo-500`}
           />
         )}
       />
 
       {errors[name] && (
-        <p className="text-[10px] mt-0.5 text-[#D07070]">
-          {errors[name].message}
-        </p>
+        <p className="text-xs mt-1 text-red-400">{errors[name].message}</p>
       )}
     </div>
   );
 
   const Field = ({ label, name, type = "text", placeholder, required }) => (
     <div className="mb-3">
-      <label className="block text-[10px] mb-1" style={{ color: "#6A6870" }}>
+      <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">
         {label}
-        {required && <span className="text-[#D07070] ml-0.5">*</span>}
+        {required && <span className="text-red-400 ml-1">*</span>}
       </label>
+
       <input
         type={type}
         placeholder={placeholder}
@@ -363,44 +246,45 @@ function ModalForm({ open, onClose, onSave, initial, user }) {
           name,
           required ? { required: `${label} wajib diisi` } : {}
         )}
-        className="w-full rounded-lg px-3 py-2 text-[11px] outline-none transition-colors"
-        style={{
-          background: "#111118",
-          border: `1px solid ${errors[name] ? "#D07070" : "#2A2A38"}`,
-          color: "#ECEAE3",
-          fontFamily: "inherit",
-        }}
-        onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-        onBlur={(e) =>
-          (e.target.style.borderColor = errors[name] ? "#D07070" : "#2A2A38")
-        }
+        className={`w-full rounded-xl px-3 py-2 text-sm outline-none transition-colors
+      bg-gray-50 dark:bg-[#111118]
+      text-gray-800 dark:text-white
+      placeholder:text-gray-400 dark:placeholder:text-gray-500
+      border ${
+        errors[name]
+          ? "border-red-400"
+          : "border-gray-200 dark:border-[#2A2A38]"
+      }
+      focus:border-indigo-500`}
       />
+
       {errors[name] && (
-        <p className="text-[10px] mt-0.5" style={{ color: "#D07070" }}>
-          {errors[name].message}
-        </p>
+        <p className="text-xs mt-1 text-red-400">{errors[name].message}</p>
       )}
     </div>
   );
 
   const SelectField = ({ label, name, options, required }) => (
     <div className="mb-3">
-      <label className="block text-[10px] mb-1" style={{ color: "#6A6870" }}>
+      <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">
         {label}
-        {required && <span className="text-[#D07070] ml-0.5">*</span>}
+        {required && <span className="text-red-400 ml-1">*</span>}
       </label>
+
       <select
         {...register(
           name,
           required ? { required: `${label} wajib diisi` } : {}
         )}
-        className="w-full rounded-lg px-3 py-2 text-[11px] outline-none appearance-none"
-        style={{
-          background: "#111118",
-          border: `1px solid ${errors[name] ? "#D07070" : "#2A2A38"}`,
-          color: "#ECEAE3",
-          fontFamily: "inherit",
-        }}
+        className={`w-full rounded-xl px-3 py-2 text-sm outline-none transition-colors
+      bg-gray-50 dark:bg-[#111118]
+      text-gray-800 dark:text-white
+      border ${
+        errors[name]
+          ? "border-red-400"
+          : "border-gray-200 dark:border-[#2A2A38]"
+      }
+      focus:border-indigo-500`}
       >
         <option value="">Pilih {label}</option>
         {options.map((o) => (
@@ -409,40 +293,36 @@ function ModalForm({ open, onClose, onSave, initial, user }) {
           </option>
         ))}
       </select>
+
       {errors[name] && (
-        <p className="text-[10px] mt-0.5" style={{ color: "#D07070" }}>
-          {errors[name].message}
-        </p>
+        <p className="text-xs mt-1 text-red-400">{errors[name].message}</p>
       )}
     </div>
   );
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 mb-10"
-      style={{
-        background: "rgba(0,0,0,.8)",
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-md rounded-2xl p-5 overflow-y-auto"
-        style={{
-          background: "#181820",
-          border: "1px solid #2A2A38",
-          maxHeight: "90vh",
-        }}
+        className="w-full max-w-lg rounded-2xl p-5 overflow-y-auto shadow-xl
+    bg-white dark:bg-[#181820]
+    border border-gray-200 dark:border-[#2A2A38]
+    max-h-[90vh]"
       >
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-medium" style={{ color: "#ECEAE3" }}>
+          <span className="text-base font-semibold text-gray-800 dark:text-white">
             {initial ? "Edit Produk" : "Tambah Produk"}
           </span>
+
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-[7px] flex items-center justify-center"
-            style={{ background: "#252530" }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center
+    bg-gray-100 dark:bg-[#252530]
+    hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
           >
-            <X size={11} color="#6A6878" />
+            <X size={14} className="text-gray-500 dark:text-gray-400" />
           </button>
         </div>
 
@@ -509,28 +389,42 @@ function ModalForm({ open, onClose, onSave, initial, user }) {
             <CurrencyField label="Eceran" name="hargaEceran" required={true} />
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mt-1">
+          <div className="grid grid-cols-2 gap-2 mt-2">
             <button
               type="button"
               onClick={() => {
                 reset();
                 onClose();
               }}
-              className="py-2.5 rounded-[9px] text-[11px] font-semibold"
-              style={{
-                background: "#1A1A28",
-                color: "#6A6878",
-                border: "1px solid #2A2A38",
-              }}
+              className="py-2.5 rounded-xl text-sm font-medium
+    bg-gray-100 dark:bg-[#1A1A28]
+    text-gray-600 dark:text-gray-400
+    border border-gray-200 dark:border-[#2A2A38]
+    hover:bg-gray-200 dark:hover:bg-[#222232]"
             >
               Batal
             </button>
+
             <button
               type="submit"
-              className="py-2.5 rounded-[9px] text-[11px] font-semibold"
-              style={{ background: "#ECEAE3", color: "#0D0D10" }}
+              disabled={isLoading}
+              className={`py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition
+    ${
+      isLoading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-indigo-600 hover:bg-indigo-700 text-white"
+    }`}
             >
-              {initial ? "Simpan" : "Tambah"}
+              {isLoading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Menyimpan...
+                </>
+              ) : initial ? (
+                "Simpan"
+              ) : (
+                "Tambah"
+              )}
             </button>
           </div>
         </form>
@@ -667,7 +561,7 @@ export default function Product() {
 
   // State filter
   const [filter, setFilter] = useState({
-    nama: "",
+    search: "",
     brand: "",
     kategori: "",
     penempatan: "",
@@ -1044,7 +938,7 @@ function ModalUpdateStok({ open, onClose, item, onSave }) {
 }
 
 function ModalFilter({ open, onClose, onApply }) {
-  const [nama, setNama] = useState("");
+  const [search, setSearch] = useState("");
   const [brand, setBrand] = useState("");
   const [penempatan, setPenempatan] = useState("");
   const [kategori, setKategori] = useState("");
@@ -1059,7 +953,7 @@ function ModalFilter({ open, onClose, onApply }) {
   if (!open) return null;
 
   const reset = () => {
-    setNama("");
+    setSearch("");
     setBrand("");
     setPenempatan("");
     setKategori("");
@@ -1082,7 +976,7 @@ function ModalFilter({ open, onClose, onApply }) {
     }
 
     onApply({
-      nama,
+      search,
       brand,
       penempatan,
       kategori,
@@ -1096,9 +990,16 @@ function ModalFilter({ open, onClose, onApply }) {
     onClose();
   };
 
-  const inputClass =
-    "w-full rounded-lg px-3 py-2 text-[11px] outline-none mb-3 bg-[#111118] border border-[#2A2A38] text-[#ECEAE3]";
-
+  const inputClass = `
+w-full px-3 py-2 rounded-lg text-[11px] mb-3
+bg-gray-50 dark:bg-[#111118]
+border border-gray-200 dark:border-[#2A2A38]
+text-gray-900 dark:text-[#ECEAE3]
+placeholder-gray-400 dark:placeholder-gray-500
+focus:outline-none focus:ring-2 focus:ring-indigo-500/40
+focus:border-indigo-500
+transition-colors duration-200
+`;
   const providerList = [
     "Axis",
     "Smartfren",
@@ -1120,42 +1021,47 @@ function ModalFilter({ open, onClose, onApply }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3"
-      style={{ background: "rgba(0,0,0,.8)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 dark:bg-black/70 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-md rounded-2xl p-5 overflow-y-auto"
-        style={{
-          background: "#181820",
-          border: "1px solid #2A2A38",
-          maxHeight: "90vh",
-        }}
+        className="w-full max-w-md rounded-2xl p-4 sm:p-5 overflow-y-auto max-h-[90vh]
+    bg-white dark:bg-[#181820]
+    border border-gray-200 dark:border-[#2A2A38]
+    shadow-xl transition-colors duration-300"
       >
         {/* HEADER */}
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-medium text-[#ECEAE3]">
+          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             Filter Produk
           </span>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded flex items-center justify-center bg-[#252530]"
+            className="w-7 h-7 rounded flex items-center justify-center
+        bg-gray-100 dark:bg-[#252530]
+        text-gray-600 dark:text-gray-400
+        hover:bg-gray-200 dark:hover:bg-[#2f3245]
+        transition"
           >
             ✕
           </button>
         </div>
 
         {/* 🔍 NAMA */}
-        <label className="text-[10px] text-gray-400">Nama Produk</label>
+        <label className="text-[10px] text-gray-500 dark:text-gray-400">
+          Nama Produk
+        </label>
         <input
-          value={nama}
-          onChange={(e) => setNama(e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Cari nama produk..."
           className={inputClass}
         />
 
         {/* 📂 KATEGORI */}
-        <label className="text-[10px] text-gray-400">Kategori</label>
+        <label className="text-[10px] text-gray-500 dark:text-gray-400">
+          Kategori
+        </label>
         <select
           value={kategori}
           onChange={(e) => {
@@ -1174,7 +1080,9 @@ function ModalFilter({ open, onClose, onApply }) {
         {/* 🔥 CONDITIONAL */}
         {kategori === "Voucher" && (
           <>
-            <label className="text-[10px] text-gray-400">Provider</label>
+            <label className="text-[10px] bg-white text-gray-500 dark:text-gray-400">
+              Provider
+            </label>
             <select
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
@@ -1190,7 +1098,9 @@ function ModalFilter({ open, onClose, onApply }) {
 
         {(kategori === "Aksesoris" || kategori === "Sparepart") && (
           <>
-            <label className="text-[10px] text-gray-400">Sub Kategori</label>
+            <label className="text-[10px] text-gray-500 dark:text-gray-400">
+              Sub Kategori
+            </label>
             <select
               value={subKategori}
               onChange={(e) => setSubKategori(e.target.value)}
@@ -1205,7 +1115,9 @@ function ModalFilter({ open, onClose, onApply }) {
         )}
 
         {/* 📍 PENEMPATAN */}
-        <label className="text-[10px] text-gray-400">Penempatan</label>
+        <label className="text-[10px] text-gray-500 dark:text-gray-400">
+          Penempatan
+        </label>
         <input
           value={penempatan}
           onChange={(e) => setPenempatan(e.target.value)}
@@ -1214,8 +1126,10 @@ function ModalFilter({ open, onClose, onApply }) {
         />
 
         {/* 📅 CREATED */}
-        <label className="text-[10px] text-gray-400">Created At</label>
-        <div className="flex gap-2 mb-3">
+        <label className="text-[10px] text-gray-500 dark:text-gray-400">
+          Created At
+        </label>
+        <div className="flex flex-col sm:flex-row gap-2 mb-3">
           <input
             type="date"
             value={createdStart}
@@ -1231,8 +1145,10 @@ function ModalFilter({ open, onClose, onApply }) {
         </div>
 
         {/* 🔄 UPDATED */}
-        <label className="text-[10px] text-gray-400">Updated At</label>
-        <div className="flex gap-2 mb-3">
+        <label className="text-[10px] text-gray-500 dark:text-gray-400">
+          Updated At
+        </label>
+        <div className="flex flex-col sm:flex-row gap-2 mb-3">
           <input
             type="date"
             value={updatedStart}
@@ -1251,13 +1167,21 @@ function ModalFilter({ open, onClose, onApply }) {
         <div className="grid grid-cols-2 gap-2 mt-3">
           <button
             onClick={reset}
-            className="py-2 rounded text-xs bg-[#1A1A28] text-gray-400 border border-[#2A2A38]"
+            className="py-2 rounded text-xs font-medium
+        bg-gray-100 dark:bg-[#252530]
+        text-gray-600 dark:text-gray-400
+        hover:bg-gray-200 dark:hover:bg-[#2f3245]
+        transition"
           >
             Reset
           </button>
+
           <button
             onClick={apply}
-            className="py-2 rounded text-xs bg-white text-black font-semibold"
+            className="py-2 rounded text-xs font-semibold
+        bg-indigo-600 hover:bg-indigo-700
+        text-white shadow-md shadow-indigo-500/20
+        transition"
           >
             Terapkan
           </button>

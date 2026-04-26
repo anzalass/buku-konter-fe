@@ -11,6 +11,7 @@ import {
   X,
   CheckCircle,
   DollarSign,
+  Loader2,
 } from "lucide-react";
 import Swal from "sweetalert2"; // ✅ Import SweetAlert
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,165 +20,6 @@ import api from "../api/client";
 import { useNavigate } from "react-router-dom";
 import { NumericFormat } from "react-number-format";
 
-// Tambahkan stok di data dummy
-// const PRODUK_TERLARIS = [
-//   {
-//     id: 1,
-//     nama: "Voucher Telkomsel 10K",
-//     hargaGrosir: 10500,
-//     hargaEceran: 11000,
-//     kategori: "Voucher",
-//     sub_kategori: "",
-//     brand: "Telkomsel",
-//     iconBg: "#1e1b4b",
-//     iconColor: "#818cf8",
-//     icon: "V",
-//     barcode: "VT10K001",
-//     stok: 50, // ✅ Tambahkan stok
-//   },
-//   {
-//     id: 2,
-//     nama: "Voucher XL 25K",
-//     hargaGrosir: 25500,
-//     hargaEceran: 26500,
-//     kategori: "Voucher",
-//     sub_kategori: "",
-//     brand: "XL",
-//     iconBg: "#1e1b4b",
-//     iconColor: "#818cf8",
-//     icon: "V",
-//     barcode: "VXL25K002",
-//     stok: 30,
-//   },
-//   {
-//     id: 3,
-//     nama: "Voucher Axis 10K",
-//     hargaGrosir: 10000,
-//     hargaEceran: 11000,
-//     kategori: "Voucher",
-//     sub_kategori: "",
-//     brand: "Axis",
-//     iconBg: "#1e1b4b",
-//     iconColor: "#818cf8",
-//     icon: "V",
-//     barcode: "VAX10K003",
-//     stok: 25,
-//   },
-//   {
-//     id: 4,
-//     nama: "Casing iPhone 14",
-//     hargaGrosir: 75000,
-//     hargaEceran: 85000,
-//     kategori: "Aksesoris",
-//     sub_kategori: "Casing",
-//     brand: "Apple",
-//     iconBg: "#2d1657",
-//     iconColor: "#a78bfa",
-//     icon: "A",
-//     barcode: "CASIP14004",
-//     stok: 20,
-//   },
-//   {
-//     id: 5,
-//     nama: "Tempered Glass",
-//     hargaGrosir: 20000,
-//     hargaEceran: 25000,
-//     kategori: "Aksesoris",
-//     sub_kategori: "Kaca",
-//     brand: "Universal",
-//     iconBg: "#2d1657",
-//     iconColor: "#a78bfa",
-//     icon: "A",
-//     barcode: "TEMGLS005",
-//     stok: 15,
-//   },
-//   {
-//     id: 6,
-//     nama: "Charger Type-C 25W",
-//     hargaGrosir: 110000,
-//     hargaEceran: 120000,
-//     kategori: "Aksesoris",
-//     sub_kategori: "Charger",
-//     brand: "Samsung",
-//     iconBg: "#2d1657",
-//     iconColor: "#a78bfa",
-//     icon: "A",
-//     barcode: "CHGTC25W006",
-//     stok: 10,
-//   },
-//   {
-//     id: 7,
-//     nama: "LCD Samsung A12",
-//     hargaGrosir: 250000,
-//     hargaEceran: 280000,
-//     kategori: "Sparepart",
-//     sub_kategori: "LCD",
-//     brand: "Samsung",
-//     iconBg: "#431407",
-//     iconColor: "#fb923c",
-//     icon: "P",
-//     barcode: "LCDSA12007",
-//     stok: 5,
-//   },
-//   {
-//     id: 8,
-//     nama: "Baterai Xiaomi Redmi 9",
-//     hargaGrosir: 60000,
-//     hargaEceran: 65000,
-//     kategori: "Sparepart",
-//     sub_kategori: "Baterai",
-//     brand: "Xiaomi",
-//     iconBg: "#431407",
-//     iconColor: "#fb923c",
-//     icon: "P",
-//     barcode: "BATXM9008",
-//     stok: 8,
-//   },
-//   {
-//     id: 9,
-//     nama: "Papan Cas Oppo A54",
-//     hargaGrosir: 85000,
-//     hargaEceran: 95000,
-//     kategori: "Sparepart",
-//     sub_kategori: "Papan Cas",
-//     brand: "Oppo",
-//     iconBg: "#431407",
-//     iconColor: "#fb923c",
-//     icon: "P",
-//     barcode: "PCOPA54009",
-//     stok: 12,
-//   },
-//   {
-//     id: 10,
-//     nama: "HP Samsung A12",
-//     hargaGrosir: 1800000,
-//     hargaEceran: 1900000,
-//     kategori: "Handphone",
-//     sub_kategori: "",
-//     brand: "Samsung",
-//     iconBg: "#052e16",
-//     iconColor: "#34d399",
-//     icon: "H",
-//     barcode: "HPSAMA12010",
-//     stok: 3,
-//   },
-//   {
-//     id: 11,
-//     nama: "HP Oppo A54",
-//     hargaGrosir: 1700000,
-//     hargaEceran: 1800000,
-//     kategori: "Handphone",
-//     sub_kategori: "",
-//     brand: "Oppo",
-//     iconBg: "#052e16",
-//     iconColor: "#34d399",
-//     icon: "H",
-//     barcode: "HPOPA54011",
-//     stok: 2,
-//   },
-// ];
-
-// Konfigurasi filter (tetap sama)
 const FILTER_CONFIG = {
   Voucher: {
     type: "brand",
@@ -209,6 +51,8 @@ export default function TransaksiPage() {
   const queryClient = useQueryClient();
   const nav = useNavigate();
 
+  const [uangBayar, setUangBayar] = useState(0);
+  const [showKembalianModal, setShowKembalianModal] = useState(false);
   const [member, setMember] = useState("");
   const [potonganHarga, setPotonganHarga] = useState(0);
   const [search, setSearch] = useState("");
@@ -425,7 +269,10 @@ export default function TransaksiPage() {
   const total = keranjang.reduce((s, k) => s + getHarga(k) * k.qty, 0);
   const totalItem = keranjang.reduce((s, k) => s + k.qty, 0);
 
-  const bayarMutation = useMutation({
+  const {
+    mutate: bayarMutate,
+    isPending, // 🔥 ini loading state
+  } = useMutation({
     mutationFn: async (payload) => {
       return await api.post("/transaksi-new", payload, {
         headers: {
@@ -433,12 +280,9 @@ export default function TransaksiPage() {
         },
       });
     },
-
     onSuccess: () => {
-      // 🔄 refresh data transaksi
       queryClient.invalidateQueries(["history"]);
 
-      // ✅ sukses UI
       setSukses(true);
 
       setTimeout(() => {
@@ -450,7 +294,6 @@ export default function TransaksiPage() {
         nav("/dashboard/penggabungan");
       }, 500);
     },
-
     onError: (err) => {
       console.error(err);
 
@@ -476,8 +319,12 @@ export default function TransaksiPage() {
       })),
     };
 
-    bayarMutation.mutate(payload);
+    bayarMutate(payload);
   };
+
+  const grandTotal = total - potonganHarga;
+  const kembalian = uangBayar - grandTotal;
+  const keyword = memberSearch.toLowerCase();
 
   return (
     <div className="min-h-screen px-2 mt-2">
@@ -631,6 +478,9 @@ export default function TransaksiPage() {
                   <p className="text-[14px] font-medium truncate text-gray-800 dark:text-[#e2e4ef]">
                     {p.nama}
                   </p>
+                  <p className="text-[12px] font-medium truncate text-gray-800 dark:text-[#e2e4ef]">
+                    {p.brand}
+                  </p>
                   <p className="text-[15px] font-bold text-emerald-600 dark:text-emerald-400">
                     {fmt(getHarga(p))}
                   </p>
@@ -658,11 +508,31 @@ export default function TransaksiPage() {
             <input
               value={memberSearch}
               onChange={(e) => {
-                setMemberSearch(e.target.value);
+                const val = e.target.value;
+                setMemberSearch(val);
                 setSelectedMember(null);
+
+                const cleaned = val.trim().toLowerCase();
+
+                if (!cleaned) return;
+
+                const matched = membersList.find(
+                  (m) =>
+                    m.noTelp === cleaned ||
+                    m.kodeMember?.toLowerCase() === cleaned ||
+                    m.nama?.toLowerCase() === cleaned
+                );
+
+                if (matched) {
+                  setSelectedMember(matched);
+                  setMemberSearch(""); // optional: kosongin biar clean
+                  setShowMemberDropdown(false);
+                } else {
+                  setShowMemberDropdown(true);
+                }
               }}
               placeholder="Nama pembeli (opsional)..."
-              className="flex-1 bg-transparent border-none outline-none text-sm text-gray-800 dark:text-[#e2e4ef] placeholder:text-gray-400 dark:placeholder:text-[#4a4d62]"
+              className="flex-1 bg-transparent border-none outline-none text-sm text-gray-800 dark:text-[#e2e4ef]"
               onFocus={() =>
                 membersList.length > 0 && setShowMemberDropdown(true)
               }
@@ -672,11 +542,16 @@ export default function TransaksiPage() {
           {showMemberDropdown && (
             <div className="absolute z-50 w-[90%] mt-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg max-h-52 overflow-y-auto">
               {membersList
-                .filter(
-                  (m) =>
-                    m.nama.toLowerCase().includes(memberSearch.toLowerCase()) ||
-                    (m.noTelp && m.noTelp.includes(memberSearch))
-                )
+                .filter((m) => {
+                  if (!keyword) return false; // biar kosong = ga muncul list
+
+                  return (
+                    m.nama?.toLowerCase().includes(keyword) ||
+                    m.noTelp?.includes(keyword) ||
+                    m.kodeMember?.toLowerCase().includes(keyword)
+                  );
+                })
+                .slice(0, 6) // optional: limit biar ga kepanjangan
                 .map((m) => (
                   <button
                     key={m.id}
@@ -684,7 +559,7 @@ export default function TransaksiPage() {
                     className="w-full text-left px-3 py-2 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
-                      {m.nama}
+                      {m.nama} {m.kodeMember ? `- ${m.kodeMember}` : ""}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
                       {m.noTelp || "-"}
@@ -748,7 +623,7 @@ export default function TransaksiPage() {
         </div>
 
         {/* Keranjang */}
-        <div className={`pb-32 ${selectedMember ? "mt-5" : "mt-0"}`}>
+        <div className={`pb-72 ${selectedMember ? "mt-5" : "mt-0"}`}>
           <div className="flex items-center gap-1.5 mb-2.5">
             <ShoppingCart size={13} className="text-orange-400" />
             <p className="text-[11px] tracking-widest uppercase text-gray-400 dark:text-[#4a4d62]">
@@ -832,6 +707,97 @@ export default function TransaksiPage() {
           <div className="fixed bottom-10 left-0 right-0 p-4 z-10">
             <div className="max-w-lg mx-auto">
               <div className="rounded-2xl p-4 bg-white dark:bg-[#1a1c29] border border-gray-200 dark:border-[#2a2d3e] shadow-lg dark:shadow-none">
+                <div className="mb-3">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <DollarSign size={13} className="text-emerald-400" />
+                    <p className="text-[11px] uppercase tracking-widest text-gray-400 dark:text-[#4a4d62]">
+                      Uang Customer
+                    </p>
+                  </div>
+
+                  <div
+                    className="flex items-center gap-3 px-4 py-4 rounded-2xl
+  bg-gray-100 dark:bg-[#1a1c29]
+  border border-gray-200 dark:border-[#2a2d3e]"
+                  >
+                    {/* INPUT UANG */}
+                    <NumericFormat
+                      value={uangBayar}
+                      onValueChange={(values) =>
+                        setUangBayar(values.floatValue || 0)
+                      }
+                      thousandSeparator="."
+                      decimalSeparator=","
+                      prefix="Rp "
+                      placeholder="Masukkan uang customer..."
+                      disabled={isPending}
+                      className="flex-1 bg-transparent outline-none
+    text-lg font-semibold tracking-wide
+    text-gray-900 dark:text-[#e2e4ef]
+    placeholder:text-gray-400"
+                    />
+
+                    {/* 🔥 BUTTON UANG PAS */}
+                    <button
+                      disabled={isPending}
+                      onClick={() => {
+                        if (isPending) return;
+
+                        setUangBayar(grandTotal);
+
+                        // langsung proses
+                        setTimeout(() => {
+                          bayar();
+                        }, 100);
+                      }}
+                      className={`px-3 py-2 text-xs rounded-lg font-semibold transition-all
+    ${
+      isPending
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95"
+    }`}
+                    >
+                      {isPending ? "Processing..." : "Uang Pas / Proses"}
+                    </button>
+                  </div>
+                </div>
+                {kembalian >= 0 && uangBayar > 0 && (
+                  <div className="mb-3 text-right">
+                    <p className="text-xs text-gray-500">Kembalian</p>
+                    <p className="text-lg font-bold text-emerald-500">
+                      {fmt(kembalian)}
+                    </p>
+                  </div>
+                )}
+
+                {kembalian < 0 && (
+                  <p className="text-xs text-red-500 mb-3">
+                    Uang kurang {fmt(Math.abs(kembalian))}
+                  </p>
+                )}
+                {showKembalianModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                    <div className="bg-white dark:bg-[#181820] rounded-2xl p-6 w-[90%] max-w-sm text-center">
+                      <h2 className="text-lg font-bold mb-2 text-gray-800 dark:text-white">
+                        Kembalian
+                      </h2>
+
+                      <p className="text-3xl font-bold text-emerald-500 mb-4">
+                        {fmt(kembalian)}
+                      </p>
+
+                      <button
+                        onClick={() => {
+                          setShowKembalianModal(false);
+                          setUangBayar(0);
+                        }}
+                        className="w-full py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                      >
+                        Selesai
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-gray-700 dark:text-[#4a4d62]">
                     {totalItem} item
@@ -852,14 +818,22 @@ export default function TransaksiPage() {
                 </div>
                 <button
                   onClick={bayar}
-                  className={`w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer border-none
-                ${
-                  sukses
-                    ? "bg-emerald-950 dark:bg-[#052e16] text-emerald-400"
-                    : "bg-green-700 dark:bg-[#4f46e5] text-white hover:bg-indigo-600 dark:hover:bg-indigo-700"
-                }`}
+                  disabled={isPending}
+                  className={`w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all
+  ${
+    sukses
+      ? "bg-emerald-950 text-emerald-400"
+      : isPending
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-700 text-white hover:bg-indigo-600"
+  }`}
                 >
-                  {sukses ? (
+                  {isPending ? (
+                    <>
+                      <Loader2 size={15} className="animate-spin" />
+                      Memproses...
+                    </>
+                  ) : sukses ? (
                     <>
                       <CheckCircle size={15} /> Transaksi Berhasil!
                     </>

@@ -309,7 +309,7 @@ export default function TransaksiPage() {
   const [selectedMember, setSelectedMember] = useState(null);
   const [membersList, setMembersList] = useState([]);
   const [showMemberDropdown, setShowMemberDropdown] = useState(false);
-
+  const isSubmittingRef = useRef(false);
   // React Hook Form
   const {
     register,
@@ -430,8 +430,13 @@ export default function TransaksiPage() {
   });
 
   // === HANDLERS ===
+
   const submitTransaksi = (idMember = null) => {
+    if (isSubmittingRef.current) return; // 🔥 BLOCK
+    isSubmittingRef.current = true;
+
     if (!selectedKategori || !selectedNominal) {
+      isSubmittingRef.current = false;
       Swal.fire(
         "Peringatan",
         "Pilih kategori dan nominal terlebih dahulu",
@@ -440,20 +445,26 @@ export default function TransaksiPage() {
       return;
     }
 
-    tambahTransaksiMutation.mutate({
-      kategori: selectedKategori,
-      nominal: selectedNominal,
-      ...(idMember && { idMember }),
-    });
-
-    setSelectedKategori(null);
-    setSelectedNominal(null);
-    setSelectedMember(null);
-    setShowMemberInput(false);
-    setMemberSearch("");
+    tambahTransaksiMutation.mutate(
+      {
+        kategori: selectedKategori,
+        nominal: selectedNominal,
+        ...(idMember && { idMember }),
+      },
+      {
+        onSettled: () => {
+          isSubmittingRef.current = false; // 🔥 UNLOCK
+          setSelectedKategori(null);
+          setSelectedNominal(null);
+          setMemberSearch("");
+        },
+      }
+    );
   };
 
   const handleManualSubmit = (data) => {
+    if (manualMutation.isPending) return;
+
     manualMutation.mutate({
       kategori: data.kategori,
       nominal: Number(data.nominal),
@@ -510,26 +521,28 @@ export default function TransaksiPage() {
     setShowMemberDropdown(false);
   };
 
-  useEffect(() => {
-    if (
-      !memberSearch ||
-      !selectedKategori ||
-      !selectedNominal ||
-      membersList.length === 0
-    )
-      return;
+  const lastSubmitRef = useRef("");
 
-    const cleanedInput = memberSearch.trim();
+  useEffect(() => {
+    if (!memberSearch || !selectedKategori || !selectedNominal) return;
+
+    const cleaned = memberSearch.trim();
+
+    if (lastSubmitRef.current === cleaned) return;
+    lastSubmitRef.current = cleaned;
 
     const matchedMember = membersList.find(
-      (m) => m.noTelp === cleanedInput || m.kodeMember === cleanedInput
+      (m) => String(m.noTelp) === cleaned || String(m.kodeMember) === cleaned
     );
 
     if (matchedMember) {
       submitTransaksi(matchedMember.id);
     }
-  }, [memberSearch]);
 
+    setTimeout(() => {
+      lastSubmitRef.current = "";
+    }, 1000);
+  }, [memberSearch, membersList, selectedKategori, selectedNominal]);
   const [isScanning, setIsScanning] = useState(false);
   const [isScanning2, setIsScanning2] = useState(false);
 
@@ -553,142 +566,187 @@ export default function TransaksiPage() {
     }
   }, [watchIsForMember, setSelectedMember, setMemberSearch, setValue]);
 
+  const scanner1Ref = useRef(null);
+  const scanner2Ref = useRef(null);
+
   useEffect(() => {
-    let html5QrCode = null;
+    if (!isScanning) return;
 
-    if (isScanning) {
-      // Tunggu sedikit agar DOM selesai render
-      const timer = setTimeout(() => {
-        const readerElement = document.getElementById("reader");
-        if (!readerElement) {
-          console.error("Elemen #reader tidak ditemukan!");
-          return;
-        }
+    const timer = setTimeout(() => {
+      const readerElement = document.getElementById("reader");
+      if (!readerElement) return;
 
-        const config = {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-        };
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+      };
 
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode
-          .start(
-            { facingMode: "environment" },
-            config,
-            async (decodedText) => {
-              const cleaned = decodedText.trim();
-              const matched = membersList.find(
-                (m) => m.noTelp === cleaned || m.kodeMember === cleaned
-              );
+      const scanner = new Html5Qrcode("reader");
+      scanner1Ref.current = scanner;
 
-              if (matched) {
-                submitTransaksi(matched.id);
-                Swal.fire({
-                  title: "Berhasil!",
-                  text: `${matched.nama} Telah mmelakukan transaksi`,
-                  icon: "success",
-                  timer: 1500,
-                  showConfirmButton: false,
-                });
-              } else {
-                Swal.fire({
-                  title: "Member Tidak Ditemukan!",
-                  text: `Kode "${cleaned}" tidak terdaftar.`,
-                  icon: "error",
-                });
-              }
-              setIsScanning(false);
-            },
-            (errorMessage) => {
-              // Opsional: log error
-              console.log(errorMessage);
-            }
-          )
-          .catch((err) => {
-            console.error("Gagal mulai scanner:", err);
-            Swal.fire("Error", "Gagal membuka kamera", "error");
+      scanner
+        .start(
+          { facingMode: "environment" },
+          config,
+          async (decodedText) => {
+            const cleaned = decodedText.trim();
+
+            const matched = membersList.find(
+              (m) => m.noTelp === cleaned || m.kodeMember === cleaned
+            );
+
+            // 🔥 STOP SCANNER DULU (AMAN)
+            try {
+              await scanner.stop();
+            } catch (e) {}
+
+            try {
+              scanner.clear();
+            } catch (e) {}
+
+            scanner1Ref.current = null;
             setIsScanning(false);
-          });
-      }, 100); // Delay kecil agar DOM siap
 
-      return () => {
-        clearTimeout(timer);
-        if (html5QrCode) {
-          html5QrCode.stop().then(() => html5QrCode.clear());
-        }
-      };
-    }
-  }, [isScanning, selectedKategori, selectedNominal, membersList]);
+            // 🔥 LOGIC
+            if (matched) {
+              submitTransaksi(matched.id);
 
-  useEffect(() => {
-    let html5QrCode = null;
-
-    if (isScanning2) {
-      // Tunggu sedikit agar DOM selesai render
-      const timer = setTimeout(() => {
-        const readerElement = document.getElementById("reader2");
-        if (!readerElement) {
-          console.error("Elemen #reader tidak ditemukan!");
-          return;
-        }
-
-        const config = {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-        };
-
-        html5QrCode = new Html5Qrcode("reader2");
-        html5QrCode
-          .start(
-            { facingMode: "environment" },
-            config,
-            async (decodedText) => {
-              const cleaned = decodedText.trim();
-              const matched = membersList.find(
-                (m) => m.noTelp === cleaned || m.kodeMember === cleaned
-              );
-
-              if (matched) {
-                selectMember(matched);
-                Swal.fire({
-                  title: "Berhasil!",
-                  text: `${matched.nama} Telah mmelakukan transaksi`,
-                  icon: "success",
-                  timer: 1500,
-                  showConfirmButton: false,
-                });
-              } else {
-                Swal.fire({
-                  title: "Member Tidak Ditemukan!",
-                  text: `Kode "${cleaned}" tidak terdaftar.`,
-                  icon: "error",
-                });
-              }
-              setIsScanning2(false);
-            },
-            (errorMessage) => {
-              // Opsional: log error
-              console.log(errorMessage);
+              Swal.fire({
+                title: "Berhasil!",
+                text: `${matched.nama} Telah melakukan transaksi`,
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              Swal.fire({
+                title: "Member Tidak Ditemukan!",
+                text: `Kode "${cleaned}" tidak terdaftar.`,
+                icon: "error",
+              });
             }
-          )
-          .catch((err) => {
-            console.error("Gagal mulai scanner:", err);
-            Swal.fire("Error", "Gagal membuka kamera", "error");
-            setIsScanning2(false);
-          });
-      }, 100); // Delay kecil agar DOM siap
+          },
+          () => {}
+        )
+        .catch((err) => {
+          console.error("Scanner error:", err);
+          setIsScanning(false);
+        });
+    }, 100);
 
-      return () => {
-        clearTimeout(timer);
-        if (html5QrCode) {
-          html5QrCode.stop().then(() => html5QrCode.clear());
+    return () => {
+      clearTimeout(timer);
+
+      const scanner = scanner1Ref.current;
+      if (!scanner) return;
+
+      try {
+        if (scanner.isScanning) {
+          scanner.stop().catch(() => {});
         }
-      };
-    }
-  }, [isScanning2]);
 
+        setTimeout(() => {
+          try {
+            scanner.clear();
+          } catch (e) {}
+        }, 100);
+      } catch (err) {
+        console.warn("Cleanup scanner1 error:", err);
+      } finally {
+        scanner1Ref.current = null;
+      }
+    };
+  }, [isScanning, membersList]);
+  useEffect(() => {
+    if (!isScanning2) return;
+
+    const timer = setTimeout(() => {
+      const readerElement = document.getElementById("reader2");
+      if (!readerElement) return;
+
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+      };
+
+      const scanner = new Html5Qrcode("reader2");
+      scanner2Ref.current = scanner;
+
+      scanner
+        .start(
+          { facingMode: "environment" },
+          config,
+          async (decodedText) => {
+            const cleaned = decodedText.trim();
+
+            const matched = membersList.find(
+              (m) => m.noTelp === cleaned || m.kodeMember === cleaned
+            );
+
+            // 🔥 STOP SCANNER DULU (AMAN)
+            try {
+              await scanner.stop();
+            } catch (e) {}
+
+            try {
+              scanner.clear();
+            } catch (e) {}
+
+            scanner2Ref.current = null;
+            setIsScanning2(false);
+
+            // 🔥 LOGIC
+            if (matched) {
+              selectMember(matched);
+
+              Swal.fire({
+                title: "Berhasil!",
+                text: `${matched.nama} ditemukan`,
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              Swal.fire({
+                title: "Member Tidak Ditemukan!",
+                text: `Kode "${cleaned}" tidak terdaftar.`,
+                icon: "error",
+              });
+            }
+          },
+          () => {}
+        )
+        .catch((err) => {
+          console.error("Scanner error:", err);
+          setIsScanning2(false);
+        });
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+
+      const scanner = scanner2Ref.current;
+      if (!scanner) return;
+
+      try {
+        if (scanner.isScanning) {
+          scanner.stop().catch(() => {});
+        }
+
+        setTimeout(() => {
+          try {
+            scanner.clear();
+          } catch (e) {}
+        }, 100);
+      } catch (err) {
+        console.warn("Cleanup scanner2 error:", err);
+      } finally {
+        scanner2Ref.current = null;
+      }
+    };
+  }, [isScanning2, membersList]);
   {
     /* Color Configuration untuk setiap kategori */
   }
@@ -888,9 +946,11 @@ export default function TransaksiPage() {
                 {/* BUTTON */}
                 <div className="flex flex-col sm:flex-row gap-3 mt-6">
                   <button
+                    disabled={tambahTransaksiMutation.isPending}
                     onClick={() => {
                       submitTransaksi();
-                      setShowModal(false);
+                      setSelectedKategori(null);
+                      setSelectedNominal(null);
                     }}
                     className="flex-1 py-3 bg-blue-600 text-white rounded-lg"
                   >
@@ -1079,6 +1139,7 @@ export default function TransaksiPage() {
             {/* SUBMIT */}
             <button
               type="submit"
+              disabled={manualMutation.isPending}
               className="w-full md:w-auto px-6 md:px-8 py-3 text-sm md:text-base bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all active:scale-95"
             >
               ➕ Tambah Keuntungan

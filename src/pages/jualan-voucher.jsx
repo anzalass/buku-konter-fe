@@ -1,15 +1,6 @@
 // src/pages/JualanVoucher.jsx
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import {
-  Wallet,
-  TrendingUp,
-  ShoppingCart,
-  Package,
-  BarChart3,
-  X,
-  RefreshCw,
-  Tag,
-} from "lucide-react";
+import { RefreshCw, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import api from "../api/client";
@@ -20,6 +11,8 @@ export default function JualanVoucher() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [isScanning, setIsScanning] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const scannerRef = useRef(null);
 
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedVoucher, setSelectedVoucher] = useState(null);
@@ -68,7 +61,7 @@ export default function JualanVoucher() {
     );
 
     if (matched) {
-      jualVoucherMutation.mutate(
+      jualVoucherAsync(
         {
           idVoucher: selectedVoucher.id,
           idMember: matched.id,
@@ -143,13 +136,17 @@ export default function JualanVoucher() {
   // }, [keranjang]);
 
   // === MUTATION: Jual Voucher ===
-  const jualVoucherMutation = useMutation({
+  const {
+    mutate: jualVoucher,
+    isPending,
+    mutateAsync: jualVoucherAsync,
+  } = useMutation({
     mutationFn: ({ idVoucher, idMember }) =>
       api.post(
         `voucher-harian`,
         {
-          idVoucher: idVoucher,
-          idMember: idMember,
+          idVoucher,
+          idMember,
         },
         {
           headers: { Authorization: `Bearer ${user?.token}` },
@@ -201,6 +198,29 @@ export default function JualanVoucher() {
     },
   });
 
+  const playBeep = () => {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(800, ctx.currentTime); // nada beep
+
+    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.1);
+  };
+
+  const vibrate = () => {
+    if (navigator.vibrate) {
+      navigator.vibrate(100); // 100ms
+    }
+  };
+
   // Tambah ke keranjang (jual)
 
   // Hapus dari keranjang
@@ -233,103 +253,104 @@ export default function JualanVoucher() {
   // Mulai scan
   // Tambahkan useEffect untuk handle scan
   useEffect(() => {
-    try {
-      let html5QrCode = null;
+    let timer;
 
-      if (isScanning) {
-        // Tunggu sedikit agar DOM selesai render
-        const timer = setTimeout(() => {
-          const readerElement = document.getElementById("reader");
-          if (!readerElement) {
-            console.error("Elemen #reader tidak ditemukan!");
-            return;
-          }
+    if (!isScanning) return;
 
-          const config = {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-          };
+    timer = setTimeout(() => {
+      const readerElement = document.getElementById("reader");
+      if (!readerElement) return;
 
-          html5QrCode = new Html5Qrcode("reader");
-          html5QrCode
-            .start(
-              { facingMode: "environment" },
-              config,
-              async (decodedText) => {
-                if (isProcessingRef.current) return;
-                isProcessingRef.current = true;
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+      };
 
-                try {
-                  // ✅ STOP SCANNER DULU (INI KUNCI)
-                  if (html5QrCode) {
-                    await html5QrCode.stop().catch(() => {});
-                  }
+      // 🔥 simpan instance ke ref
+      scannerRef.current = new Html5Qrcode("reader");
 
-                  setIsScanning(false);
+      scannerRef.current
+        .start({ facingMode: "environment" }, config, async (decodedText) => {
+          if (isProcessingRef.current || isPending) return;
 
-                  const cleaned = decodedText.trim();
-                  const matched = membersList.find(
-                    (m) => m.noTelp === cleaned || m.kodeMember === cleaned
-                  );
+          isProcessingRef.current = true;
 
-                  if (matched) {
-                    await jualVoucherMutation.mutateAsync({
-                      idVoucher: selectedVoucher.id,
-                      idMember: matched.id,
-                    });
-
-                    Swal.fire({
-                      title: "Berhasil!",
-                      text: `Voucher terjual ke ${matched.nama}`,
-                      icon: "success",
-                      timer: 1200,
-                      showConfirmButton: false,
-                    });
-
-                    setSelectedVoucher(null);
-                    setMemberSearch("");
-                  } else {
-                    Swal.fire({
-                      title: "Member Tidak Ditemukan!",
-                      text: `Kode "${cleaned}" tidak terdaftar.`,
-                      icon: "error",
-                    });
-                  }
-                } finally {
-                  isProcessingRef.current = false;
-                }
-              },
-              (errorMessage) => {
-                // Opsional: log error
-                console.log(errorMessage);
-              }
-            )
-            .catch((err) => {
-              console.error("Gagal mulai scanner:", err);
-              Swal.fire("Error", "Gagal membuka kamera", "error");
-              setIsScanning(false);
-            });
-        }, 100); // Delay kecil agar DOM siap
-
-        return () => {
-          clearTimeout(timer);
-
-          if (html5QrCode) {
-            if (html5QrCode.isScanning) {
-              html5QrCode
-                .stop()
-                .then(() => html5QrCode.clear())
-                .catch(() => {});
+          try {
+            // ✅ SAFE STOP
+            if (scannerRef.current?.isScanning) {
+              await scannerRef.current.stop();
             }
-          }
-        };
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }, [isScanning, selectedVoucher, membersList]);
 
+            setIsScanning(false);
+
+            const cleaned = decodedText.trim();
+            const matched = findMemberByCode(cleaned);
+
+            if (!matched) {
+              Swal.fire({
+                title: "Member Tidak Ditemukan!",
+                text: `Kode "${cleaned}" tidak terdaftar.`,
+                icon: "error",
+              });
+              return;
+            }
+
+            await jualVoucherAsync({
+              idVoucher: selectedVoucher.id,
+              idMember: matched.id,
+            });
+
+            playBeep();
+            vibrate();
+
+            setIsClosing(true);
+
+            setTimeout(() => {
+              setSelectedVoucher(null);
+              setMemberSearch("");
+              setIsClosing(false);
+            }, 300);
+          } catch (err) {
+            Swal.fire({
+              title: "Gagal!",
+              text: err?.response?.data?.error || "Gagal menjual voucher.",
+              icon: "error",
+            });
+          } finally {
+            isProcessingRef.current = false;
+          }
+        })
+        .catch(() => {
+          setIsScanning(false);
+        });
+    }, 100);
+    return () => {
+      clearTimeout(timer);
+
+      const scanner = scannerRef.current;
+
+      if (!scanner) return;
+
+      try {
+        // ✅ hanya stop kalau benar-benar scanning
+        if (scanner.isScanning) {
+          scanner
+            .stop()
+            .then(() => scanner.clear())
+            .catch(() => {});
+        } else {
+          // kalau tidak scanning → langsung clear aja
+          scanner.clear();
+        }
+      } catch (err) {
+        // 🔥 WAJIB: swallow error biar React gak crash
+        console.warn("Scanner cleanup error:", err);
+      } finally {
+        scannerRef.current = null;
+      }
+    };
+  }, [isScanning]);
   {
     /* Color Configuration untuk setiap brand */
   }
@@ -574,8 +595,16 @@ export default function JualanVoucher() {
       </div>
 
       {selectedVoucher && (
-        <div className="fixed inset-0 p-2 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-4 w-full max-w-md rounded-2xl  shadow-xl relative">
+        <div
+          className={`fixed inset-0 p-2 bg-black/40 flex items-center justify-center z-50 transition-all duration-300
+    ${isClosing ? "opacity-0 scale-95" : "opacity-100 scale-100"}
+  `}
+        >
+          <div
+            className={`bg-white dark:bg-gray-800 p-4 w-full max-w-md rounded-2xl shadow-xl transform transition-all duration-300
+      ${isClosing ? "scale-90 opacity-0" : "scale-100 opacity-100"}
+    `}
+          >
             <h2 className="text-lg dark:text-white font-bold mb-4">
               Jual Voucher
             </h2>
@@ -625,18 +654,34 @@ export default function JualanVoucher() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => {
-                  jualVoucherMutation.mutate({
+                  if (isPending) return; // 🔥 cegah double klik
+
+                  jualVoucher({
                     idVoucher: selectedVoucher.id,
                     idMember: memberSearch
                       ? findMemberByCode(memberSearch)?.id
                       : null,
                   });
+
                   setSelectedVoucher(null);
                   setMemberSearch("");
                 }}
-                className="flex-1 py-3 text-sm bg-blue-600 text-white rounded-lg"
+                disabled={isPending}
+                className={`flex-1 py-3 text-sm rounded-lg flex items-center justify-center gap-2
+  ${
+    isPending
+      ? "bg-gray-400 cursor-not-allowed text-white"
+      : "bg-blue-600 text-white"
+  }`}
               >
-                Simpan Tanpa Member
+                {isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  "Simpan Tanpa Member"
+                )}
               </button>
 
               <button

@@ -54,7 +54,7 @@ export default function DashboardLayout() {
     // 🔥 DEFAULT
     switch (lastPath) {
       case "penggabungan":
-        return "Java Cell Mauk";
+        return `${user.namaToko}`;
       case "new-transaksi":
         return "Mulai Transaksi";
       case "master-data":

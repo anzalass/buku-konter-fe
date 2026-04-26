@@ -13,6 +13,7 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
+  Package,
 } from "lucide-react";
 
 import { useState, useEffect, useMemo } from "react";
@@ -22,6 +23,7 @@ import Swal from "sweetalert2";
 import { useAuthStore } from "../store/useAuthStore";
 import api from "../api/client";
 import { useNavigate } from "react-router-dom";
+import { NumericFormat } from "react-number-format";
 
 const SEED_MEMBER = [
   {
@@ -167,13 +169,12 @@ function Acts({ onEdit, onDelete }) {
     </div>
   );
 }
+
 function Empty({ label }) {
   return (
-    <div
-      className="rounded-xl py-10 text-center"
-      style={{ background: BG, border: "1px dashed #232330" }}
-    >
-      <p className="text-xs" style={{ color: "#4a4858" }}>
+    <div className="rounded-xl py-10 text-center bg-gray-50 dark:bg-[#181820] border border-dashed border-gray-200 dark:border-[#232330] transition-colors">
+      <Package className="mx-auto mb-2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+      <p className="text-xs text-gray-500 dark:text-gray-400">
         Belum ada {label}
       </p>
     </div>
@@ -183,15 +184,19 @@ function Empty({ label }) {
 function Card({ children }) {
   return (
     <div
-      className="rounded-2xl px-4 py-3.5 transition-all dark:bg-[#181820] border-[1px] border-gray-400"
-      // onMouseEnter={(e) => (e.currentTarget.style.borderColor = BDR_H)}
-      // onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#232330")}
+      className="
+      rounded-2xl px-4 py-3.5
+      bg-white dark:bg-[#181820]
+      border border-gray-200 dark:border-[#232330]
+      hover:border-gray-300 dark:hover:border-[#2f3245]
+      shadow-sm hover:shadow-md
+      transition-all duration-200
+      "
     >
       {children}
     </div>
   );
 }
-
 // ─── panels ───────────────────────────────────────────────────────────────────
 
 export default function MasterData() {
@@ -201,6 +206,11 @@ export default function MasterData() {
     { id: "member", label: "Member", panel: <PanelMember /> },
     { id: "data-member", label: "No Trx Member", panel: <PanelDataMember /> },
     { id: "uang-modal", label: "Uang Keluar", panel: <PanelUangKeluar /> },
+    {
+      id: "kejadian-tak-terduga",
+      label: "Kejadian Tak Terduga",
+      panel: <PanelKejadianTakTerduga />,
+    },
   ];
 
   const current = TABS.find((t) => t.id === activeTab);
@@ -582,11 +592,20 @@ function ModalMember({ open, onClose, initial, user }) {
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-opacity disabled:opacity-60
-            bg-green-600 dark:bg-indigo-600
-            hover:bg-green-700 dark:hover:bg-indigo-700"
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white 
+  flex items-center justify-center gap-2
+  transition-all disabled:opacity-60 disabled:cursor-not-allowed
+  bg-green-600 dark:bg-indigo-600
+  hover:bg-green-700 dark:hover:bg-indigo-700"
             >
-              {mutation.isPending ? "Menyimpan..." : "Simpan"}
+              {mutation.isPending ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Menyimpan...
+                </>
+              ) : (
+                "Simpan"
+              )}
             </button>
           </div>
         </form>
@@ -861,6 +880,7 @@ function PanelDataMember() {
         initial={editItem}
         onSubmit={mutation.mutate}
         user={user}
+        isLoading={mutation.isPending} // 🔥 TAMBAHIN
       />
       <ModalFilterDataMember
         open={openFilter}
@@ -875,7 +895,14 @@ function PanelDataMember() {
   );
 }
 
-function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
+function ModalDataMember({
+  open,
+  onClose,
+  onSubmit,
+  initial,
+  user,
+  isLoading,
+}) {
   const {
     register,
     handleSubmit,
@@ -980,7 +1007,13 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit((d) => onSubmit(d))} className="space-y-3">
+        <form
+          onSubmit={handleSubmit((d) => onSubmit(d))}
+          className={`space-y-3 transition-opacity ${
+            isLoading ? "opacity-70 pointer-events-none" : ""
+          }`}
+        >
+          {" "}
           {/* Cari Member */}
           <div className="relative">
             <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
@@ -988,6 +1021,7 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
             </p>
             <input
               value={searchMember}
+              disabled={isLoading}
               onChange={(e) => {
                 setSearchMember(e.target.value);
                 setShowDropdown(true);
@@ -1033,13 +1067,13 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
               </div>
             )}
           </div>
-
           {/* Nama */}
           <div>
             <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
               Nama <span className="text-red-400">*</span>
             </p>
             <input
+              disabled={isLoading}
               {...register("nama", { required: "Nama wajib diisi" })}
               placeholder="Masukkan nama lengkap..."
               className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
@@ -1059,13 +1093,13 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
               </p>
             )}
           </div>
-
           {/* Nomor HP */}
           <div className="pb-2">
             <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
               Nomor HP
             </p>
             <input
+              disabled={isLoading}
               {...register("nomor")}
               placeholder="08xxxxxxxxxx"
               className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
@@ -1076,7 +1110,6 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
             focus:border-indigo-400 dark:focus:border-[#4A4A68]"
             />
           </div>
-
           {/* Actions */}
           <div className="flex gap-2">
             <button
@@ -1092,11 +1125,21 @@ function ModalDataMember({ open, onClose, onSubmit, initial, user }) {
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-opacity
-            bg-indigo-500 dark:bg-indigo-600
-            hover:bg-indigo-600 dark:hover:bg-indigo-700"
+              disabled={isLoading}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white 
+  flex items-center justify-center gap-2
+  transition-all disabled:opacity-60 disabled:cursor-not-allowed
+  bg-indigo-500 dark:bg-indigo-600
+  hover:bg-indigo-600 dark:hover:bg-indigo-700"
             >
-              Simpan
+              {isLoading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Menyimpan...
+                </>
+              ) : (
+                "Simpan"
+              )}
             </button>
           </div>
         </form>
@@ -1317,7 +1360,6 @@ function PanelUangKeluar() {
         onFilter={() => setOpenFilter(true)}
         activeFilters={Object.values(filters).filter(Boolean).length}
       />
-
       {/* Stats */}
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div
@@ -1362,7 +1404,6 @@ function PanelUangKeluar() {
           </div>
         </div>
       </div>
-
       {/* List */}
       {isLoading ? (
         <p>Loading...</p>
@@ -1400,7 +1441,6 @@ function PanelUangKeluar() {
           ))}
         </div>
       )}
-
       <div className="flex items-center justify-between mt-4">
         <button
           disabled={page === 1}
@@ -1425,7 +1465,6 @@ function PanelUangKeluar() {
       <p className="text-[10px] text-gray-500 mt-2">
         Total Data: {meta.total || 0}
       </p>
-
       {/* Modals */}
       <ModalFormUangKeluar
         open={openForm}
@@ -1436,13 +1475,13 @@ function PanelUangKeluar() {
         initial={editItem}
         onSubmit={(data) => {
           if (editItem) {
-            updateMutation.mutate({ id: editItem.id, ...data });
+            updateMutation.mutate(data);
           } else {
             createMutation.mutate(data);
           }
         }}
+        isLoading={createMutation.isPending || updateMutation.isPending} // 🔥 TAMBAH
       />
-
       <ModalFilterUangKeluar
         open={openFilter}
         onClose={() => setOpenFilter(false)}
@@ -1457,13 +1496,15 @@ function PanelUangKeluar() {
   );
 }
 
-function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
+function ModalFormUangKeluar({ open, onClose, onSubmit, initial, isLoading }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
     setError,
     clearErrors,
+    watch,
+    setValue,
   } = useForm({
     defaultValues: {
       keterangan: initial?.keterangan || "",
@@ -1473,6 +1514,7 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
         : "",
     },
   });
+  const nominal = watch("jumlah");
 
   const inp = {
     background: "#111118",
@@ -1519,58 +1561,63 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,.75)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-sm rounded-2xl p-5"
-        style={{ background: "#181820", border: "1px solid #2A2A38" }}
+        className="w-full max-w-sm rounded-2xl p-5 transition-colors
+    bg-white dark:bg-[#181820]
+    border border-gray-200 dark:border-[#2A2A38]
+    shadow-xl"
       >
+        {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p
-              className="text-[11px] uppercase tracking-widest mb-0.5"
-              style={{ color: "#5A5868" }}
-            >
+            <p className="text-[11px] uppercase tracking-widest mb-0.5 text-gray-400 dark:text-[#5A5868]">
               {initial ? "edit" : "tambah"}
             </p>
-            <p className="text-sm font-semibold" style={{ color: "#ECEAE3" }}>
+            <p className="text-sm font-semibold text-gray-800 dark:text-[#ECEAE3]">
               Uang Keluar
             </p>
           </div>
+
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
-            style={{ background: "#252530" }}
+            disabled={isLoading}
+            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors
+        bg-gray-100 dark:bg-[#252530]
+        hover:bg-gray-200 dark:hover:bg-[#2e2e3e]
+        disabled:opacity-50"
           >
-            <X size={12} color="#6A6878" />
+            <X size={12} className="text-gray-500 dark:text-[#6A6878]" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           {/* Keterangan */}
           <div className="mb-3">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
-              Keterangan <span style={{ color: "#D07070" }}>*</span>
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
+              Keterangan <span className="text-red-400">*</span>
             </p>
+
             <input
               {...register("keterangan")}
               placeholder="Contoh: Beli perlengkapan toko..."
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={{
-                ...inp,
-                borderColor: errors.keterangan ? "#D07070" : "#2A2A38",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) =>
-                (e.target.style.borderColor = errors.keterangan
-                  ? "#D07070"
-                  : "#2A2A38")
-              }
+              className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+          bg-gray-50 dark:bg-[#111118]
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+          border
+          ${
+            errors.keterangan
+              ? "border-red-400 dark:border-red-500"
+              : "border-gray-200 dark:border-[#2A2A38]"
+          }
+          focus:border-indigo-400 dark:focus:border-[#4A4A68]`}
             />
+
             {errors.keterangan && (
-              <p className="text-[10px] mt-1" style={{ color: "#D07070" }}>
+              <p className="text-[10px] mt-1 text-red-400">
                 {errors.keterangan.message}
               </p>
             )}
@@ -1578,27 +1625,52 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
 
           {/* Jumlah */}
           <div className="mb-3">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
-              Jumlah (Rp) <span style={{ color: "#D07070" }}>*</span>
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
+              Jumlah (Rp) <span className="text-red-400">*</span>
             </p>
+
+            <NumericFormat
+              value={nominal}
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="Rp "
+              allowNegative={false}
+              onValueChange={(values) => {
+                setValue("jumlah", values.floatValue, { shouldValidate: true });
+              }}
+              className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+          bg-gray-50 dark:bg-[#111118]
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+          border
+          ${
+            errors.jumlah
+              ? "border-red-400 dark:border-red-500"
+              : "border-gray-200 dark:border-[#2A2A38]"
+          }
+          focus:border-indigo-400 dark:focus:border-[#4A4A68]`}
+              placeholder="Rp 0"
+            />
+            {/* 
             <input
               {...register("jumlah")}
               type="number"
               placeholder="100000"
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={{
-                ...inp,
-                borderColor: errors.jumlah ? "#D07070" : "#2A2A38",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) =>
-                (e.target.style.borderColor = errors.jumlah
-                  ? "#D07070"
-                  : "#2A2A38")
-              }
-            />
+              className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+          bg-gray-50 dark:bg-[#111118]
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+          border
+          ${
+            errors.jumlah
+              ? "border-red-400 dark:border-red-500"
+              : "border-gray-200 dark:border-[#2A2A38]"
+          }
+          focus:border-indigo-400 dark:focus:border-[#4A4A68]`}
+            /> */}
+
             {errors.jumlah && (
-              <p className="text-[10px] mt-1" style={{ color: "#D07070" }}>
+              <p className="text-[10px] mt-1 text-red-400">
                 {errors.jumlah.message}
               </p>
             )}
@@ -1606,38 +1678,49 @@ function ModalFormUangKeluar({ open, onClose, onSubmit, initial }) {
 
           {/* Tanggal */}
           <div className="mb-5">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
               Tanggal
             </p>
+
             <input
               {...register("tanggal")}
               type="date"
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={inp}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+              className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+          bg-gray-50 dark:bg-[#111118]
+          text-gray-800 dark:text-white
+          border border-gray-200 dark:border-[#2A2A38]
+          focus:border-indigo-400 dark:focus:border-[#4A4A68]"
             />
           </div>
 
+          {/* Actions */}
           <div className="flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium"
-              style={{
-                background: "#1A1A28",
-                color: "#6A6878",
-                border: "1px solid #2A2A38",
-              }}
+              disabled={isLoading}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium transition-colors
+          bg-gray-100 dark:bg-[#1A1A28]
+          text-gray-500 dark:text-[#6A6878]
+          border border-gray-200 dark:border-[#2A2A38]
+          hover:bg-gray-200 dark:hover:bg-[#222232]
+          disabled:opacity-50"
             >
               Batal
             </button>
+
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white transition-opacity"
-              style={{ background: "#4f46e5" }}
+              disabled={isLoading}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white
+          flex items-center justify-center gap-2
+          bg-indigo-600 hover:bg-indigo-700
+          disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Simpan
+              {isLoading && (
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              )}
+              {isLoading ? "Menyimpan..." : "Simpan"}
             </button>
           </div>
         </form>
@@ -1665,32 +1748,33 @@ function ModalFilterUangKeluar({ open, onClose, onApply, currentFilters }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,.75)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-sm rounded-2xl p-5"
-        style={{ background: "#181820", border: "1px solid #2A2A38" }}
+        className="w-full max-w-sm rounded-2xl p-5 transition-colors
+    bg-white dark:bg-[#181820]
+    border border-gray-200 dark:border-[#2A2A38]
+    shadow-xl"
       >
+        {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p
-              className="text-[11px] uppercase tracking-widest mb-0.5"
-              style={{ color: "#5A5868" }}
-            >
+            <p className="text-[11px] uppercase tracking-widest mb-0.5 text-gray-400 dark:text-[#5A5868]">
               filter
             </p>
-            <p className="text-sm font-semibold" style={{ color: "#ECEAE3" }}>
+            <p className="text-sm font-semibold text-gray-800 dark:text-[#ECEAE3]">
               Uang Keluar
             </p>
           </div>
+
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
-            style={{ background: "#252530" }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors
+        bg-gray-100 dark:bg-[#252530]
+        hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
           >
-            <X size={12} color="#6A6878" />
+            <X size={12} className="text-gray-500 dark:text-[#6A6878]" />
           </button>
         </div>
 
@@ -1700,51 +1784,60 @@ function ModalFilterUangKeluar({ open, onClose, onApply, currentFilters }) {
             onClose();
           })}
         >
-          {/* Pencarian */}
+          {/* Search */}
           <div className="mb-3">
-            <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
               Cari Keterangan
             </p>
+
             <input
               {...register("search")}
               placeholder="Ketik keterangan..."
-              className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-              style={inp}
-              onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-              onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+              className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+          bg-gray-50 dark:bg-[#111118]
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+          border border-gray-200 dark:border-[#2A2A38]
+          focus:border-indigo-400 dark:focus:border-[#4A4A68]"
             />
           </div>
 
-          {/* Rentang Tanggal */}
+          {/* Date Range */}
           <div className="grid grid-cols-2 gap-2 mb-5">
             <div>
-              <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+              <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
                 Dari
               </p>
+
               <input
                 {...register("startDate")}
                 type="date"
-                className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-                style={inp}
-                onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-                onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+                className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            border border-gray-200 dark:border-[#2A2A38]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
               />
             </div>
+
             <div>
-              <p className="text-[11px] mb-1.5" style={{ color: "#6A6870" }}>
+              <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
                 Sampai
               </p>
+
               <input
                 {...register("endDate")}
                 type="date"
-                className="w-full px-3 py-2.5 rounded-xl text-[13px] bg-[#111118] text-white outline-none transition-colors"
-                style={inp}
-                onFocus={(e) => (e.target.style.borderColor = "#4A4A68")}
-                onBlur={(e) => (e.target.style.borderColor = "#2A2A38")}
+                className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            border border-gray-200 dark:border-[#2A2A38]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
               />
             </div>
           </div>
 
+          {/* Actions */}
           <div className="flex gap-2">
             <button
               type="button"
@@ -1753,19 +1846,582 @@ function ModalFilterUangKeluar({ open, onClose, onApply, currentFilters }) {
                 onApply({ search: "", startDate: "", endDate: "" });
                 onClose();
               }}
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium"
-              style={{
-                background: "#1A1A28",
-                color: "#6A6878",
-                border: "1px solid #2A2A38",
-              }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium transition-colors
+          bg-gray-100 dark:bg-[#1A1A28]
+          text-gray-500 dark:text-[#6A6878]
+          border border-gray-200 dark:border-[#2A2A38]
+          hover:bg-gray-200 dark:hover:bg-[#222232]"
             >
               Reset
             </button>
+
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white transition-opacity"
-              style={{ background: "#4f46e5" }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white transition-colors
+          bg-indigo-600 hover:bg-indigo-700"
+            >
+              Terapkan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function PanelKejadianTakTerduga() {
+  const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [openForm, setOpenForm] = useState(false);
+  const [openFilter, setOpenFilter] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+
+  const [filters, setFilters] = useState({
+    search: "",
+    startDate: "",
+    endDate: "",
+  });
+
+  // 🔥 FETCH
+  const { data, isLoading } = useQuery({
+    queryKey: ["kejadian", filters, page],
+    queryFn: async () => {
+      const params = {
+        q: filters.search,
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+        page,
+        pageSize,
+      };
+
+      const res = await api.get("kejadian-tak-terduga", {
+        params,
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+
+      return res.data;
+    },
+    keepPreviousData: true,
+    enabled: !!user?.token,
+  });
+
+  const kejadian = data?.data || [];
+  const meta = data?.meta || {};
+
+  const total = kejadian.reduce((s, d) => s + d.nominal, 0);
+
+  // 🔥 CREATE
+  const createMutation = useMutation({
+    mutationFn: (formData) =>
+      api.post("kejadian-tak-terduga", formData, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kejadian"] });
+      Swal.fire("Berhasil!", "Data berhasil ditambahkan", "success");
+      setOpenForm(false);
+    },
+  });
+
+  // 🔥 UPDATE
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...formData }) =>
+      api.put(`kejadian-tak-terduga/${id}`, formData, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kejadian"] });
+      Swal.fire("Berhasil!", "Data berhasil diperbarui", "success");
+      setOpenForm(false);
+      setEditItem(null);
+    },
+  });
+
+  // 🔥 DELETE
+  const deleteMutation = useMutation({
+    mutationFn: (id) =>
+      api.delete(`kejadian-tak-terduga/${id}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kejadian"] });
+      Swal.fire("Berhasil!", "Data berhasil dihapus", "success");
+    },
+  });
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Yakin hapus?",
+      text: "Data akan dihapus permanen!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, hapus!",
+    }).then((res) => {
+      if (res.isConfirmed) deleteMutation.mutate(id);
+    });
+  };
+
+  const fmt = (n) => "Rp " + n.toLocaleString("id-ID");
+
+  return (
+    <div>
+      {/* HEADER */}
+      <SectionHeader
+        title="Kejadian Tak Terduga"
+        count={kejadian.length}
+        onAdd={() => {
+          setEditItem(null);
+          setOpenForm(true);
+        }}
+        onFilter={() => setOpenFilter(true)}
+        activeFilters={Object.values(filters).filter(Boolean).length}
+      />
+
+      {/* STATS */}
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div
+          className="rounded-xl px-4 py-3 flex items-center gap-3
+    bg-white dark:bg-[#13151f]
+    border border-gray-100 dark:border-[#1e2130]"
+        >
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+      bg-red-50 dark:bg-[#200808]"
+          >
+            <Wallet size={14} className="text-red-400 dark:text-[#d07070]" />
+          </div>
+          <div>
+            <p className="text-[10px] mb-0.5 text-gray-800 dark:text-[#fff]">
+              Total Keluar
+            </p>
+            <p className="text-sm font-semibold text-red-400 dark:text-[#d07070]">
+              {fmt(total)}
+            </p>
+          </div>
+        </div>
+
+        <div
+          className="rounded-xl px-4 py-3 flex items-center gap-3
+    bg-white dark:bg-[#13151f]
+    border border-gray-100 dark:border-[#1e2130]"
+        >
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+      bg-indigo-50 dark:bg-[#1e1b4b]"
+          >
+            <Hash size={14} className="text-indigo-400 dark:text-[#818cf8]" />
+          </div>
+          <div>
+            <p className="text-[10px] mb-0.5 text-gray-800 dark:text-[#fff]">
+              Total Transaksi
+            </p>
+            <p className="text-sm font-semibold text-indigo-400 dark:text-[#818cf8]">
+              {kejadian.length}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* LIST */}
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : kejadian.length === 0 ? (
+        <Empty label="kejadian" />
+      ) : (
+        <div className="grid md:grid-cols-2 gap-2">
+          {kejadian.map((u) => (
+            <Card key={u.id}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm  mb-0.5 truncate text-green-700 font-bold dark:text-zinc-100">
+                    {u.keterangan}
+                  </p>
+                  <p
+                    className="text-[10px] mb-2 flex items-center gap-1"
+                    style={{ color: "#5a5868" }}
+                  >
+                    <Calendar size={9} />{" "}
+                    {new Date(u.createdAt).toLocaleDateString("id-ID")}
+                  </p>
+                  <span className="p-2 rounded-md text-[11px] md:text-sm font-semibold bg-red-300">
+                    {fmt(u.nominal)}
+                  </span>
+                </div>
+                <Acts
+                  onEdit={() => {
+                    setEditItem(u);
+                    setOpenForm(true);
+                  }}
+                  onDelete={() => handleDelete(u.id)}
+                />
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* PAGINATION */}
+      <div className="flex justify-between mt-4">
+        <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+          Prev
+        </button>
+
+        <span>
+          {meta.page} / {meta.totalPages}
+        </span>
+
+        <button
+          disabled={page === meta.totalPages}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Next
+        </button>
+      </div>
+
+      {/* MODAL */}
+      <ModalFormKejadianTakTerduga
+        open={openForm}
+        onClose={() => {
+          setOpenForm(false);
+          setEditItem(null);
+        }}
+        initial={editItem}
+        onSubmit={(data) => {
+          if (editItem) {
+            updateMutation.mutate({ id: editItem.id, ...data });
+          } else {
+            createMutation.mutate(data);
+          }
+        }}
+        isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <ModalFilterKejadianTakTerduga
+        open={openFilter}
+        onClose={() => setOpenFilter(false)}
+        onApply={(f) => {
+          setFilters(f);
+          setPage(1);
+        }}
+        currentFilters={filters}
+      />
+    </div>
+  );
+}
+
+function ModalFormKejadianTakTerduga({
+  open,
+  onClose,
+  onSubmit,
+  initial,
+  isLoading,
+}) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    clearErrors,
+    setValue,
+    watch,
+  } = useForm({
+    defaultValues: {
+      keterangan: initial?.keterangan || "",
+      nominal: initial?.nominal || 0,
+    },
+  });
+
+  const nominal = watch("nominal");
+
+  if (!open) return null;
+
+  const validateForm = (data) => {
+    const newErrors = {};
+
+    if (!data.keterangan.trim()) {
+      newErrors.keterangan = "Keterangan wajib diisi";
+    }
+
+    if (!data.nominal || data.nominal < 1) {
+      newErrors.nominal = "Nominal minimal Rp 1";
+    }
+
+    return newErrors;
+  };
+
+  const handleFormSubmit = (data) => {
+    clearErrors();
+
+    const validationErrors = validateForm(data);
+    if (Object.keys(validationErrors).length > 0) {
+      Object.entries(validationErrors).forEach(([field, message]) => {
+        setError(field, { type: "manual", message });
+      });
+      return;
+    }
+
+    onSubmit({
+      keterangan: data.keterangan,
+      nominal: Number(data.nominal),
+    });
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="w-full max-w-sm rounded-2xl p-5 bg-white dark:bg-[#181820] border border-gray-200 dark:border-[#2A2A38] shadow-xl">
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <p className="text-[11px] uppercase text-gray-400">
+              {initial ? "edit" : "tambah"}
+            </p>
+            <p className="text-sm font-semibold">Kejadian Tak Terduga</p>
+          </div>
+
+          <button onClick={onClose} disabled={isLoading}>
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          {/* KETERANGAN */}
+          <div className="mb-3">
+            <p className="text-[11px] mb-1">Keterangan *</p>
+
+            <input
+              {...register("keterangan")}
+              placeholder="Contoh: Kehilangan barang..."
+              className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+          bg-gray-50 dark:bg-[#111118]
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+          border
+          ${
+            errors.keterangan
+              ? "border-red-400 dark:border-red-500"
+              : "border-gray-200 dark:border-[#2A2A38]"
+          }
+          focus:border-indigo-400 dark:focus:border-[#4A4A68]`}
+            />
+
+            {errors.keterangan && (
+              <p className="text-[10px] text-red-400">
+                {errors.keterangan.message}
+              </p>
+            )}
+          </div>
+
+          {/* NOMINAL (🔥 NumericFormat) */}
+          <div className="mb-5">
+            <p className="text-[11px] mb-1">Nominal *</p>
+
+            <NumericFormat
+              value={nominal}
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="Rp "
+              allowNegative={false}
+              onValueChange={(values) => {
+                setValue("nominal", values.floatValue || 0);
+              }}
+              className={`w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+          bg-gray-50 dark:bg-[#111118]
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+          border
+          ${
+            errors.jumlah
+              ? "border-red-400 dark:border-red-500"
+              : "border-gray-200 dark:border-[#2A2A38]"
+          }
+          focus:border-indigo-400 dark:focus:border-[#4A4A68]`}
+              placeholder="Rp 0"
+            />
+
+            {errors.nominal && (
+              <p className="text-[10px] text-red-400">
+                {errors.nominal.message}
+              </p>
+            )}
+          </div>
+
+          {/* ACTION */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium transition-colors
+          bg-gray-100 dark:bg-[#1A1A28]
+          text-gray-500 dark:text-[#6A6878]
+          border border-gray-200 dark:border-[#2A2A38]
+          hover:bg-gray-200 dark:hover:bg-[#222232]
+          disabled:opacity-50"
+            >
+              Batal
+            </button>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white
+          flex items-center justify-center gap-2
+          bg-indigo-600 hover:bg-indigo-700
+          disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isLoading && (
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              )}
+              {isLoading ? "Menyimpan..." : "Simpan"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function ModalFilterKejadianTakTerduga({
+  open,
+  onClose,
+  onApply,
+  currentFilters,
+}) {
+  const { register, handleSubmit, reset } = useForm({
+    defaultValues: {
+      search: currentFilters?.search || "",
+      startDate: currentFilters?.startDate || "",
+      endDate: currentFilters?.endDate || "",
+    },
+  });
+
+  const inp = {
+    background: "#111118",
+    color: "#ECEAE3",
+    borderColor: "#2A2A38",
+  };
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/80"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="w-full max-w-sm rounded-2xl p-5 transition-colors
+    bg-white dark:bg-[#181820]
+    border border-gray-200 dark:border-[#2A2A38]
+    shadow-xl"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <p className="text-[11px] uppercase tracking-widest mb-0.5 text-gray-400 dark:text-[#5A5868]">
+              filter
+            </p>
+            <p className="text-sm font-semibold text-gray-800 dark:text-[#ECEAE3]">
+              Uang Keluar
+            </p>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors
+        bg-gray-100 dark:bg-[#252530]
+        hover:bg-gray-200 dark:hover:bg-[#2e2e3e]"
+          >
+            <X size={12} className="text-gray-500 dark:text-[#6A6878]" />
+          </button>
+        </div>
+
+        <form
+          onSubmit={handleSubmit((data) => {
+            onApply(data);
+            onClose();
+          })}
+        >
+          {/* Search */}
+          <div className="mb-3">
+            <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
+              Cari Keterangan
+            </p>
+
+            <input
+              {...register("search")}
+              placeholder="Ketik keterangan..."
+              className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+          bg-gray-50 dark:bg-[#111118]
+          text-gray-800 dark:text-white
+          placeholder:text-gray-400 dark:placeholder:text-[#4A4858]
+          border border-gray-200 dark:border-[#2A2A38]
+          focus:border-indigo-400 dark:focus:border-[#4A4A68]"
+            />
+          </div>
+
+          {/* Date Range */}
+          <div className="grid grid-cols-2 gap-2 mb-5">
+            <div>
+              <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
+                Dari
+              </p>
+
+              <input
+                {...register("startDate")}
+                type="date"
+                className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            border border-gray-200 dark:border-[#2A2A38]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
+              />
+            </div>
+
+            <div>
+              <p className="text-[11px] mb-1.5 text-gray-500 dark:text-[#6A6870]">
+                Sampai
+              </p>
+
+              <input
+                {...register("endDate")}
+                type="date"
+                className="w-full px-3 py-2.5 rounded-xl text-[13px] outline-none transition-colors
+            bg-gray-50 dark:bg-[#111118]
+            text-gray-800 dark:text-white
+            border border-gray-200 dark:border-[#2A2A38]
+            focus:border-indigo-400 dark:focus:border-[#4A4A68]"
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                reset({ search: "", startDate: "", endDate: "" });
+                onApply({ search: "", startDate: "", endDate: "" });
+                onClose();
+              }}
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-medium transition-colors
+          bg-gray-100 dark:bg-[#1A1A28]
+          text-gray-500 dark:text-[#6A6878]
+          border border-gray-200 dark:border-[#2A2A38]
+          hover:bg-gray-200 dark:hover:bg-[#222232]"
+            >
+              Reset
+            </button>
+
+            <button
+              type="submit"
+              className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold text-white transition-colors
+          bg-indigo-600 hover:bg-indigo-700"
             >
               Terapkan
             </button>
