@@ -102,7 +102,7 @@ export default function LoginPage() {
                 htmlFor="username"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Username atau Email
+                Email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -176,7 +176,7 @@ export default function LoginPage() {
             </div>
 
             {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
                   id="remember-me"
@@ -199,7 +199,7 @@ export default function LoginPage() {
                   Lupa kata sandi?
                 </a>
               </div>
-            </div>
+            </div> */}
 
             {/* Submit Button */}
             <button
@@ -240,7 +240,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-gray-500 text-xs">
-          © {new Date().getFullYear()} Nama Perusahaan. All rights reserved.
+          © {new Date().getFullYear()} Diginova Konter. All rights reserved.
         </div>
       </div>
     </div>

@@ -60,15 +60,14 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/" element={<LandingPage />} />
-
-      <Route path="/super-admin" element={<SuperAdminDashboard />} />
+      <Route path="/" element={<LoginPage />} />
+      {/* <Route path="/" element={<LandingPage />} /> */}
 
       <Route path="/print-transaksi/:id" element={<PrintTransaksi />} />
       <Route path="/print-service/:id" element={<PrintService />} />
 
       <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route path="super-admin" element={<SuperAdminDashboard />} />
         <Route path="new-transaksi" element={<TransaksiPageNew />} />
         <Route path="new-transaksi2" element={<Transaksi2 />} />
         <Route path="form-service" element={<ServiceHPPage />} />
