@@ -1,7 +1,7 @@
 {
   "name": "Java Cell",
   "short_name": "Java Cell",
-  "start_url": "/login?source=twa",
+  "start_url": "/?source=twa",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",

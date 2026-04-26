@@ -17,7 +17,7 @@ export default defineConfig({
       manifest: {
         name: "Java Cell",
         short_name: "Java Cell",
-        start_url: "/",
+        start_url: "/?source=pwa",
         display: "standalone",
         background_color: "#ffffff",
         theme_color: "#1e40af",

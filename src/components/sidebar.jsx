@@ -85,7 +85,7 @@ const Sidebar = ({
   const handleLogout = async () => {
     try {
       await api.post("auth/logout");
-      nav("/login");
+      nav("/");
     } catch (error) {}
   };
   const renderNavItems = (items) =>
